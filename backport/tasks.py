@@ -15,8 +15,6 @@ app.conf.update(BROKER_URL=os.environ['REDIS_URL'],
 
 @app.task
 def setup_cpython_repo():
-    """
-    """
     subprocess.check_output(
         f"git clone https://{os.environ.get('GH_AUTH')}:x-oauth-basic@github.com/miss-islington/cpython.git".split())
     subprocess.check_output("git config --global user.email 'mariatta.wijaya+miss-islington@gmail.com'".split())
@@ -25,6 +23,7 @@ def setup_cpython_repo():
     subprocess.check_output(
         f"git remote add upstream https://{os.environ.get('GH_AUTH')}:x-oauth-basic@github.com/python/cpython.git".split())
     print("Finished setting up CPython Repo")
+    util.comment_on_pr(1875, "I'm not a witch! I'm not a witch!")
 
 
 @app.task
