@@ -34,4 +34,3 @@ async def backport_pr(event, gh, *args, **kwargs):
                                       issue_number=issue_number,
                                       created_by=created_by,
                                       merged_by=merged_by)
-
