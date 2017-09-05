@@ -28,7 +28,7 @@ def setup_cpython_repo():
 def backport_task(commit_hash, branch, *, issue_number, created_by, merged_by):
     """Backport a commit into a branch."""
     print(os.chdir("./cpython"))
-    cp = cherry_picker.CherryPicker('upstream', commit_hash, [branch])
+    cp = cherry_picker.CherryPicker('origin', commit_hash, [branch])
     try:
         cp.backport()
     except cherry_picker.BranchCheckoutException:
