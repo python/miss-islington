@@ -23,8 +23,6 @@ def setup_cpython_repo():
     subprocess.check_output(
         f"git remote add upstream https://{os.environ.get('GH_AUTH')}:x-oauth-basic@github.com/python/cpython.git".split())
     print("Finished setting up CPython Repo")
-    util.comment_on_pr(1875, "I'm not a witch! I'm not a witch!")
-
 
 @app.task
 def backport_task(commit_hash, branch, *, issue_number, created_by, merged_by):
