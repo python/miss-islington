@@ -13,11 +13,11 @@ Backporting a PR on CPython
 
 Prior to merging a PR, a Python core developer should apply the
 ``needs backport to X.Y`` label to the pull request.
-Once the pull request has been merged, @miss-islington will prepare the
-backport PR.
+Once the pull request has been merged, `@miss-islington <https://github.com/miss-islington>`_
+will prepare the backport PR.
 
-If @miss-islington encountered any issue while backporting, it will leave a
-comment about it. The PR will then needs to be backported manually.
+If `@miss-islington <https://github.com/miss-islington>`_ encountered any issue while backporting,
+it will leave a comment about it. The PR will then needs to be backported manually.
 
 
 **Aside**: where does the name come from?
