@@ -8,6 +8,7 @@ router = gidgethub.routing.Router()
 
 
 @router.register("pull_request", action="closed")
+@router.register("pull_request", action="labeled")
 async def backport_pr(event, gh, *args, **kwargs):
     if event.data["pull_request"]["merged"]:
 
