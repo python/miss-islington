@@ -24,10 +24,14 @@ def setup_cpython_repo():
         f"git remote add upstream https://{os.environ.get('GH_AUTH')}:x-oauth-basic@github.com/python/cpython.git".split())
     print("Finished setting up CPython Repo")
 
+
 @app.task
 def backport_task(commit_hash, branch, *, issue_number, created_by, merged_by):
     """Backport a commit into a branch."""
-    print(os.chdir("./cpython"))
+    if not util.is_cpython_repo():
+        # cd to cpython if we're not already in it
+
+        os.chdir('./cpython')
     cp = cherry_picker.CherryPicker('origin', commit_hash, [branch])
     try:
         cp.backport()

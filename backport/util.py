@@ -1,5 +1,6 @@
 import requests
 import os
+import subprocess
 
 from gidgethub import sansio
 
@@ -27,3 +28,12 @@ def comment_on_pr(issue_number, message):
 
 def user_login(item):
     return item["user"]["login"]
+
+
+def is_cpython_repo():
+    cmd = "git log -r 7f777ed95a19224294949e1b4ce56bbffcb1fe9f"
+    try:
+        subprocess.check_output(cmd.split(), stderr=subprocess.STDOUT)
+    except subprocess.SubprocessError:
+        return False
+    return True
