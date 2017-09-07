@@ -20,7 +20,7 @@ def comment_on_pr(issue_number, message):
                              headers=request_headers,
                              json=data)
     if response.status_code == requests.codes.created:
-        print(f"Commented at {response.json()['url']}")
+        print(f"Commented at {response.json()['html_url']}")
     else:
         print(response.status_code)
         print(response.text)
