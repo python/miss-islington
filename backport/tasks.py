@@ -37,11 +37,11 @@ def backport_task(commit_hash, branch, *, issue_number, created_by, merged_by):
         cp.backport()
     except cherry_picker.BranchCheckoutException:
         util.comment_on_pr(issue_number,
-                            f"""Sorry @{created_by} and @{merged_by}, I had trouble checking out the `{branch}` backport branch.
+                            f"""Sorry {util.get_participants(created_by, merged_by)}, I had trouble checking out the `{branch}` backport branch.
                             Please backport using [cherry_picker](https://pypi.org/project/cherry-picker/) on command line.""")
         cp.abort_cherry_pick()
     except cherry_picker.CherryPickException:
         util.comment_on_pr(issue_number,
-                            f"""Sorry, @{created_by} and @{merged_by}, I could not cleanly backport this to `{branch}` due to a conflict. 
+                            f"""Sorry, {util.get_participants(created_by, merged_by)}, I could not cleanly backport this to `{branch}` due to a conflict. 
                             Please backport using [cherry_picker](https://pypi.org/project/cherry-picker/) on command line.""")
         cp.abort_cherry_pick()

@@ -27,9 +27,15 @@ async def backport_pr(event, gh, *args, **kwargs):
                         if label['name'].startswith("needs backport to")]
 
         if branches:
-            message = "🐍🍒⛏🤖 " \
-                      f"Thanks @{created_by} for the PR, and @{merged_by} for merging it 🌮🎉." \
-                      f"I'm working now to backport this PR to: {', '.join(branches)}."
+            thanks_to = ""
+            if created_by == merged_by:
+                thanks_to = f"Thanks @{created_by} for the PR 🌮🎉."
+            else:
+                thanks_to = f"Thanks @{created_by} for the PR, and @{merged_by} for merging it 🌮🎉."
+            message = f"""\
+            {thanks_to}. I'm working now to backport this PR to: {', '.join(branches)}.
+            🐍🍒⛏🤖 
+            """
             util.comment_on_pr(issue_number, message)
 
             for branch in branches:
