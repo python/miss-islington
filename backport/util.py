@@ -37,3 +37,12 @@ def is_cpython_repo():
     except subprocess.SubprocessError:
         return False
     return True
+
+
+def get_participants(created_by, merged_by):
+    participants = ""
+    if created_by == merged_by:
+        participants = f"@{created_by}"
+    else:
+        participants = f"@{created_by} and @{merged_by}"
+    return participants
