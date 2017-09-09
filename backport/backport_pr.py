@@ -38,11 +38,9 @@ async def backport_pr(event, gh, *args, **kwargs):
                 thanks_to = f"Thanks @{created_by} for the PR 🌮🎉."
             else:
                 thanks_to = f"Thanks @{created_by} for the PR, and @{merged_by} for merging it 🌮🎉."
-            message = f"""\
-            {thanks_to}. I'm working now to backport this PR to: {', '.join(branches)}.
-            🐍🍒⛏🤖 
-            {easter_egg}
-            """
+            message = f"{thanks_to}. I'm working now to backport this PR to: {', '.join(branches)}.",\
+                      f"\n🐍🍒⛏🤖 {easter_egg}"
+
             util.comment_on_pr(issue_number, message)
 
             for branch in branches:
@@ -51,3 +49,4 @@ async def backport_pr(event, gh, *args, **kwargs):
                                           issue_number=issue_number,
                                           created_by=created_by,
                                           merged_by=merged_by)
+
