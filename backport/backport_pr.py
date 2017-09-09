@@ -32,7 +32,7 @@ async def backport_pr(event, gh, *args, **kwargs):
         if branches:
             easter_egg = ""
             if random.random() < 0.1:
-                easter_egg = random.choice(EASTER_EGG)
+                easter_egg = EASTER_EGG
             thanks_to = ""
             if created_by == merged_by:
                 thanks_to = f"Thanks @{created_by} for the PR 🌮🎉."
