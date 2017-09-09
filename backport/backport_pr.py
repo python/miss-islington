@@ -1,8 +1,11 @@
 import gidgethub.routing
 
+import random
+
 from . import tasks
 from . import util
 
+EASTER_EGG = "I'm not a witch! I'm not a witch!"
 
 router = gidgethub.routing.Router()
 
@@ -27,6 +30,9 @@ async def backport_pr(event, gh, *args, **kwargs):
                         if label['name'].startswith("needs backport to")]
 
         if branches:
+            easter_egg = ""
+            if random.random() < 0.1:
+                easter_egg = random.choice(EASTER_EGG)
             thanks_to = ""
             if created_by == merged_by:
                 thanks_to = f"Thanks @{created_by} for the PR 🌮🎉."
@@ -35,6 +41,7 @@ async def backport_pr(event, gh, *args, **kwargs):
             message = f"""\
             {thanks_to}. I'm working now to backport this PR to: {', '.join(branches)}.
             🐍🍒⛏🤖 
+            {easter_egg}
             """
             util.comment_on_pr(issue_number, message)
 
