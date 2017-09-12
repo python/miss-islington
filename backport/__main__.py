@@ -13,8 +13,9 @@ from gidgethub import sansio
 
 from . import tasks
 from . import backport_pr
+from . import delete_branch
 
-router = routing.Router(backport_pr.router)
+router = routing.Router(backport_pr.router, delete_branch.router)
 cache = cachetools.LRUCache(maxsize=500)
 
 
