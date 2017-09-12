@@ -46,3 +46,18 @@ def get_participants(created_by, merged_by):
     else:
         participants = f"@{created_by} and @{merged_by}"
     return participants
+
+
+def delete_branch(branch_name):
+    """
+    Delete the branch on GitHub
+    """
+    request_headers = sansio.create_headers(
+        "miss-islington",
+        oauth_token=os.environ.get('GH_AUTH'))
+    url = f"https://api.github.com/repos/miss-islington/cpython/git/refs/heads/{branch_name}"
+    response = requests.delete(url, headers=request_headers)
+    if response.status_code == 204:
+        print(f"{branch_name} branch deleted.")
+    else:
+        print(f"Couldn't delete the branch {branch_name}")
