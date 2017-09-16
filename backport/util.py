@@ -20,7 +20,7 @@ def comment_on_pr(issue_number, message):
                              headers=request_headers,
                              json=data)
     if response.status_code == requests.codes.created:
-        print(f"Commented at {response.json()['html_url']}")
+        print(f"Commented at {response.json()['html_url']}, message: {message}")
     else:
         print(response.status_code)
         print(response.text)
@@ -61,3 +61,12 @@ def delete_branch(branch_name):
         print(f"{branch_name} branch deleted.")
     else:
         print(f"Couldn't delete the branch {branch_name}")
+
+
+def normalize_title(title, body):
+    """Normalize the title if it spills over into the PR's body."""
+    if not (title.endswith('…') and body.startswith('…')):
+        return title
+    else:
+        # Being paranoid in case \r\n is used.
+        return title[:-1] + body[1:].partition('\r\n')[0]

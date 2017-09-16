@@ -43,7 +43,11 @@ async def backport_pr(event, gh, *args, **kwargs):
 
             util.comment_on_pr(issue_number, message)
 
-            for branch in branches:
+            sorted_branches = sorted(branches,
+                                     reverse=True,
+                                     key=lambda v: tuple(map(int, v.split('.'))))
+
+            for branch in sorted_branches:
                 tasks.backport_task.delay(commit_hash,
                                           branch,
                                           issue_number=issue_number,

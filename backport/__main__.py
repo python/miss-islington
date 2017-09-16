@@ -14,8 +14,12 @@ from gidgethub import sansio
 from . import tasks
 from . import backport_pr
 from . import delete_branch
+from . import status_change
 
-router = routing.Router(backport_pr.router, delete_branch.router)
+router = routing.Router(backport_pr.router,
+                        delete_branch.router,
+                        status_change.router)
+
 cache = cachetools.LRUCache(maxsize=500)
 
 

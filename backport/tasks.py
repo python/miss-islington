@@ -30,8 +30,13 @@ def backport_task(commit_hash, branch, *, issue_number, created_by, merged_by):
     """Backport a commit into a branch."""
     if not util.is_cpython_repo():
         # cd to cpython if we're not already in it
-
-        os.chdir('./cpython')
+        if "cpython" in os.listdir('.'):
+            os.chdir('./cpython')
+        else:
+            print(f"pwd: {os.pwd()}, listdir: {os.listdir('.')}")
+            util.comment_on_pr(issue_number,
+                               f"""{util.get_participants(created_by, merged_by)}, Something is wrong... I can't backport for now.
+                               Please backport using [cherry_picker](https://pypi.org/project/cherry-picker/) on command line.""")
     cp = cherry_picker.CherryPicker('origin', commit_hash, [branch])
     try:
         cp.backport()
