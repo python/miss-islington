@@ -23,7 +23,7 @@ async def check_status(event, gh, *args, **kwargs):
         request_headers = sansio.create_headers(
             "miss-islington",
             oauth_token=os.getenv('GH_AUTH'))
-        response = requests.post(status_url,
+        response = requests.get(status_url,
                                  headers=request_headers)
         result = response.json()
 
@@ -53,9 +53,8 @@ async def check_status(event, gh, *args, **kwargs):
                             pr_author = original_pr_result["user"]["login"]
                             committer = original_pr_result["merged_by"]["login"]
 
-                            participants = f"@{pr_author}"
-                            if pr_author != committer:
-                                participants += f"@{committer}"
+                            participants = util.get_participants(
+                                pr_author, committer)
                             util.comment_on_pr(
                                 pr_number,
                                 message=f"@{participants}: Backport status check is done, and the result is {result['state']}.")
