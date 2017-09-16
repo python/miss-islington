@@ -17,11 +17,7 @@ async def check_status(event, gh, *args, **kwargs):
     """
     Check the state change
     """
-    print("event data")
-    print(event.data)
-    print("author")
-    print(event.data["commit"]["author"]["login"])
-    if event.data["commit"]["author"]["login"] == "miss-islington":
+    if event.data["commit"]["committer"]["login"] == "miss-islington":
         sha = event.data["sha"]
         status_url = f"https://api.github.com/repos/python/cpython/commits/{sha}/status"
         request_headers = sansio.create_headers(
