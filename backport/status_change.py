@@ -57,4 +57,4 @@ async def check_status(event, gh, *args, **kwargs):
                                 pr_author, committer)
                             util.comment_on_pr(
                                 pr_number,
-                                message=f"@{participants}: Backport status check is done, and the result is {result['state']}.")
+                                message=f"{participants}: Backport status check is done, and the result is {result['state']}.")
