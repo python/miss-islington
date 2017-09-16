@@ -26,19 +26,15 @@ async def check_status(event, gh, *args, **kwargs):
         response = requests.get(status_url,
                                  headers=request_headers)
         result = response.json()
-
+        print(f"miss-islington's PR state changed: {result['state']}")
         if result["state"] != "pending":
             url = "https://api.github.com/repos/miss-islington/cpython/git/refs/heads/"
             response = requests.get(url, headers=request_headers)
             for ref in response.json():
-                print("ref obj")
-                print(ref)
                 if "backport-" in ref["ref"] and ref["object"]["sha"] == sha:
                     backport_branch_name = ref["ref"].split("/")[-1]
                     pr_url = f"https://api.github.com/repos/python/cpython/pulls?state=open&head=miss-islington:{backport_branch_name}"
                     pr_response = requests.get(pr_url, headers=request_headers).json()
-                    print("pr respponse")
-                    print(pr_response)
                     if pr_response:
                         pr_number = pr_response[0]["number"]
                         normalized_pr_title = util.normalize_title(pr_response[0]["title"],
