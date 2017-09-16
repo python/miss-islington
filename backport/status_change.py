@@ -55,6 +55,7 @@ async def check_status(event, gh, *args, **kwargs):
 
                             participants = util.get_participants(
                                 pr_author, committer)
+                            emoji = "✅" if result['state'] == "success" else "❌"
                             util.comment_on_pr(
                                 pr_number,
-                                message=f"{participants}: Backport status check is done, and the result is {result['state']}.")
+                                message=f"{participants}: Backport status check is done, and it's a {result['state']} {emoji} .")
