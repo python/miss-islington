@@ -27,8 +27,11 @@ async def check_status(event, gh, *args, **kwargs):
                                  headers=request_headers)
         result = response.json()
         all_ci_status = [status["state"] for status in result["statuses"]]
+        all_ci_context = [status["context"] for status in result["statuses"]]
         print(f"miss-islington's PR state changed: {all_ci_status}")
-        if "pending" not in all_ci_status:
+        print(f"miss-islington's PR CI: {all_ci_context}")
+        if "pending" not in all_ci_status \
+                and "continuous-integration/travis-ci/pr" in all_ci_context:
             url = "https://api.github.com/repos/miss-islington/cpython/git/refs/heads/"
             response = requests.get(url, headers=request_headers)
             for ref in response.json():
