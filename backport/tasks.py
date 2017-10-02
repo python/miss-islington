@@ -13,7 +13,7 @@ app.conf.update(BROKER_URL=os.environ['REDIS_URL'],
 
 
 
-@app.task
+@app.task(rate_limit="1/m")
 def setup_cpython_repo():
     subprocess.check_output(
         f"git clone https://{os.environ.get('GH_AUTH')}:x-oauth-basic@github.com/miss-islington/cpython.git".split())
@@ -25,7 +25,7 @@ def setup_cpython_repo():
     print("Finished setting up CPython Repo")
 
 
-@app.task
+@app.task(rate_limit="1/m")
 def backport_task(commit_hash, branch, *, issue_number, created_by, merged_by):
     """Backport a commit into a branch."""
     if not util.is_cpython_repo():
