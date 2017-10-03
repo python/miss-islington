@@ -12,17 +12,19 @@ app.conf.update(BROKER_URL=os.environ['REDIS_URL'],
                 CELERY_RESULT_BACKEND=os.environ['REDIS_URL'])
 
 
-
 @app.task(rate_limit="1/m")
 def setup_cpython_repo():
-    subprocess.check_output(
-        f"git clone https://{os.environ.get('GH_AUTH')}:x-oauth-basic@github.com/miss-islington/cpython.git".split())
-    subprocess.check_output("git config --global user.email 'mariatta.wijaya+miss-islington@gmail.com'".split())
-    subprocess.check_output(["git", "config", "--global", "user.name", "'Miss Islington (bot)'"])
-    os.chdir('./cpython')
-    subprocess.check_output(
-        f"git remote add upstream https://{os.environ.get('GH_AUTH')}:x-oauth-basic@github.com/python/cpython.git".split())
-    print("Finished setting up CPython Repo")
+    if "cpython" not in os.listdir('.'):
+        subprocess.check_output(
+            f"git clone https://{os.environ.get('GH_AUTH')}:x-oauth-basic@github.com/miss-islington/cpython.git".split())
+        subprocess.check_output("git config --global user.email 'mariatta.wijaya+miss-islington@gmail.com'".split())
+        subprocess.check_output(["git", "config", "--global", "user.name", "'Miss Islington (bot)'"])
+        os.chdir('./cpython')
+        subprocess.check_output(
+            f"git remote add upstream https://{os.environ.get('GH_AUTH')}:x-oauth-basic@github.com/python/cpython.git".split())
+        print("Finished setting up CPython Repo")
+    else:
+        print("cpython directory already exists")
 
 
 @app.task(rate_limit="1/m")
