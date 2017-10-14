@@ -11,7 +11,7 @@ from gidgethub import aiohttp as gh_aiohttp
 from gidgethub import routing
 from gidgethub import sansio
 
-from . import tasks
+
 from . import backport_pr
 from . import delete_branch
 from . import status_change
@@ -47,10 +47,7 @@ async def main(request):
 
 
 if __name__ == "__main__":  # pragma: no cover
-    id = tasks.setup_cpython_repo.delay()
-    print(f"Setting up CPython Repo Task: {id}")
     app = web.Application()
-    app['cpython_task_id'] = id
     app.router.add_post("/", main)
     port = os.environ.get("PORT")
     if port is not None:
