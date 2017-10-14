@@ -2,6 +2,8 @@ import celery
 import os
 import subprocess
 
+from celery import bootsteps
+
 from cherry_picker import cherry_picker
 
 from . import util
@@ -14,6 +16,7 @@ app.conf.update(BROKER_URL=os.environ['REDIS_URL'],
 
 @app.task(rate_limit="1/m")
 def setup_cpython_repo():
+    print("Setting up CPython repository")
     if "cpython" not in os.listdir('.'):
         subprocess.check_output(
             f"git clone https://{os.environ.get('GH_AUTH')}:x-oauth-basic@github.com/miss-islington/cpython.git".split())
@@ -64,3 +67,13 @@ def backport_task(commit_hash, branch, *, issue_number, created_by, merged_by):
                             ```
                             """)
         cp.abort_cherry_pick()
+
+
+class InitRepoStep(bootsteps.StartStopStep):
+
+    def start(self, c):
+        print("Initialize the repository.")
+        setup_cpython_repo()
+
+
+app.steps['worker'].add(InitRepoStep)
