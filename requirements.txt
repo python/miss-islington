@@ -1,4 +1,4 @@
-cherry_picker==0.2.4
+cherry_picker==0.2.5
 aiohttp
 gidgethub
 cachetools
