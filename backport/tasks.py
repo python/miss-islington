@@ -46,7 +46,8 @@ def backport_task(commit_hash, branch, *, issue_number, created_by, merged_by):
                                cherry_picker {commit_hash} {branch}
                                ```
                                """)
-    cp = cherry_picker.CherryPicker('origin', commit_hash, [branch])
+    cp = cherry_picker.CherryPicker('origin', commit_hash, [branch],
+                                    prefix_commit=False)
     try:
         cp.backport()
     except cherry_picker.BranchCheckoutException:
