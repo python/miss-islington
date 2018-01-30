@@ -1,5 +1,5 @@
 cherry_picker==0.2.7
-aiohttp
+aiohttp==2.3.9
 gidgethub
 cachetools
 requests
