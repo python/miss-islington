@@ -3,5 +3,5 @@ aiohttp==2.3.9
 gidgethub==2.4.1
 cachetools==2.0.1
 requests==2.18.4
-redis
+redis==2.10.6
 celery
