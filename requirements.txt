@@ -1,6 +1,6 @@
 cherry_picker==0.2.7
 aiohttp==2.3.9
-gidgethub
+gidgethub==2.4.1
 cachetools
 requests
 redis
