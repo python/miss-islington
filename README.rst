@@ -17,7 +17,7 @@ Once the pull request has been merged, `@miss-islington <https://github.com/miss
 will prepare the backport PR.
 
 If `@miss-islington <https://github.com/miss-islington>`_ encountered any issue while backporting,
-it will leave a comment about it. The PR will then need to be backported manually.
+it will leave a comment about it. The PR then needs to be backported manually.
 
 
 **Aside**: where does the name come from?
