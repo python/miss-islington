@@ -87,15 +87,11 @@ async def is_core_dev(gh, username):
     # so manually construct the URL to the non-deprecated team membership
     # endpoint.
     membership_url = f"/teams/{team['id']}/memberships/{username}"
-    print(f"membership url {membership_url}")
     try:
         await gh.getitem(membership_url)
     except gidgethub.BadRequest as exc:
-        print("badrequest")
         if exc.status_code == 404:
-            print("404")
             return False
         raise
     else:
-        print("return rtw")
         return True
