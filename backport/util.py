@@ -2,6 +2,8 @@ import requests
 import os
 import subprocess
 
+import gidgethub
+
 from gidgethub import sansio
 
 
@@ -70,3 +72,30 @@ def normalize_title(title, body):
     else:
         # Being paranoid in case \r\n is used.
         return title[:-1] + body[1:].partition('\r\n')[0]
+
+# Copied over from https://github.com/python/bedevere
+async def is_core_dev(gh, username):
+    """Check if the user is a CPython core developer."""
+    org_teams = "/orgs/python/teams"
+    team_name = "python core"
+    async for team in gh.getiter(org_teams):
+        if team["name"].lower() == team_name:
+            break
+    else:
+        raise ValueError(f"{team_name!r} not found at {org_teams!r}")
+    # The 'teams' object only provides a URL to a deprecated endpoint,
+    # so manually construct the URL to the non-deprecated team membership
+    # endpoint.
+    membership_url = f"/teams/{team['id']}/memberships/{username}"
+    print(f"membership url {membership_url}")
+    try:
+        await gh.getitem(membership_url)
+    except gidgethub.BadRequest as exc:
+        print("badrequest")
+        if exc.status_code == 404:
+            print("404")
+            return False
+        raise
+    else:
+        print("return rtw")
+        return True
