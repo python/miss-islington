@@ -245,7 +245,82 @@ async def test_ci_not_passed_with_core_dev_review_pr_is_not_merged():
     assert not hasattr(gh, 'put_data')  # is not merged
 
 
-async def test_pr_reviewed_webhook_ci_passed_pr_is_not_merged():
+async def test_pr_reviewed_webhook_ci_passed_pr_is_merged():
+    sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
+    data = {
+        "action": "submitted",
+        "pull_request": {
+           "user": {"login": "miss-islington"}},
+        "review": {"commit_id": sha,
+                   "user": {"login": "Mariatta"},
+                   "state": "approved"
+           }
+        }
+
+    event = sansio.Event(data, event='pull_request_review',
+                         delivery_id='1')
+
+    getitem = {
+        f'/repos/python/cpython/commits/{sha}/status':
+            {
+                "state": "success",
+                "statuses": [
+                    {
+                        "state": "success",
+                        "description": "Issue report skipped",
+                        "context": "bedevere/issue-number",
+                    },
+                    {
+                        "state": "success",
+                        "description": "The Travis CI build passed",
+                        "target_url": "https://travis-ci.org/python/cpython/builds/340259685?utm_source=github_status&utm_medium=notification",
+                        "context": "continuous-integration/travis-ci/pr",
+                    }
+                ]
+            },
+        "/teams/42/memberships/Mariatta": True
+        }
+
+    getiter = {
+        '/repos/miss-islington/cpython/git/refs/heads/': [
+            {
+                "ref": f"refs/heads/backport-{sha[0:7]}-3.6",
+                "object": {"sha": sha,}
+            },
+            {
+                "ref": f"refs/heads/backport-{sha[0:7]}-3.6",
+                "object": {
+                    "sha": sha,
+                    "type": "commit",
+                    "url": f"https://api.github.com/repos/miss-islington/cpython/git/commits/{sha}"
+                }
+            }],
+        f'/repos/python/cpython/pulls?state=open&head=miss-islington:backport-{sha[0:7]}-3.6': [
+            {"number": 5547,
+             "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
+             "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>"},
+        ],
+        "/orgs/python/teams": [{"name": "Python core", "id": 42}],
+        '/repos/python/cpython/pulls/5547/reviews': [
+            {"user": {"login": "Mariatta"},
+             "state": "APPROVED"
+             }],
+        '/repos/python/cpython/pulls/5547/commits': [
+            {"sha": "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9",
+             "commit": {
+                 "message": "bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>"
+             }}],
+    }
+
+    gh = FakeGH(getitem=getitem,
+                getiter=getiter)
+    await status_change.router.dispatch(event, gh)
+    assert not hasattr(gh, 'post_data')  # does not leave a comment
+    assert gh.put_data["sha"] == sha  # is merged
+    assert gh.put_data["merge_method"] == "squash"
+
+
+async def test_pr_reviewed_webhook_ci_failure_pr_is_not_merged():
     sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
     data = {
         "action": "submitted",
