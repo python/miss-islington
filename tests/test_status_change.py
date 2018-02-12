@@ -113,6 +113,7 @@ async def test_ci_passed_with_one_core_dev_review_pr_is_merged():
     assert len(gh.post_data["body"]) is not None  # leaves a comment
     assert gh.put_data["sha"] == sha  # is merged
     assert gh.put_data["merge_method"] == "squash"
+    assert gh.put_data["commit_title"] == "bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)"
 
 
 async def test_ci_passed_with_no_core_dev_review_pr_is_not_merged():
@@ -318,6 +319,7 @@ async def test_pr_reviewed_webhook_ci_passed_pr_is_merged():
     assert not hasattr(gh, 'post_data')  # does not leave a comment
     assert gh.put_data["sha"] == sha  # is merged
     assert gh.put_data["merge_method"] == "squash"
+    assert gh.put_data["commit_title"] == "bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)"
 
 
 async def test_pr_reviewed_webhook_ci_failure_pr_is_not_merged():

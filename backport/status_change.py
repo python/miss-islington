@@ -80,7 +80,7 @@ async def merge_pr(gh, pr_number, sha):
         if commit["sha"] == sha:
             pr_commit_msg = commit["commit"]["message"].split("\n")
 
-            cleaned_up_title = f"{pr_commit_msg[0]} (GH-{pr_number})"
+            cleaned_up_title = f"{pr_commit_msg[0]}"
             await gh.put(f"/repos/python/cpython/pulls/{pr_number}/merge",
                    data={"commit_title": cleaned_up_title,
                          "commit_message": "\n".join(pr_commit_msg[1:]),
