@@ -65,14 +65,14 @@ async def check_ci_status_and_approval(gh, sha, leave_comment=False):
                                 pr_number=pr_number,
                                 message=f"{participants}: Backport status check is done, and it's a {result['state']} {emoji} .")
 
-                            if result['state'] == "success":
-                                async for review in gh.getiter(f"/repos/python/cpython/pulls/{pr_number}/reviews"):
-                                    reviewer = review["user"]["login"]
-                                    approved = review["state"].lower() == "approved"
-                                    if approved \
-                                            and await util.is_core_dev(gh, reviewer):
-                                        await merge_pr(gh, pr_number, sha)
-                                        break
+                        if result['state'] == "success":
+                            async for review in gh.getiter(f"/repos/python/cpython/pulls/{pr_number}/reviews"):
+                                reviewer = review["user"]["login"]
+                                approved = review["state"].lower() == "approved"
+                                if approved \
+                                        and await util.is_core_dev(gh, reviewer):
+                                    await merge_pr(gh, pr_number, sha)
+                                    break
 
 
 async def merge_pr(gh, pr_number, sha):
