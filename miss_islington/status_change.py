@@ -61,7 +61,7 @@ async def check_ci_status_and_approval(gh, sha, leave_comment=False):
                                 pr_author, committer)
                             emoji = "✅" if result['state'] == "success" else "❌"
 
-                            await comment_on_pr(gh,
+                            await util.leave_comment(gh,
                                 pr_number=pr_number,
                                 message=f"{participants}: Backport status check is done, and it's a {result['state']} {emoji} .")
 
@@ -91,12 +91,4 @@ async def merge_pr(gh, pr_number, sha):
             break
 
 
-async def comment_on_pr(gh, pr_number, message):
-    """
-    Leave a comment on a PR/Issue
-    """
-    issue_comment_url = f"/repos/python/cpython/issues/{pr_number}/comments"
-    data = {
-        "body": message,
-    }
-    await gh.post(issue_comment_url, data=data)
+

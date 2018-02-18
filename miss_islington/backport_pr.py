@@ -44,7 +44,7 @@ async def backport_pr(event, gh, *args, **kwargs):
             message = f"{thanks_to}. I'm working now to backport this PR to: {', '.join(branches)}."\
                       f"\n🐍🍒⛏🤖 {easter_egg}"
 
-            util.comment_on_pr(issue_number, message)
+            await util.leave_comment(gh, issue_number, message)
 
             sorted_branches = sorted(branches,
                                      reverse=True,

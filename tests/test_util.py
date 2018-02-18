@@ -5,7 +5,7 @@ import gidgethub
 from unittest import mock
 
 
-from backport import util
+from miss_islington import util
 
 class FakeGH:
 
@@ -35,6 +35,7 @@ class FakeGH:
         self.post_url = url
         self.post_data = data
         return self._post_return
+
 
 def test_title_normalization():
     title = "abcd"

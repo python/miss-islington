@@ -28,8 +28,15 @@ def comment_on_pr(issue_number, message):
         print(response.text)
 
 
-def user_login(item):
-    return item["user"]["login"]
+async def leave_comment(gh, pr_number, message):
+    """
+    Leave a comment on a PR/Issue
+    """
+    issue_comment_url = f"/repos/python/cpython/issues/{pr_number}/comments"
+    data = {
+        "body": message,
+    }
+    await gh.post(issue_comment_url, data=data)
 
 
 def is_cpython_repo():
@@ -50,21 +57,6 @@ def get_participants(created_by, merged_by):
     return participants
 
 
-def delete_branch(branch_name):
-    """
-    Delete the branch on GitHub
-    """
-    request_headers = sansio.create_headers(
-        "miss-islington",
-        oauth_token=os.environ.get('GH_AUTH'))
-    url = f"https://api.github.com/repos/miss-islington/cpython/git/refs/heads/{branch_name}"
-    response = requests.delete(url, headers=request_headers)
-    if response.status_code == 204:
-        print(f"{branch_name} branch deleted.")
-    else:
-        print(f"Couldn't delete the branch {branch_name}")
-
-
 def normalize_title(title, body):
     """Normalize the title if it spills over into the PR's body."""
     if not (title.endswith('…') and body.startswith('…')):
@@ -72,6 +64,7 @@ def normalize_title(title, body):
     else:
         # Being paranoid in case \r\n is used.
         return title[:-1] + body[1:].partition('\r\n')[0]
+
 
 # Copied over from https://github.com/python/bedevere
 async def is_core_dev(gh, username):
