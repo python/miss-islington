@@ -1,2 +1,2 @@
-web: python3 -m backport
-worker: celery worker --app=backport.tasks.app
+web: python3 -m miss_islington
+worker: celery worker --app=miss_islington.tasks.app
