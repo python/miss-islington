@@ -16,10 +16,11 @@ async def delete_branch(event, gh, *args, **kwargs):
             issue_number = event.data['pull_request']['number']
             merged_by = event.data['pull_request']['merged_by']['login']
             if merged_by != "miss-islington":
-                util.comment_on_pr(issue_number, f"Thanks, @{merged_by}!")
+                await util.leave_comment(gh, issue_number, f"Thanks, @{merged_by}!")
             else:
-                util.comment_on_pr(issue_number, "Thanks!")
+                await util.leave_comment(gh, issue_number, "Thanks!")
 
         branch_name = event.data['pull_request']['head']['ref']
-        util.delete_branch(branch_name)
+        url = f"/repos/miss-islington/cpython/git/refs/heads/{branch_name}"
+        await gh.delete(url)
 
