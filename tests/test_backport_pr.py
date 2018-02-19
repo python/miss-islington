@@ -110,9 +110,7 @@ async def test_merged_pr_no_backport_label():
             "labels_url": "https://api.github.com/repos/python/cpython/issues/1/labels{/name}"},
         "https://api.github.com/repos/python/cpython/issues/1/labels":
             [
-                {
-                    "name": "CLA signed",
-                }
+                {"name": "CLA signed", }
             ]
 
     }
@@ -149,12 +147,8 @@ async def test_merged_pr_with_backport_label():
             "labels_url": "https://api.github.com/repos/python/cpython/issues/1/labels{/name}"},
         "https://api.github.com/repos/python/cpython/issues/1/labels":
             [
-                {
-                    "name": "CLA signed",
-                },
-                {
-                    "name": "needs backport to 3.7",
-                }
+                {"name": "CLA signed", },
+                {"name": "needs backport to 3.7", }
             ]
 
     }
@@ -192,12 +186,8 @@ async def test_merged_pr_with_backport_label_thank_pr_author():
             "labels_url": "https://api.github.com/repos/python/cpython/issues/1/labels{/name}"},
         "https://api.github.com/repos/python/cpython/issues/1/labels":
             [
-                {
-                    "name": "CLA signed",
-                },
-                {
-                    "name": "needs backport to 3.7",
-                }
+                {"name": "CLA signed", },
+                {"name": "needs backport to 3.7", }
             ]
 
     }
@@ -237,12 +227,8 @@ async def test_easter_egg():
             "labels_url": "https://api.github.com/repos/python/cpython/issues/1/labels{/name}"},
         "https://api.github.com/repos/python/cpython/issues/1/labels":
             [
-                {
-                    "name": "CLA signed",
-                },
-                {
-                    "name": "needs backport to 3.7",
-                }
+                {"name": "CLA signed",},
+                {"name": "needs backport to 3.7",}
             ]
 
     }
@@ -252,8 +238,7 @@ async def test_easter_egg():
          mock.patch('random.random', return_value=0.1):
         await backport_pr.router.dispatch(event, gh)
         assert "I'm working now to backport this PR to: 3.7" in gh.post_data["body"]
-        assert "Thanks @gvanrossum for the PR" in gh.post_data[
-            "body"]
+        assert "Thanks @gvanrossum for the PR" in gh.post_data["body"]
         assert "I'm not a witch" not in gh.post_data["body"]
         assert gh.post_url == '/repos/python/cpython/issues/1/comments'
 
@@ -261,7 +246,6 @@ async def test_easter_egg():
          mock.patch('random.random', return_value=0.01):
         await backport_pr.router.dispatch(event, gh)
         assert "I'm working now to backport this PR to: 3.7" in gh.post_data["body"]
-        assert "Thanks @gvanrossum for the PR" in gh.post_data[
-            "body"]
+        assert "Thanks @gvanrossum for the PR" in gh.post_data["body"]
         assert "I'm not a witch" in gh.post_data["body"]
         assert gh.post_url == '/repos/python/cpython/issues/1/comments'
