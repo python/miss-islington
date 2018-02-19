@@ -10,28 +10,15 @@ from miss_islington import backport_pr
 
 class FakeGH:
 
-    def __init__(self, *, getitem=None, getiter=None, put=None):
+    def __init__(self, *, getitem=None, post=None):
         self._getitem_return = getitem
-        self._getiter_return = getiter
         self.getitem_url = None
         self.getiter_url = None
-        self._put_return = put
-        self._post_return = put
+        self._post_return = post
 
     async def getitem(self, url, url_vars={}):
         self.getitem_url = sansio.format_url(url, url_vars)
         return self._getitem_return[self.getitem_url]
-
-    async def getiter(self, url):
-        self.getiter_url = url
-        to_iterate = self._getiter_return[url]
-        for item in to_iterate:
-            yield item
-
-    async def put(self, url, *, data):
-        self.put_url = url
-        self.put_data = data
-        return self._put_return
 
     async def post(self, url, *, data):
         self.post_url = url
