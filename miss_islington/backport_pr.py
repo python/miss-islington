@@ -21,13 +21,14 @@ async def backport_pr(event, gh, *args, **kwargs):
 
         commit_hash = event.data['pull_request']['merge_commit_sha']
 
-        gh_issue = await gh.getitem(event.data['repository']['issues_url'],
-                                             {'number': f"{event.data['pull_request']['number']}"})
         pr_labels = []
         if event.data['action'] == 'labeled':
             pr_labels = [event.data["label"]]
         else:
+            gh_issue = await gh.getitem(event.data['repository']['issues_url'],
+                                        {'number': f"{event.data['pull_request']['number']}"})
             pr_labels = await gh.getitem(gh_issue['labels_url'])
+
         branches = [label['name'].split()[-1]
                     for label in pr_labels
                         if label['name'].startswith("needs backport to")]
