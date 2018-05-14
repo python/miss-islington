@@ -46,6 +46,7 @@ def backport_task(commit_hash, branch, *, issue_number, created_by, merged_by):
                                cherry_picker {commit_hash} {branch}
                                ```
                                """)
+            util.assign_pr_to_core_dev(issue_number, merged_by)
     cp = cherry_picker.CherryPicker('origin', commit_hash, [branch],
                                     prefix_commit=False)
     try:
@@ -58,6 +59,7 @@ def backport_task(commit_hash, branch, *, issue_number, created_by, merged_by):
                             cherry_picker {commit_hash} {branch}
                             ```
                             """)
+        util.assign_pr_to_core_dev(issue_number, merged_by)
         cp.abort_cherry_pick()
     except cherry_picker.CherryPickException:
         util.comment_on_pr(issue_number,
@@ -67,6 +69,7 @@ def backport_task(commit_hash, branch, *, issue_number, created_by, merged_by):
                             cherry_picker {commit_hash} {branch}
                             ```
                             """)
+        util.assign_pr_to_core_dev(issue_number, merged_by)
         cp.abort_cherry_pick()
 
 
