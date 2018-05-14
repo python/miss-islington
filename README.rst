@@ -17,7 +17,8 @@ Once the pull request has been merged, `@miss-islington <https://github.com/miss
 will prepare the backport PR.
 
 If `@miss-islington <https://github.com/miss-islington>`_ encountered any issue while backporting,
-it will leave a comment about it. The PR then needs to be backported manually.
+it will leave a comment about it, and the PR will be assigned to the core developer
+who merged the PR. The PR then needs to be backported manually.
 
 
 Merging the Backport PR
