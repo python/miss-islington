@@ -4,4 +4,4 @@ gidgethub==2.5.0.post1
 cachetools==2.1.0
 requests==2.18.4
 redis==2.10.6
-celery==4.1.0
+celery==4.1.1
