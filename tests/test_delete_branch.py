@@ -38,7 +38,7 @@ async def test_branch_deleted_when_pr_merged():
 
     gh = FakeGH()
     await delete_branch.router.dispatch(event, gh)
-    assert len(gh.post_data["body"]) is not None  # leaves a comment
+    assert gh.post_data is  None  # does not leave a comment
     assert gh.delete_url == f"/repos/miss-islington/cpython/git/refs/heads/{data['pull_request']['head']['ref']}"
 
 
@@ -64,7 +64,7 @@ async def test_branch_deleted_and_thank_committer():
 
     gh = FakeGH()
     await delete_branch.router.dispatch(event, gh)
-    assert gh.post_data["body"] == 'Thanks, @Mariatta!'  # leaves a comment
+    assert gh.post_data is  None  # does not leave a comment
     assert gh.delete_url == f"/repos/miss-islington/cpython/git/refs/heads/{data['pull_request']['head']['ref']}"
 
 
@@ -90,7 +90,7 @@ async def test_branch_deleted_and_thanks():
 
     gh = FakeGH()
     await delete_branch.router.dispatch(event, gh)
-    assert gh.post_data["body"] == "Thanks!" # leaves a comment
+    assert gh.post_data is  None  # does not leave a comment
     assert gh.delete_url == f"/repos/miss-islington/cpython/git/refs/heads/{data['pull_request']['head']['ref']}"
 
 
