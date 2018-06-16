@@ -12,15 +12,13 @@ def comment_on_pr(issue_number, message):
     Leave a comment on a PR/Issue
     """
     request_headers = sansio.create_headers(
-        "miss-islington",
-        oauth_token=os.getenv('GH_AUTH'))
-    issue_comment_url = f"https://api.github.com/repos/python/cpython/issues/{issue_number}/comments"
-    data = {
-        "body": message,
-    }
-    response = requests.post(issue_comment_url,
-                             headers=request_headers,
-                             json=data)
+        "miss-islington", oauth_token=os.getenv("GH_AUTH")
+    )
+    issue_comment_url = (
+        f"https://api.github.com/repos/python/cpython/issues/{issue_number}/comments"
+    )
+    data = {"body": message}
+    response = requests.post(issue_comment_url, headers=request_headers, json=data)
     if response.status_code == requests.codes.created:
         print(f"Commented at {response.json()['html_url']}, message: {message}")
     else:
@@ -34,15 +32,13 @@ def assign_pr_to_core_dev(issue_number, coredev_login):
     to backport.
     """
     request_headers = sansio.create_headers(
-        "miss-islington",
-        oauth_token=os.getenv('GH_AUTH'))
-    edit_issue_url = f"https://api.github.com/repos/python/cpython/issues/{issue_number}"
-    data = {
-        "assignees": [coredev_login],
-    }
-    response = requests.patch(edit_issue_url,
-                             headers=request_headers,
-                             json=data)
+        "miss-islington", oauth_token=os.getenv("GH_AUTH")
+    )
+    edit_issue_url = (
+        f"https://api.github.com/repos/python/cpython/issues/{issue_number}"
+    )
+    data = {"assignees": [coredev_login]}
+    response = requests.patch(edit_issue_url, headers=request_headers, json=data)
     if response.status_code == requests.codes.created:
         print(f"Assigned PR {issue_number} to {coredev_login}")
     else:
@@ -55,9 +51,7 @@ async def leave_comment(gh, pr_number, message):
     Leave a comment on a PR/Issue
     """
     issue_comment_url = f"/repos/python/cpython/issues/{pr_number}/comments"
-    data = {
-        "body": message,
-    }
+    data = {"body": message}
     await gh.post(issue_comment_url, data=data)
 
 
@@ -81,11 +75,11 @@ def get_participants(created_by, merged_by):
 
 def normalize_title(title, body):
     """Normalize the title if it spills over into the PR's body."""
-    if not (title.endswith('…') and body.startswith('…')):
+    if not (title.endswith("…") and body.startswith("…")):
         return title
     else:
         # Being paranoid in case \r\n is used.
-        return title[:-1] + body[1:].partition('\r\n')[0]
+        return title[:-1] + body[1:].partition("\r\n")[0]
 
 
 # Copied over from https://github.com/python/bedevere
