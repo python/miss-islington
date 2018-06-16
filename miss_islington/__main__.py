@@ -16,9 +16,7 @@ from . import backport_pr
 from . import delete_branch
 from . import status_change
 
-router = routing.Router(backport_pr.router,
-                        delete_branch.router,
-                        status_change.router)
+router = routing.Router(backport_pr.router, delete_branch.router, status_change.router)
 
 cache = cachetools.LRUCache(maxsize=500)
 
@@ -29,14 +27,14 @@ async def main(request):
 
         secret = os.environ.get("GH_SECRET")
         event = sansio.Event.from_http(request.headers, body, secret=secret)
-        print('GH delivery ID', event.delivery_id, file=sys.stderr)
+        print("GH delivery ID", event.delivery_id, file=sys.stderr)
         if event.event == "ping":
             return web.Response(status=200)
         oauth_token = os.environ.get("GH_AUTH")
         async with aiohttp.ClientSession() as session:
-            gh = gh_aiohttp.GitHubAPI(session, "python/cpython",
-                                      oauth_token=oauth_token,
-                                      cache=cache)
+            gh = gh_aiohttp.GitHubAPI(
+                session, "python/cpython", oauth_token=oauth_token, cache=cache
+            )
             # Give GitHub some time to reach internal consistency.
             await asyncio.sleep(1)
             await router.dispatch(event, gh)
