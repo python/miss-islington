@@ -31,11 +31,6 @@ class FakeGH:
         for item in to_iterate:
             yield item
 
-    async def post(self, url, *, data):
-        self.post_url = url
-        self.post_data = data
-        return self._post_return
-
 
 def test_title_normalization():
     title = "abcd"

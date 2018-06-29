@@ -7,10 +7,6 @@ class FakeGH:
     def __init__(self):
         self.post_data = None
 
-    async def post(self, url, *, data):
-        self.post_url = url
-        self.post_data = data
-
     async def delete(self, url):
         self.delete_url = url
 
