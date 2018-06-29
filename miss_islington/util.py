@@ -104,3 +104,10 @@ async def is_core_dev(gh, username):
         raise
     else:
         return True
+
+
+def pr_is_awaiting_merge(pr_labels):
+    for label in pr_labels:
+        if label["name"] == "awaiting merge":
+            return True
+    return False

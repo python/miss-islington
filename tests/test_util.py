@@ -31,11 +31,6 @@ class FakeGH:
         for item in to_iterate:
             yield item
 
-    async def post(self, url, *, data):
-        self.post_url = url
-        self.post_data = data
-        return self._post_return
-
 
 def test_title_normalization():
     title = "abcd"
@@ -118,3 +113,13 @@ async def test_is_core_dev():
     gh = FakeGH(getiter={"/orgs/python/teams": teams}, getitem=getitem)
     with pytest.raises(gidgethub.BadRequest):
         await util.is_core_dev(gh, "miss-islington")
+
+
+def test_pr_is_awaiting_merge():
+    labels = [{"name": "CLA Signed"}, {"name": "awaiting merge"}]
+    assert util.pr_is_awaiting_merge(labels) is True
+
+
+def test_pr_is_not_awaiting_merge():
+    labels = [{"name": "CLA Signed", "name": "skip issue", "name": "awaiting review"}]
+    assert util.pr_is_awaiting_merge(labels) is False

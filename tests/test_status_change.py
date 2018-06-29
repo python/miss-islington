@@ -18,10 +18,7 @@ class FakeGH:
     async def getitem(self, url):
         self.getitem_url = url
         to_return = self._getitem_return[self.getitem_url]
-        if isinstance(to_return, Exception):
-            raise to_return
-        else:
-            return to_return
+        return to_return
 
     async def getiter(self, url):
         self.getiter_url = url
@@ -40,7 +37,7 @@ class FakeGH:
         return self._post_return
 
 
-async def test_ci_passed_with_one_core_dev_review_pr_is_merged():
+async def test_ci_passed_with_awaiting_merge_label_pr_is_merged():
     sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
     data = {"sha": sha, "commit": {"committer": {"login": "miss-islington"}}}
     event = sansio.Event(data, event="status", delivery_id="1")
@@ -66,7 +63,7 @@ async def test_ci_passed_with_one_core_dev_review_pr_is_merged():
             "user": {"login": "miss-islington"},
             "merged_by": {"login": "Mariatta"},
         },
-        "/teams/42/memberships/Mariatta": True,
+        "/repos/python/cpython/pulls/5547": {"labels": [{"name": "awaiting merge"}]},
     }
 
     getiter = {
@@ -88,9 +85,6 @@ async def test_ci_passed_with_one_core_dev_review_pr_is_merged():
                 "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
             }
         ],
-        "/repos/python/cpython/pulls/5547/reviews": [
-            {"user": {"login": "Mariatta"}, "state": "APPROVED"}
-        ],
         "/repos/python/cpython/pulls/5547/commits": [
             {
                 "sha": "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9",
@@ -99,7 +93,6 @@ async def test_ci_passed_with_one_core_dev_review_pr_is_merged():
                 },
             }
         ],
-        "/orgs/python/teams": [{"name": "Python core", "id": 42}],
     }
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
@@ -113,7 +106,7 @@ async def test_ci_passed_with_one_core_dev_review_pr_is_merged():
     )
 
 
-async def test_ci_passed_with_no_core_dev_review_pr_is_not_merged():
+async def test_ci_passed_with_no_awaiting_merge_label_pr_is_not_merged():
     sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
     data = {"sha": sha, "commit": {"committer": {"login": "miss-islington"}}}
     event = sansio.Event(data, event="status", delivery_id="1")
@@ -139,7 +132,9 @@ async def test_ci_passed_with_no_core_dev_review_pr_is_not_merged():
             "user": {"login": "miss-islington"},
             "merged_by": {"login": "Mariatta"},
         },
-        "/teams/42/memberships/Mariatta": True,
+        "/repos/python/cpython/pulls/5547": {
+            "labels": [{"name": "awaiting core review"}]
+        },
     }
 
     getiter = {
@@ -161,7 +156,6 @@ async def test_ci_passed_with_no_core_dev_review_pr_is_not_merged():
                 "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
             }
         ],
-        "/repos/python/cpython/pulls/5547/reviews": [],
     }
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
@@ -170,7 +164,7 @@ async def test_ci_passed_with_no_core_dev_review_pr_is_not_merged():
     assert not hasattr(gh, "put_data")  # is not merged
 
 
-async def test_ci_not_passed_with_core_dev_review_pr_is_not_merged():
+async def test_ci_not_passed_awaiting_merge_label_pr_is_not_merged():
     sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
     data = {"sha": sha, "commit": {"committer": {"login": "miss-islington"}}}
     event = sansio.Event(data, event="status", delivery_id="1")
@@ -196,7 +190,7 @@ async def test_ci_not_passed_with_core_dev_review_pr_is_not_merged():
             "user": {"login": "miss-islington"},
             "merged_by": {"login": "Mariatta"},
         },
-        "/teams/42/memberships/Mariatta": True,
+        "/repos/python/cpython/pulls/5547": {"labels": [{"name": "awaiting merge"}]},
     }
 
     getiter = {
@@ -218,7 +212,6 @@ async def test_ci_not_passed_with_core_dev_review_pr_is_not_merged():
                 "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
             }
         ],
-        "/orgs/python/teams": [{"name": "Python core", "id": 42}],
     }
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
@@ -227,19 +220,18 @@ async def test_ci_not_passed_with_core_dev_review_pr_is_not_merged():
     assert not hasattr(gh, "put_data")  # is not merged
 
 
-async def test_pr_reviewed_webhook_ci_passed_pr_is_merged():
+async def test_awaiting_merge_label_added_and_ci_passed_pr_is_merged():
     sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
     data = {
-        "action": "submitted",
-        "pull_request": {"user": {"login": "miss-islington"}},
-        "review": {
-            "commit_id": sha,
-            "user": {"login": "Mariatta"},
-            "state": "approved",
+        "action": "labeled",
+        "pull_request": {
+            "user": {"login": "miss-islington"},
+            "labels": [{"name": "awaiting merge"}],
+            "head": {"sha": sha},
         },
     }
 
-    event = sansio.Event(data, event="pull_request_review", delivery_id="1")
+    event = sansio.Event(data, event="pull_request", delivery_id="1")
 
     getitem = {
         f"/repos/python/cpython/commits/{sha}/status": {
@@ -258,7 +250,7 @@ async def test_pr_reviewed_webhook_ci_passed_pr_is_merged():
                 },
             ],
         },
-        "/teams/42/memberships/Mariatta": True,
+        "/repos/python/cpython/pulls/5547": {"labels": [{"name": "awaiting merge"}]},
     }
 
     getiter = {
@@ -280,10 +272,6 @@ async def test_pr_reviewed_webhook_ci_passed_pr_is_merged():
                 "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
             }
         ],
-        "/orgs/python/teams": [{"name": "Python core", "id": 42}],
-        "/repos/python/cpython/pulls/5547/reviews": [
-            {"user": {"login": "Mariatta"}, "state": "APPROVED"}
-        ],
         "/repos/python/cpython/pulls/5547/commits": [
             {
                 "sha": "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9",
@@ -305,19 +293,18 @@ async def test_pr_reviewed_webhook_ci_passed_pr_is_merged():
     )
 
 
-async def test_pr_reviewed_webhook_ci_failure_pr_is_not_merged():
+async def test_awaiting_merge_webhook_ci_failure_pr_is_not_merged():
     sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
     data = {
-        "action": "submitted",
-        "pull_request": {"user": {"login": "miss-islington"}},
-        "review": {
-            "commit_id": sha,
-            "user": {"login": "Mariatta"},
-            "state": "approved",
+        "action": "labeled",
+        "pull_request": {
+            "user": {"login": "miss-islington"},
+            "labels": [{"name": "awaiting merge"}],
+            "head": {"sha": sha},
         },
     }
 
-    event = sansio.Event(data, event="pull_request_review", delivery_id="1")
+    event = sansio.Event(data, event="pull_request", delivery_id="1")
 
     getitem = {
         f"/repos/python/cpython/commits/{sha}/status": {
@@ -336,7 +323,7 @@ async def test_pr_reviewed_webhook_ci_failure_pr_is_not_merged():
                 },
             ],
         },
-        "/teams/42/memberships/Mariatta": True,
+        "/repos/python/cpython/pulls/5547": {"labels": [{"name": "awaiting merge"}]},
     }
 
     getiter = {
@@ -358,7 +345,6 @@ async def test_pr_reviewed_webhook_ci_failure_pr_is_not_merged():
                 "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
             }
         ],
-        "/orgs/python/teams": [{"name": "Python core", "id": 42}],
     }
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
@@ -367,19 +353,18 @@ async def test_pr_reviewed_webhook_ci_failure_pr_is_not_merged():
     assert not hasattr(gh, "put_data")  # is not merged
 
 
-async def test_pr_reviewed_changes_requested_pr_is_not_merged():
+async def test_awaiting_core_review_label_added_is_not_merged():
     sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
     data = {
-        "action": "submitted",
-        "pull_request": {"user": {"login": "miss-islington"}},
-        "review": {
-            "commit_id": sha,
-            "user": {"login": "Mariatta"},
-            "state": "changes_requested",
+        "action": "labeled",
+        "pull_request": {
+            "user": {"login": "miss-islington"},
+            "labels": [{"name": "awaiting merge"}],
+            "head": {"sha": sha},
         },
     }
 
-    event = sansio.Event(data, event="pull_request_review", delivery_id="1")
+    event = sansio.Event(data, event="pull_request", delivery_id="1")
 
     getitem = {
         f"/repos/python/cpython/commits/{sha}/status": {
@@ -400,7 +385,26 @@ async def test_pr_reviewed_changes_requested_pr_is_not_merged():
         }
     }
 
-    getiter = {"/orgs/python/teams": [{"name": "Python core", "id": 42}]}
+    getiter = {
+        "/repos/miss-islington/cpython/git/refs/heads/": [
+            {"ref": f"refs/heads/backport-{sha[0:7]}-3.6", "object": {"sha": sha}},
+            {
+                "ref": "refs/heads/backport-63ae044-3.6",
+                "object": {
+                    "sha": "67a2b0b7713e40dea7762b7d7764ae18fe967561",
+                    "type": "commit",
+                    "url": "https://api.github.com/repos/miss-islington/cpython/git/commits/67a2b0b7713e40dea7762b7d7764ae18fe967561",
+                },
+            },
+        ],
+        f"/repos/python/cpython/pulls?state=open&head=miss-islington:backport-{sha[0:7]}-3.6": [
+            {
+                "number": 5547,
+                "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
+                "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
+            }
+        ],
+    }
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
     await status_change.router.dispatch(event, gh)
@@ -408,19 +412,18 @@ async def test_pr_reviewed_changes_requested_pr_is_not_merged():
     assert not hasattr(gh, "put_data")  # is not merged
 
 
-async def test_pr_reviewed_ignore_non_miss_islingtons_pr():
+async def test_awaiting_merge_label_ignore_non_miss_islingtons_pr():
     sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
     data = {
-        "action": "submitted",
-        "pull_request": {"user": {"login": "Mariatta"}},
-        "review": {
-            "commit_id": sha,
+        "action": "labeled",
+        "pull_request": {
             "user": {"login": "Mariatta"},
-            "state": "approved",
+            "labels": [{"name": "awaiting merge"}],
+            "head": {"sha": sha},
         },
     }
 
-    event = sansio.Event(data, event="pull_request_review", delivery_id="1")
+    event = sansio.Event(data, event="pull_request", delivery_id="1")
 
     getitem = {
         f"/repos/python/cpython/commits/{sha}/status": {
@@ -441,15 +444,13 @@ async def test_pr_reviewed_ignore_non_miss_islingtons_pr():
         }
     }
 
-    getiter = {"/orgs/python/teams": [{"name": "Python core", "id": 42}]}
-
-    gh = FakeGH(getitem=getitem, getiter=getiter)
+    gh = FakeGH(getitem=getitem)  # , getiter=getiter)
     await status_change.router.dispatch(event, gh)
     assert not hasattr(gh, "post_data")  # does not leave a comment
     assert not hasattr(gh, "put_data")  # is not merged
 
 
-async def test_ci_passed_with_one_core_dev_review_pr_is_merged_not_miss_islington():
+async def test_ci_passed_with_awaiting_merge_label_not_miss_islington_is_not_merged():
     sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
     data = {"sha": sha, "commit": {"committer": {"login": "Mariatta"}}}
     event = sansio.Event(data, event="status", delivery_id="1")
@@ -475,7 +476,7 @@ async def test_ci_passed_with_one_core_dev_review_pr_is_merged_not_miss_islingto
             "user": {"login": "miss-islington"},
             "merged_by": {"login": "Mariatta"},
         },
-        "/teams/42/memberships/Mariatta": True,
+        "/repos/python/cpython/pulls/5547": {"labels": [{"name": "awaiting merge"}]},
     }
 
     getiter = {
@@ -497,9 +498,6 @@ async def test_ci_passed_with_one_core_dev_review_pr_is_merged_not_miss_islingto
                 "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
             }
         ],
-        "/repos/python/cpython/pulls/5547/reviews": [
-            {"user": {"login": "Mariatta"}, "state": "APPROVED"}
-        ],
         "/repos/python/cpython/pulls/5547/commits": [
             {
                 "sha": "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9",
@@ -508,7 +506,6 @@ async def test_ci_passed_with_one_core_dev_review_pr_is_merged_not_miss_islingto
                 },
             }
         ],
-        "/orgs/python/teams": [{"name": "Python core", "id": 42}],
     }
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
@@ -543,7 +540,6 @@ async def test_ci_pending():
             "user": {"login": "miss-islington"},
             "merged_by": {"login": "Mariatta"},
         },
-        "/teams/42/memberships/Mariatta": True,
     }
 
     getiter = {
@@ -565,9 +561,6 @@ async def test_ci_pending():
                 "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
             }
         ],
-        "/repos/python/cpython/pulls/5547/reviews": [
-            {"user": {"login": "Mariatta"}, "state": "APPROVED"}
-        ],
         "/repos/python/cpython/pulls/5547/commits": [
             {
                 "sha": "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9",
@@ -576,7 +569,6 @@ async def test_ci_pending():
                 },
             }
         ],
-        "/orgs/python/teams": [{"name": "Python core", "id": 42}],
     }
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
@@ -605,7 +597,6 @@ async def test_travis_not_done():
             "user": {"login": "miss-islington"},
             "merged_by": {"login": "Mariatta"},
         },
-        "/teams/42/memberships/Mariatta": True,
     }
 
     getiter = {
@@ -627,9 +618,6 @@ async def test_travis_not_done():
                 "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
             }
         ],
-        "/repos/python/cpython/pulls/5547/reviews": [
-            {"user": {"login": "Mariatta"}, "state": "APPROVED"}
-        ],
         "/repos/python/cpython/pulls/5547/commits": [
             {
                 "sha": "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9",
@@ -638,7 +626,6 @@ async def test_travis_not_done():
                 },
             }
         ],
-        "/orgs/python/teams": [{"name": "Python core", "id": 42}],
     }
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
@@ -673,7 +660,6 @@ async def test_pr_title_does_not_match():
             "user": {"login": "miss-islington"},
             "merged_by": {"login": "Mariatta"},
         },
-        "/teams/42/memberships/Mariatta": True,
     }
 
     getiter = {
@@ -695,9 +681,6 @@ async def test_pr_title_does_not_match():
                 "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
             }
         ],
-        "/repos/python/cpython/pulls/5547/reviews": [
-            {"user": {"login": "Mariatta"}, "state": "APPROVED"}
-        ],
         "/repos/python/cpython/pulls/5547/commits": [
             {
                 "sha": "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9",
@@ -706,7 +689,6 @@ async def test_pr_title_does_not_match():
                 },
             }
         ],
-        "/orgs/python/teams": [{"name": "Python core", "id": 42}],
     }
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
@@ -715,7 +697,7 @@ async def test_pr_title_does_not_match():
     assert not hasattr(gh, "put_data")  # is not merged
 
 
-async def test_ci_passed_approved_by_non_core_dev_review_pr_is_not_merged():
+async def test_ci_passed_awaiting_core_review_is_not_merged():
     sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
     data = {"sha": sha, "commit": {"committer": {"login": "miss-islington"}}}
     event = sansio.Event(data, event="status", delivery_id="1")
@@ -741,11 +723,10 @@ async def test_ci_passed_approved_by_non_core_dev_review_pr_is_not_merged():
             "user": {"login": "miss-islington"},
             "merged_by": {"login": "Mariatta"},
         },
-        "/teams/42/memberships/Mariatta": gidgethub.BadRequest(
-            status_code=http.HTTPStatus(404)
-        ),
+        "/repos/python/cpython/pulls/5547": {
+            "labels": [{"name": "awaiting core review"}]
+        },
     }
-
     getiter = {
         "/repos/miss-islington/cpython/git/refs/heads/": [
             {"ref": f"refs/heads/backport-{sha[0:7]}-3.6", "object": {"sha": sha}},
@@ -765,18 +746,6 @@ async def test_ci_passed_approved_by_non_core_dev_review_pr_is_not_merged():
                 "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
             }
         ],
-        "/repos/python/cpython/pulls/5547/reviews": [
-            {"user": {"login": "Mariatta"}, "state": "APPROVED"}
-        ],
-        "/repos/python/cpython/pulls/5547/commits": [
-            {
-                "sha": "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9",
-                "commit": {
-                    "message": "bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>"
-                },
-            }
-        ],
-        "/orgs/python/teams": [{"name": "Python core", "id": 42}],
     }
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
@@ -810,7 +779,7 @@ async def test_branch_sha_not_matched_pr_not_merged():
             "user": {"login": "miss-islington"},
             "merged_by": {"login": "Mariatta"},
         },
-        "/teams/42/memberships/Mariatta": True,
+        "/repos/python/cpython/pulls/5547": {"labels": [{"name": "awaiting merge"}]},
     }
 
     getiter = {
@@ -832,8 +801,76 @@ async def test_branch_sha_not_matched_pr_not_merged():
                 "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
             }
         ],
-        "/repos/python/cpython/pulls/5547/reviews": [
-            {"user": {"login": "Mariatta"}, "state": "APPROVED"}
+        "/repos/python/cpython/pulls/5547/commits": [
+            {
+                "sha": "f2393593c99dd2d3",
+                "commit": {
+                    "message": "bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>"
+                },
+            }
+        ],
+    }
+
+    gh = FakeGH(getitem=getitem, getiter=getiter)
+    await status_change.router.dispatch(event, gh)
+    assert not hasattr(gh, "put_data")  # is not merged
+
+
+async def test_awaiting_merge_label_added_not_miss_islingtons_pr():
+    sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
+    data = {
+        "action": "labeled",
+        "pull_request": {
+            "user": {"login": "Mariatta"},
+            "labels": [{"name": "awaiting merge"}],
+            "head": {"sha": sha},
+        },
+    }
+
+    event = sansio.Event(data, event="pull_request", delivery_id="1")
+
+    getitem = {
+        f"/repos/python/cpython/commits/{sha}/status": {
+            "state": "success",
+            "statuses": [
+                {
+                    "state": "success",
+                    "description": "Issue report skipped",
+                    "context": "bedevere/issue-number",
+                },
+                {
+                    "state": "success",
+                    "description": "The Travis CI build passed",
+                    "target_url": "https://travis-ci.org/python/cpython/builds/340259685?utm_source=github_status&utm_medium=notification",
+                    "context": "continuous-integration/travis-ci/pr",
+                },
+            ],
+        },
+        "/repos/python/cpython/pulls/5544": {
+            "user": {"login": "miss-islington"},
+            "merged_by": {"login": "Mariatta"},
+        },
+        "/repos/python/cpython/pulls/5547": {"labels": [{"name": "awaiting merge"}]},
+    }
+
+    getiter = {
+        "/repos/miss-islington/cpython/git/refs/heads/": [
+            {"ref": f"refs/heads/backport-{sha[0:7]}-3.6", "object": {"sha": sha}},
+            {
+                "ref": "refs/heads/backport-63ae044-3.6",
+                "object": {
+                    "sha": "67a2b0b7713e40dea7762b7d7764ae18fe967561",
+                    "type": "commit",
+                    "url": "https://api.github.com/repos/miss-islington/cpython/git/commits/67a2b0b7713e40dea7762b7d7764ae18fe967561",
+                },
+            },
+        ],
+        f"/repos/python/cpython/pulls?state=open&head=miss-islington:backport-{sha[0:7]}-3.6": [
+            {
+                "number": 5547,
+                "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
+                "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
+            }
         ],
         "/repos/python/cpython/pulls/5547/commits": [
             {
@@ -843,7 +880,79 @@ async def test_branch_sha_not_matched_pr_not_merged():
                 },
             }
         ],
-        "/orgs/python/teams": [{"name": "Python core", "id": 42}],
+    }
+
+    gh = FakeGH(getitem=getitem, getiter=getiter)
+    await status_change.router.dispatch(event, gh)
+    assert not hasattr(gh, "put_data")  # is not merged
+
+
+async def test_awaiting_core_review_label_added_miss_islingtons_pr():
+    sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
+    data = {
+        "action": "labeled",
+        "pull_request": {
+            "user": {"login": "miss-islington"},
+            "labels": [{"name": "awaiting core review"}],
+            "head": {"sha": sha},
+        },
+    }
+
+    event = sansio.Event(data, event="pull_request", delivery_id="1")
+
+    getitem = {
+        f"/repos/python/cpython/commits/{sha}/status": {
+            "state": "success",
+            "statuses": [
+                {
+                    "state": "success",
+                    "description": "Issue report skipped",
+                    "context": "bedevere/issue-number",
+                },
+                {
+                    "state": "success",
+                    "description": "The Travis CI build passed",
+                    "target_url": "https://travis-ci.org/python/cpython/builds/340259685?utm_source=github_status&utm_medium=notification",
+                    "context": "continuous-integration/travis-ci/pr",
+                },
+            ],
+        },
+        "/repos/python/cpython/pulls/5544": {
+            "user": {"login": "miss-islington"},
+            "merged_by": {"login": "Mariatta"},
+        },
+        "/repos/python/cpython/pulls/5547": {
+            "labels": [{"name": "awaiting core review"}]
+        },
+    }
+
+    getiter = {
+        "/repos/miss-islington/cpython/git/refs/heads/": [
+            {"ref": f"refs/heads/backport-{sha[0:7]}-3.6", "object": {"sha": sha}},
+            {
+                "ref": "refs/heads/backport-63ae044-3.6",
+                "object": {
+                    "sha": "67a2b0b7713e40dea7762b7d7764ae18fe967561",
+                    "type": "commit",
+                    "url": "https://api.github.com/repos/miss-islington/cpython/git/commits/67a2b0b7713e40dea7762b7d7764ae18fe967561",
+                },
+            },
+        ],
+        f"/repos/python/cpython/pulls?state=open&head=miss-islington:backport-{sha[0:7]}-3.6": [
+            {
+                "number": 5547,
+                "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
+                "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
+            }
+        ],
+        "/repos/python/cpython/pulls/5547/commits": [
+            {
+                "sha": "f2393593c99dd2d3",
+                "commit": {
+                    "message": "bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>"
+                },
+            }
+        ],
     }
 
     gh = FakeGH(getitem=getitem, getiter=getiter)

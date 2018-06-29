@@ -22,13 +22,11 @@ async def check_status(event, gh, *args, **kwargs):
         await check_ci_status_and_approval(gh, sha, leave_comment=True)
 
 
-@router.register("pull_request_review", action="submitted")
+@router.register("pull_request", action="labeled")
 async def pr_reviewed(event, gh, *args, **kwargs):
     if event.data["pull_request"]["user"]["login"] == "miss-islington":
-        reviewer = event.data["review"]["user"]["login"]
-        approved = event.data["review"]["state"] == "approved"
-        if approved and await util.is_core_dev(gh, reviewer):
-            sha = event.data["review"]["commit_id"]
+        if util.pr_is_awaiting_merge(event.data["pull_request"]["labels"]):
+            sha = event.data["pull_request"]["head"]["sha"]
             await check_ci_status_and_approval(gh, sha)
 
 
@@ -75,14 +73,12 @@ async def check_ci_status_and_approval(gh, sha, leave_comment=False):
                             )
 
                         if result["state"] == "success":
-                            async for review in gh.getiter(
-                                f"/repos/python/cpython/pulls/{pr_number}/reviews"
-                            ):
-                                reviewer = review["user"]["login"]
-                                approved = review["state"].lower() == "approved"
-                                if approved and await util.is_core_dev(gh, reviewer):
-                                    await merge_pr(gh, pr_number, sha)
-                                    break
+                            pr = await gh.getitem(
+                                f"/repos/python/cpython/pulls/{pr_number}"
+                            )
+                            if util.pr_is_awaiting_merge(pr["labels"]):
+                                await merge_pr(gh, pr_number, sha)
+                                break
 
 
 async def merge_pr(gh, pr_number, sha):
