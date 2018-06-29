@@ -73,7 +73,9 @@ async def check_ci_status_and_approval(gh, sha, leave_comment=False):
                             )
 
                         if result["state"] == "success":
-                            pr = await gh.getitem(f"/repos/python/cpython/pulls/{pr_number}")
+                            pr = await gh.getitem(
+                                f"/repos/python/cpython/pulls/{pr_number}"
+                            )
                             if util.pr_is_awaiting_merge(pr["labels"]):
                                 await merge_pr(gh, pr_number, sha)
                                 break
