@@ -128,8 +128,16 @@ def test_pr_is_not_awaiting_merge():
 def test_comment_on_pr_success(requests_mock):
     issue_number = 100
     message = "Thanks for the PR!"
-    post_url = f"https://api.github.com/repos/python/cpython/issues/{issue_number}/comments"
-    requests_mock.post(post_url, json={"html_url": "https://github.com/python/cpython/pull/{issue_number}#issuecomment-401309376"}, status_code=201)
+    post_url = (
+        f"https://api.github.com/repos/python/cpython/issues/{issue_number}/comments"
+    )
+    requests_mock.post(
+        post_url,
+        json={
+            "html_url": "https://github.com/python/cpython/pull/{issue_number}#issuecomment-401309376"
+        },
+        status_code=201,
+    )
     response = util.comment_on_pr(issue_number, message)
     assert response.status_code == 201
 
@@ -137,9 +145,10 @@ def test_comment_on_pr_success(requests_mock):
 def test_comment_on_pr_failure(requests_mock):
     issue_number = 100
     message = "Thanks for the PR!"
-    post_url = f"https://api.github.com/repos/python/cpython/issues/{issue_number}/comments"
-    requests_mock.post(post_url,
-                       status_code=400)
+    post_url = (
+        f"https://api.github.com/repos/python/cpython/issues/{issue_number}/comments"
+    )
+    requests_mock.post(post_url, status_code=400)
     response = util.comment_on_pr(issue_number, message)
     assert response.status_code == 400
 
@@ -152,6 +161,7 @@ def test_assign_pr_to_coredev_success(requests_mock):
     requests_mock.patch(patch_url, status_code=201)
     response = util.assign_pr_to_core_dev(issue_number, coredev_login)
     assert response.status_code == 201
+
 
 def test_assign_pr_to_coredev_failed(requests_mock):
     issue_number = 100
