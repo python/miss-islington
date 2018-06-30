@@ -24,6 +24,7 @@ def comment_on_pr(issue_number, message):
     else:
         print(response.status_code)
         print(response.text)
+    return response
 
 
 def assign_pr_to_core_dev(issue_number, coredev_login):
@@ -44,6 +45,7 @@ def assign_pr_to_core_dev(issue_number, coredev_login):
     else:
         print(response.status_code)
         print(response.text)
+    return response
 
 
 async def leave_comment(gh, pr_number, message):
