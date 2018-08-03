@@ -15,6 +15,7 @@ app.conf.update(
 )
 
 
+@app.task()
 def setup_cpython_repo():
     print("Setting up CPython repository")
     if "cpython" not in os.listdir("."):
@@ -36,6 +37,7 @@ def setup_cpython_repo():
         print("cpython directory already exists")
 
 
+@app.task()
 def backport_task(commit_hash, branch, *, issue_number, created_by, merged_by):
     """Backport a commit into a branch."""
     if not util.is_cpython_repo():
