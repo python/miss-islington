@@ -40,45 +40,41 @@ async def check_ci_status_and_approval(gh, sha, leave_comment=False):
         "pending" not in all_ci_status
         and "continuous-integration/travis-ci/pr" in all_ci_context
     ):
-        async for ref in gh.getiter("/repos/miss-islington/cpython/git/refs/heads/"):
-            if "backport-" in ref["ref"] and ref["object"]["sha"] == sha:
-                backport_branch_name = ref["ref"].split("/")[-1]
-                async for pr_response in gh.getiter(
-                    f"/repos/python/cpython/pulls?state=open&head=miss-islington:{backport_branch_name}"
-                ):
-                    pr_number = pr_response["number"]
-                    normalized_pr_title = util.normalize_title(
-                        pr_response["title"], pr_response["body"]
+
+        prs_for_commit = await gh.getitem(f'/search/issues?q=type:pr+repo:python/cpython+sha:{sha}')
+        if prs_for_commit["total_count"] > 0:  # there should only be one
+            pr_for_commit = prs_for_commit["items"][0]
+            pr_number = pr_for_commit["number"]
+            normalized_pr_title = util.normalize_title(
+                pr_for_commit["title"], pr_for_commit["body"]
+            )
+
+            title_match = TITLE_RE.match(normalized_pr_title)
+            if title_match:
+                if leave_comment:
+                    original_pr_number = title_match.group("pr")
+                    original_pr_url = (
+                        f"/repos/python/cpython/pulls/{original_pr_number}"
+                    )
+                    original_pr_result = await gh.getitem(original_pr_url)
+                    pr_author = original_pr_result["user"]["login"]
+                    committer = original_pr_result["merged_by"]["login"]
+
+                    participants = util.get_participants(pr_author, committer)
+                    emoji = "✅" if result["state"] == "success" else "❌"
+
+                    await util.leave_comment(
+                        gh,
+                        pr_number=pr_number,
+                        message=f"{participants}: Backport status check is done, and it's a {result['state']} {emoji} .",
                     )
 
-                    title_match = TITLE_RE.match(normalized_pr_title)
-                    if title_match:
-
-                        if leave_comment:
-                            original_pr_number = title_match.group("pr")
-                            original_pr_url = (
-                                f"/repos/python/cpython/pulls/{original_pr_number}"
-                            )
-                            original_pr_result = await gh.getitem(original_pr_url)
-                            pr_author = original_pr_result["user"]["login"]
-                            committer = original_pr_result["merged_by"]["login"]
-
-                            participants = util.get_participants(pr_author, committer)
-                            emoji = "✅" if result["state"] == "success" else "❌"
-
-                            await util.leave_comment(
-                                gh,
-                                pr_number=pr_number,
-                                message=f"{participants}: Backport status check is done, and it's a {result['state']} {emoji} .",
-                            )
-
-                        if result["state"] == "success":
-                            pr = await gh.getitem(
-                                f"/repos/python/cpython/pulls/{pr_number}"
-                            )
-                            if util.pr_is_awaiting_merge(pr["labels"]):
-                                await merge_pr(gh, pr_number, sha)
-                                break
+                if result["state"] == "success":
+                    pr = await gh.getitem(
+                        f"/repos/python/cpython/pulls/{pr_number}"
+                    )
+                    if util.pr_is_awaiting_merge(pr["labels"]):
+                        await merge_pr(gh, pr_number, sha)
 
 
 async def merge_pr(gh, pr_number, sha):
