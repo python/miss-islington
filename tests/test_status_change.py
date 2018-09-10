@@ -71,7 +71,7 @@ async def test_ci_passed_with_awaiting_merge_label_pr_is_merged():
                     "number": 5547,
                     "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
-                    "labels": [{"name": "awaiting merge"}]
+                    "labels": [{"name": "awaiting merge"}],
                 }
             ],
         },
@@ -85,7 +85,7 @@ async def test_ci_passed_with_awaiting_merge_label_pr_is_merged():
                     "message": "bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>"
                 },
             }
-        ],
+        ]
     }
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
@@ -135,7 +135,7 @@ async def test_ci_passed_with_no_awaiting_merge_label_pr_is_not_merged():
                     "number": 5547,
                     "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
-                    "labels": [{"name": "awaiting core review"}]
+                    "labels": [{"name": "awaiting core review"}],
                 }
             ],
         },
@@ -181,7 +181,7 @@ async def test_ci_not_passed_awaiting_merge_label_pr_is_not_merged():
                     "number": 5547,
                     "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
-                    "labels": [{"name": "awaiting merge"}]
+                    "labels": [{"name": "awaiting merge"}],
                 }
             ],
         },
@@ -231,7 +231,7 @@ async def test_awaiting_merge_label_added_and_ci_passed_pr_is_merged():
                     "number": 5547,
                     "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
-                    "labels": [{"name": "awaiting merge"}]
+                    "labels": [{"name": "awaiting merge"}],
                 }
             ],
         },
@@ -245,7 +245,7 @@ async def test_awaiting_merge_label_added_and_ci_passed_pr_is_merged():
                     "message": "bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>"
                 },
             }
-        ],
+        ]
     }
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
@@ -297,7 +297,7 @@ async def test_awaiting_merge_webhook_ci_failure_pr_is_not_merged():
                     "number": 5547,
                     "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
-                    "labels": [{"name": "awaiting merge"}]
+                    "labels": [{"name": "awaiting merge"}],
                 }
             ],
         },
@@ -346,7 +346,7 @@ async def test_awaiting_core_review_label_added_is_not_merged():
                     "number": 5547,
                     "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
-                    "labels": [{"name": "awaiting merge"}]
+                    "labels": [{"name": "awaiting merge"}],
                 }
             ],
         },
@@ -430,7 +430,7 @@ async def test_ci_passed_with_awaiting_merge_label_not_miss_islington_is_not_mer
                     "number": 5547,
                     "title": "bpo-32720: Fixed the replacement field grammar documentation.",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
-                    "labels": [{"name": "awaiting merge"}]
+                    "labels": [{"name": "awaiting merge"}],
                 }
             ],
         },
@@ -478,7 +478,7 @@ async def test_ci_pending():
                     "message": "bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>"
                 },
             }
-        ],
+        ]
     }
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
@@ -517,7 +517,7 @@ async def test_travis_not_done():
                     "message": "bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>"
                 },
             }
-        ],
+        ]
     }
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
@@ -559,7 +559,7 @@ async def test_pr_title_does_not_match():
                     "number": 5547,
                     "title": "bpo-32720: Fixed the replacement field grammar documentation.",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
-                    "labels": [{"name": "awaiting merge"}]
+                    "labels": [{"name": "awaiting merge"}],
                 }
             ],
         },
@@ -573,7 +573,7 @@ async def test_pr_title_does_not_match():
                     "message": "bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>"
                 },
             }
-        ],
+        ]
     }
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
@@ -618,7 +618,7 @@ async def test_ci_passed_awaiting_core_review_is_not_merged():
                     "number": 5547,
                     "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
-                    "labels": [{"name": "awaiting core review"}]
+                    "labels": [{"name": "awaiting core review"}],
                 }
             ],
         },
@@ -663,7 +663,7 @@ async def test_branch_sha_not_matched_pr_not_merged():
                     "number": 5547,
                     "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
-                    "labels": [{"name": "awaiting merge"}]
+                    "labels": [{"name": "awaiting merge"}],
                 }
             ],
         },
@@ -677,7 +677,7 @@ async def test_branch_sha_not_matched_pr_not_merged():
                     "message": "bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>"
                 },
             }
-        ],
+        ]
     }
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
@@ -870,7 +870,7 @@ async def test_no_pr_containing_sha():
 
 async def test_ci_passed_automerge():
     sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
-    data = {"sha": sha, "commit": {"committer": None, "author": None,}}
+    data = {"sha": sha, "commit": {"committer": None, "author": None}}
     event = sansio.Event(data, event="status", delivery_id="1")
 
     getitem = {
@@ -890,9 +890,11 @@ async def test_ci_passed_automerge():
                 },
             ],
         },
-        "/repos/python/cpython/pulls/5547": {"user": {"login": "bedevere-bot"},
+        "/repos/python/cpython/pulls/5547": {
+            "user": {"login": "bedevere-bot"},
             "merged_by": None,
-                                             "labels": [{"name": "awaiting merge"}]},
+            "labels": [{"name": "awaiting merge"}],
+        },
         f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
             "total_count": 1,
             "items": [
@@ -900,7 +902,7 @@ async def test_ci_passed_automerge():
                     "number": 5547,
                     "title": "bpo-32720: Fixed the replacement field grammar documentation.",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
-                    "labels": [{"name": "awaiting merge"}, {"name": "automerge"}]
+                    "labels": [{"name": "awaiting merge"}, {"name": "automerge"}],
                 }
             ],
         },
@@ -914,7 +916,7 @@ async def test_ci_passed_automerge():
                     "message": "bpo-32720: Fixed the replacement field grammar documentation."
                 },
             }
-        ],
+        ]
     }
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
@@ -930,7 +932,7 @@ async def test_ci_passed_automerge():
 
 async def test_ci_passed_not_automerge():
     sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
-    data = {"sha": sha, "commit": {"committer": None, "author": None,}}
+    data = {"sha": sha, "commit": {"committer": None, "author": None}}
     event = sansio.Event(data, event="status", delivery_id="1")
 
     getitem = {
@@ -950,9 +952,11 @@ async def test_ci_passed_not_automerge():
                 },
             ],
         },
-        "/repos/python/cpython/pulls/5547": {"user": {"login": "bedevere-bot"},
+        "/repos/python/cpython/pulls/5547": {
+            "user": {"login": "bedevere-bot"},
             "merged_by": None,
-                                             "labels": [{"name": "awaiting merge"}]},
+            "labels": [{"name": "awaiting merge"}],
+        },
         f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
             "total_count": 1,
             "items": [
@@ -960,7 +964,7 @@ async def test_ci_passed_not_automerge():
                     "number": 5547,
                     "title": "bpo-32720: Fixed the replacement field grammar documentation.",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
-                    "labels": [{"name": "awaiting merge"}]
+                    "labels": [{"name": "awaiting merge"}],
                 }
             ],
         },
@@ -1014,19 +1018,13 @@ async def test_awaiting_merge_label_and_automerge_label_added_not_miss_islington
                     "number": 5547,
                     "title": "bpo-32720: Fixed the replacement field grammar documentation.",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
-                    "labels": [{"name": "awaiting merge"}, {"name": "automerge"}]
+                    "labels": [{"name": "awaiting merge"}, {"name": "automerge"}],
                 }
             ],
-        }
+        },
     }
 
-    getiter = {
-        "/repos/python/cpython/pulls/5547/commits": [
-            {
-                "sha": sha,
-            }
-        ],
-    }
+    getiter = {"/repos/python/cpython/pulls/5547/commits": [{"sha": sha}]}
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
     await status_change.router.dispatch(event, gh)
@@ -1035,12 +1033,12 @@ async def test_awaiting_merge_label_and_automerge_label_added_not_miss_islington
     assert gh.put_data["sha"] == sha  # is merged
     assert gh.put_data["merge_method"] == "squash"
     assert (
-            gh.put_data["commit_title"]
-            == "bpo-32720: Fixed the replacement field grammar documentation. (GH-5547)"
+        gh.put_data["commit_title"]
+        == "bpo-32720: Fixed the replacement field grammar documentation. (GH-5547)"
     )
     assert (
-            gh.put_data["commit_message"]
-            == "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`."
+        gh.put_data["commit_message"]
+        == "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`."
     )
 
 
@@ -1086,19 +1084,13 @@ async def test_awaiting_automerge_but_not_awaiting_merge():
                     "number": 5547,
                     "title": "bpo-32720: Fixed the replacement field grammar documentation.",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
-                    "labels": [{"name": "awaiting merge"}, {"name": "automerge"}]
+                    "labels": [{"name": "awaiting merge"}, {"name": "automerge"}],
                 }
             ],
-        }
+        },
     }
 
-    getiter = {
-        "/repos/python/cpython/pulls/5547/commits": [
-            {
-                "sha": sha,
-            }
-        ],
-    }
+    getiter = {"/repos/python/cpython/pulls/5547/commits": [{"sha": sha}]}
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
     await status_change.router.dispatch(event, gh)
@@ -1108,7 +1100,7 @@ async def test_awaiting_automerge_but_not_awaiting_merge():
 
 async def test_pr_not_found_for_commit():
     sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
-    data = {"sha": sha, "commit": {"committer": None, "author": None,}}
+    data = {"sha": sha, "commit": {"committer": None, "author": None}}
 
     event = sansio.Event(data, event="status", delivery_id="1")
 

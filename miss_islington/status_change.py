@@ -26,7 +26,9 @@ async def check_status(event, gh, *args, **kwargs):
         if pr_for_commit:
             pr_labels = pr_for_commit["labels"]
             if util.pr_is_automerge(pr_labels) and util.pr_is_awaiting_merge(pr_labels):
-                await check_ci_status_and_approval(gh, sha, leave_comment=True, is_automerge=True)
+                await check_ci_status_and_approval(
+                    gh, sha, leave_comment=True, is_automerge=True
+                )
 
 
 @router.register("pull_request", action="labeled")
@@ -36,12 +38,18 @@ async def pr_reviewed(event, gh, *args, **kwargs):
     if util.pr_is_automerge(pr_labels) and util.pr_is_awaiting_merge(pr_labels):
         sha = event.data["pull_request"]["head"]["sha"]
         await check_ci_status_and_approval(gh, sha, is_automerge=True)
-    elif event.data["pull_request"]["user"]["login"] == "miss-islington" and util.pr_is_awaiting_merge(event.data["pull_request"]["labels"]):
-            sha = event.data["pull_request"]["head"]["sha"]
-            await check_ci_status_and_approval(gh, sha)
+    elif event.data["pull_request"]["user"][
+        "login"
+    ] == "miss-islington" and util.pr_is_awaiting_merge(
+        event.data["pull_request"]["labels"]
+    ):
+        sha = event.data["pull_request"]["head"]["sha"]
+        await check_ci_status_and_approval(gh, sha)
 
 
-async def check_ci_status_and_approval(gh, sha, leave_comment=False, is_automerge=False):
+async def check_ci_status_and_approval(
+    gh, sha, leave_comment=False, is_automerge=False
+):
 
     result = await gh.getitem(f"/repos/python/cpython/commits/{sha}/status")
     all_ci_status = [status["state"] for status in result["statuses"]]
@@ -65,7 +73,9 @@ async def check_ci_status_and_approval(gh, sha, leave_comment=False, is_automerg
                         participants = await util.get_participants(gh, pr_number)
                     else:
                         original_pr_number = title_match.group("pr")
-                        participants = await util.get_participants(gh, original_pr_number)
+                        participants = await util.get_participants(
+                            gh, original_pr_number
+                        )
 
                     emoji = "✅" if result["state"] == "success" else "❌"
 
@@ -78,7 +88,9 @@ async def check_ci_status_and_approval(gh, sha, leave_comment=False, is_automerg
 
                     if util.pr_is_awaiting_merge(pr_for_commit["labels"]):
                         print("awaiting merge")
-                        await merge_pr(gh, pr_for_commit, sha, is_automerge=is_automerge)
+                        await merge_pr(
+                            gh, pr_for_commit, sha, is_automerge=is_automerge
+                        )
 
 
 async def merge_pr(gh, pr, sha, is_automerge=False):
