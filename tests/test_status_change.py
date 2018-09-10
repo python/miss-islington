@@ -71,6 +71,7 @@ async def test_ci_passed_with_awaiting_merge_label_pr_is_merged():
                     "number": 5547,
                     "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
+                    "labels": [{"name": "awaiting merge"}]
                 }
             ],
         },
@@ -134,6 +135,7 @@ async def test_ci_passed_with_no_awaiting_merge_label_pr_is_not_merged():
                     "number": 5547,
                     "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
+                    "labels": [{"name": "awaiting core review"}]
                 }
             ],
         },
@@ -179,6 +181,7 @@ async def test_ci_not_passed_awaiting_merge_label_pr_is_not_merged():
                     "number": 5547,
                     "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
+                    "labels": [{"name": "awaiting merge"}]
                 }
             ],
         },
@@ -228,6 +231,7 @@ async def test_awaiting_merge_label_added_and_ci_passed_pr_is_merged():
                     "number": 5547,
                     "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
+                    "labels": [{"name": "awaiting merge"}]
                 }
             ],
         },
@@ -293,6 +297,7 @@ async def test_awaiting_merge_webhook_ci_failure_pr_is_not_merged():
                     "number": 5547,
                     "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
+                    "labels": [{"name": "awaiting merge"}]
                 }
             ],
         },
@@ -341,6 +346,7 @@ async def test_awaiting_core_review_label_added_is_not_merged():
                     "number": 5547,
                     "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
+                    "labels": [{"name": "awaiting merge"}]
                 }
             ],
         },
@@ -417,6 +423,17 @@ async def test_ci_passed_with_awaiting_merge_label_not_miss_islington_is_not_mer
             "merged_by": {"login": "Mariatta"},
         },
         "/repos/python/cpython/pulls/5547": {"labels": [{"name": "awaiting merge"}]},
+        f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
+            "total_count": 1,
+            "items": [
+                {
+                    "number": 5547,
+                    "title": "bpo-32720: Fixed the replacement field grammar documentation.",
+                    "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
+                    "labels": [{"name": "awaiting merge"}]
+                }
+            ],
+        },
     }
 
     gh = FakeGH(getitem=getitem)
@@ -542,6 +559,7 @@ async def test_pr_title_does_not_match():
                     "number": 5547,
                     "title": "bpo-32720: Fixed the replacement field grammar documentation.",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
+                    "labels": [{"name": "awaiting merge"}]
                 }
             ],
         },
@@ -600,6 +618,7 @@ async def test_ci_passed_awaiting_core_review_is_not_merged():
                     "number": 5547,
                     "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
+                    "labels": [{"name": "awaiting core review"}]
                 }
             ],
         },
@@ -644,6 +663,7 @@ async def test_branch_sha_not_matched_pr_not_merged():
                     "number": 5547,
                     "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
+                    "labels": [{"name": "awaiting merge"}]
                 }
             ],
         },
@@ -846,3 +866,260 @@ async def test_no_pr_containing_sha():
     await status_change.router.dispatch(event, gh)
     assert not hasattr(gh, "post_data")  # does not leave any comment
     assert not hasattr(gh, "put_data")  # is not merged
+
+
+async def test_ci_passed_automerge():
+    sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
+    data = {"sha": sha, "commit": {"committer": None, "author": None,}}
+    event = sansio.Event(data, event="status", delivery_id="1")
+
+    getitem = {
+        f"/repos/python/cpython/commits/{sha}/status": {
+            "state": "success",
+            "statuses": [
+                {
+                    "state": "success",
+                    "description": "Issue report skipped",
+                    "context": "bedevere/issue-number",
+                },
+                {
+                    "state": "success",
+                    "description": "The Travis CI build passed",
+                    "target_url": "https://travis-ci.org/python/cpython/builds/340259685?utm_source=github_status&utm_medium=notification",
+                    "context": "continuous-integration/travis-ci/pr",
+                },
+            ],
+        },
+        "/repos/python/cpython/pulls/5547": {"user": {"login": "bedevere-bot"},
+            "merged_by": None,
+                                             "labels": [{"name": "awaiting merge"}]},
+        f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
+            "total_count": 1,
+            "items": [
+                {
+                    "number": 5547,
+                    "title": "bpo-32720: Fixed the replacement field grammar documentation.",
+                    "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
+                    "labels": [{"name": "awaiting merge"}, {"name": "automerge"}]
+                }
+            ],
+        },
+    }
+
+    getiter = {
+        "/repos/python/cpython/pulls/5547/commits": [
+            {
+                "sha": "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9",
+                "commit": {
+                    "message": "bpo-32720: Fixed the replacement field grammar documentation."
+                },
+            }
+        ],
+    }
+
+    gh = FakeGH(getitem=getitem, getiter=getiter)
+    await status_change.router.dispatch(event, gh)
+    assert len(gh.post_data["body"]) is not None  # leaves a comment
+    assert gh.put_data["sha"] == sha  # is merged
+    assert gh.put_data["merge_method"] == "squash"
+    assert (
+        gh.put_data["commit_title"]
+        == "bpo-32720: Fixed the replacement field grammar documentation. (GH-5547)"
+    )
+
+
+async def test_ci_passed_not_automerge():
+    sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
+    data = {"sha": sha, "commit": {"committer": None, "author": None,}}
+    event = sansio.Event(data, event="status", delivery_id="1")
+
+    getitem = {
+        f"/repos/python/cpython/commits/{sha}/status": {
+            "state": "success",
+            "statuses": [
+                {
+                    "state": "success",
+                    "description": "Issue report skipped",
+                    "context": "bedevere/issue-number",
+                },
+                {
+                    "state": "success",
+                    "description": "The Travis CI build passed",
+                    "target_url": "https://travis-ci.org/python/cpython/builds/340259685?utm_source=github_status&utm_medium=notification",
+                    "context": "continuous-integration/travis-ci/pr",
+                },
+            ],
+        },
+        "/repos/python/cpython/pulls/5547": {"user": {"login": "bedevere-bot"},
+            "merged_by": None,
+                                             "labels": [{"name": "awaiting merge"}]},
+        f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
+            "total_count": 1,
+            "items": [
+                {
+                    "number": 5547,
+                    "title": "bpo-32720: Fixed the replacement field grammar documentation.",
+                    "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
+                    "labels": [{"name": "awaiting merge"}]
+                }
+            ],
+        },
+    }
+
+    gh = FakeGH(getitem=getitem)
+    await status_change.router.dispatch(event, gh)
+    assert not hasattr(gh, "post_data")  # does not leave a comment
+    assert not hasattr(gh, "put_data")  # is not merged
+
+
+async def test_awaiting_merge_label_and_automerge_label_added_not_miss_islingtons_pr():
+    sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
+    data = {
+        "action": "labeled",
+        "pull_request": {
+            "user": {"login": "Mariatta"},
+            "labels": [{"name": "awaiting merge"}, {"name": "automerge"}],
+            "head": {"sha": sha},
+        },
+    }
+
+    event = sansio.Event(data, event="pull_request", delivery_id="1")
+
+    getitem = {
+        f"/repos/python/cpython/commits/{sha}/status": {
+            "state": "success",
+            "statuses": [
+                {
+                    "state": "success",
+                    "description": "Issue report skipped",
+                    "context": "bedevere/issue-number",
+                },
+                {
+                    "state": "success",
+                    "description": "The Travis CI build passed",
+                    "target_url": "https://travis-ci.org/python/cpython/builds/340259685?utm_source=github_status&utm_medium=notification",
+                    "context": "continuous-integration/travis-ci/pr",
+                },
+            ],
+        },
+        "/repos/python/cpython/pulls/5547": {
+            "user": {"login": "Mariatta"},
+            "merged_by": None,
+            "labels": [{"name": "awaiting merge"}, {"name": "automerge"}],
+        },
+        f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
+            "total_count": 1,
+            "items": [
+                {
+                    "number": 5547,
+                    "title": "bpo-32720: Fixed the replacement field grammar documentation.",
+                    "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
+                    "labels": [{"name": "awaiting merge"}, {"name": "automerge"}]
+                }
+            ],
+        }
+    }
+
+    getiter = {
+        "/repos/python/cpython/pulls/5547/commits": [
+            {
+                "sha": sha,
+            }
+        ],
+    }
+
+    gh = FakeGH(getitem=getitem, getiter=getiter)
+    await status_change.router.dispatch(event, gh)
+    assert not hasattr(gh, "post_data")  # does not leave a comment
+
+    assert gh.put_data["sha"] == sha  # is merged
+    assert gh.put_data["merge_method"] == "squash"
+    assert (
+            gh.put_data["commit_title"]
+            == "bpo-32720: Fixed the replacement field grammar documentation. (GH-5547)"
+    )
+    assert (
+            gh.put_data["commit_message"]
+            == "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`."
+    )
+
+
+async def test_awaiting_automerge_but_not_awaiting_merge():
+    sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
+    data = {
+        "action": "labeled",
+        "pull_request": {
+            "user": {"login": "Mariatta"},
+            "labels": [{"name": "awaiting review"}, {"name": "automerge"}],
+            "head": {"sha": sha},
+        },
+    }
+
+    event = sansio.Event(data, event="pull_request", delivery_id="1")
+
+    getitem = {
+        f"/repos/python/cpython/commits/{sha}/status": {
+            "state": "success",
+            "statuses": [
+                {
+                    "state": "success",
+                    "description": "Issue report skipped",
+                    "context": "bedevere/issue-number",
+                },
+                {
+                    "state": "success",
+                    "description": "The Travis CI build passed",
+                    "target_url": "https://travis-ci.org/python/cpython/builds/340259685?utm_source=github_status&utm_medium=notification",
+                    "context": "continuous-integration/travis-ci/pr",
+                },
+            ],
+        },
+        "/repos/python/cpython/pulls/5547": {
+            "user": {"login": "Mariatta"},
+            "merged_by": None,
+            "labels": [{"name": "awaiting review"}, {"name": "automerge"}],
+        },
+        f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
+            "total_count": 1,
+            "items": [
+                {
+                    "number": 5547,
+                    "title": "bpo-32720: Fixed the replacement field grammar documentation.",
+                    "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
+                    "labels": [{"name": "awaiting merge"}, {"name": "automerge"}]
+                }
+            ],
+        }
+    }
+
+    getiter = {
+        "/repos/python/cpython/pulls/5547/commits": [
+            {
+                "sha": sha,
+            }
+        ],
+    }
+
+    gh = FakeGH(getitem=getitem, getiter=getiter)
+    await status_change.router.dispatch(event, gh)
+    assert not hasattr(gh, "post_data")  # does not leave a comment
+    assert not hasattr(gh, "put_data")  # does not leave a comment
+
+
+async def test_pr_not_found_for_commit():
+    sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
+    data = {"sha": sha, "commit": {"committer": None, "author": None,}}
+
+    event = sansio.Event(data, event="status", delivery_id="1")
+
+    getitem = {
+        f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
+            "total_count": 0,
+            "items": [],
+        }
+    }
+
+    gh = FakeGH(getitem=getitem)
+    await status_change.router.dispatch(event, gh)
+    assert not hasattr(gh, "post_data")  # does not leave a comment
+    assert not hasattr(gh, "put_data")  # does not leave a comment

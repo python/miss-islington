@@ -66,12 +66,23 @@ def is_cpython_repo():
     return True
 
 
-def get_participants(created_by, merged_by):
+async def get_participants(gh, pr_number):
+    pr_url = (
+        f"/repos/python/cpython/pulls/{pr_number}"
+    )
+    pr_result = await gh.getitem(pr_url)
+    created_by = pr_result["user"]["login"]
+
+    merged_by = None
+    if pr_result["merged_by"]:
+        merged_by = pr_result["merged_by"]["login"]
+
     participants = ""
-    if created_by == merged_by:
+    if created_by == merged_by or merged_by is None:
         participants = f"@{created_by}"
-    else:
+    elif merged_by is not None:
         participants = f"@{created_by} and @{merged_by}"
+
     return participants
 
 
@@ -113,3 +124,19 @@ def pr_is_awaiting_merge(pr_labels):
         if label["name"] == "awaiting merge":
             return True
     return False
+
+
+def pr_is_automerge(pr_labels):
+    for label in pr_labels:
+        if label["name"] == "automerge":
+            return True
+    return False
+
+
+async def get_pr_for_commit(gh, sha):
+    prs_for_commit = await gh.getitem(
+        f'/search/issues?q=type:pr+repo:python/cpython+sha:{sha}')
+    if prs_for_commit["total_count"] > 0:  # there should only be one
+        pr_for_commit = prs_for_commit["items"][0]
+        return pr_for_commit
+    return None
