@@ -7,6 +7,9 @@ import gidgethub
 from gidgethub import sansio
 
 
+AUTOMERGE_LABEL = ":robot: automerge"
+
+
 def comment_on_pr(issue_number, message):
     """
     Leave a comment on a PR/Issue
@@ -126,7 +129,7 @@ def pr_is_awaiting_merge(pr_labels):
 
 def pr_is_automerge(pr_labels):
     for label in pr_labels:
-        if label["name"] == "automerge":
+        if label["name"] == AUTOMERGE_LABEL:
             return True
     return False
 

@@ -4,6 +4,7 @@ import gidgethub
 from gidgethub import sansio
 
 from miss_islington import status_change
+from miss_islington.util import AUTOMERGE_LABEL
 
 
 class FakeGH:
@@ -902,7 +903,7 @@ async def test_ci_passed_automerge():
                     "number": 5547,
                     "title": "bpo-32720: Fixed the replacement field grammar documentation.",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
-                    "labels": [{"name": "awaiting merge"}, {"name": "automerge"}],
+                    "labels": [{"name": "awaiting merge"}, {"name": AUTOMERGE_LABEL}],
                 }
             ],
         },
@@ -982,7 +983,7 @@ async def test_awaiting_merge_label_and_automerge_label_added_not_miss_islington
         "action": "labeled",
         "pull_request": {
             "user": {"login": "Mariatta"},
-            "labels": [{"name": "awaiting merge"}, {"name": "automerge"}],
+            "labels": [{"name": "awaiting merge"}, {"name": AUTOMERGE_LABEL}],
             "head": {"sha": sha},
         },
     }
@@ -1009,7 +1010,7 @@ async def test_awaiting_merge_label_and_automerge_label_added_not_miss_islington
         "/repos/python/cpython/pulls/5547": {
             "user": {"login": "Mariatta"},
             "merged_by": None,
-            "labels": [{"name": "awaiting merge"}, {"name": "automerge"}],
+            "labels": [{"name": "awaiting merge"}, {"name": AUTOMERGE_LABEL}],
         },
         f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
             "total_count": 1,
@@ -1018,7 +1019,7 @@ async def test_awaiting_merge_label_and_automerge_label_added_not_miss_islington
                     "number": 5547,
                     "title": "bpo-32720: Fixed the replacement field grammar documentation.",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
-                    "labels": [{"name": "awaiting merge"}, {"name": "automerge"}],
+                    "labels": [{"name": "awaiting merge"}, {"name": AUTOMERGE_LABEL}],
                 }
             ],
         },
@@ -1048,7 +1049,7 @@ async def test_awaiting_automerge_but_not_awaiting_merge():
         "action": "labeled",
         "pull_request": {
             "user": {"login": "Mariatta"},
-            "labels": [{"name": "awaiting review"}, {"name": "automerge"}],
+            "labels": [{"name": "awaiting review"}, {"name": AUTOMERGE_LABEL}],
             "head": {"sha": sha},
         },
     }
@@ -1075,7 +1076,7 @@ async def test_awaiting_automerge_but_not_awaiting_merge():
         "/repos/python/cpython/pulls/5547": {
             "user": {"login": "Mariatta"},
             "merged_by": None,
-            "labels": [{"name": "awaiting review"}, {"name": "automerge"}],
+            "labels": [{"name": "awaiting review"}, {"name": AUTOMERGE_LABEL}],
         },
         f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
             "total_count": 1,
@@ -1084,7 +1085,7 @@ async def test_awaiting_automerge_but_not_awaiting_merge():
                     "number": 5547,
                     "title": "bpo-32720: Fixed the replacement field grammar documentation.",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
-                    "labels": [{"name": "awaiting merge"}, {"name": "automerge"}],
+                    "labels": [{"name": "awaiting merge"}, {"name": AUTOMERGE_LABEL}],
                 }
             ],
         },

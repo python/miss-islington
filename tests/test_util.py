@@ -149,7 +149,7 @@ def test_pr_is_awaiting_merge():
 def test_pr_is_automerge():
     labels = [
         {"name": "CLA Signed"},
-        {"name": "automerge"},
+        {"name": util.AUTOMERGE_LABEL},
         {"name": "awaiting review"},
     ]
     assert util.pr_is_automerge(labels) is True
