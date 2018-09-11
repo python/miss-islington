@@ -130,6 +130,7 @@ def pr_is_awaiting_merge(pr_labels):
 def pr_is_automerge(pr_labels):
     for label in pr_labels:
         if label["name"] == AUTOMERGE_LABEL:
+            print(f"{label['name']}, automerge {AUTOMERGE_LABEL}")
             return True
     return False
 

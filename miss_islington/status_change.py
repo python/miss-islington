@@ -25,6 +25,10 @@ async def check_status(event, gh, *args, **kwargs):
         pr_for_commit = await util.get_pr_for_commit(gh, sha)
         if pr_for_commit:
             pr_labels = pr_for_commit["labels"]
+            print("pr_labels")
+            print(pr_labels)
+            print(f" is automerge {util.pr_is_automerge(pr_labels)}, is awaiting merge {util.pr_is_awaiting_merge(pr_labels)}")
+            print(util.pr_is_automerge(pr_labels))
             if util.pr_is_automerge(pr_labels) and util.pr_is_awaiting_merge(pr_labels):
                 await check_ci_status_and_approval(
                     gh, sha, leave_comment=True, is_automerge=True
@@ -35,8 +39,14 @@ async def check_status(event, gh, *args, **kwargs):
 async def pr_reviewed(event, gh, *args, **kwargs):
 
     pr_labels = event.data["pull_request"]["labels"]
+    print("pr_labels")
+    print(pr_labels)
+    print(
+        f" is automerge {util.pr_is_automerge(pr_labels)}, is awaiting merge {util.pr_is_awaiting_merge(pr_labels)}")
+
     if util.pr_is_automerge(pr_labels) and util.pr_is_awaiting_merge(pr_labels):
         sha = event.data["pull_request"]["head"]["sha"]
+
         await check_ci_status_and_approval(gh, sha, is_automerge=True)
     elif event.data["pull_request"]["user"][
         "login"
