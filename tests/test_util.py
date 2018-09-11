@@ -55,7 +55,7 @@ def test_title_normalization():
     assert util.normalize_title(title, body) == expected
 
 
-async def test_get_participants_different_creator_and_committer():
+async def test_get_gh_participants_different_creator_and_committer():
     gh = FakeGH(
         getitem={
             "/repos/python/cpython/pulls/5544": {
@@ -64,34 +64,58 @@ async def test_get_participants_different_creator_and_committer():
             }
         }
     )
-    result = await util.get_participants(gh, 5544)
+    result = await util.get_gh_participants(gh, 5544)
     assert result == "@miss-islington and @bedevere-bot"
 
 
-async def test_get_participants_same_creator_and_committer():
+async def test_get_gh_participants_same_creator_and_committer():
     gh = FakeGH(
         getitem={
             "/repos/python/cpython/pulls/5544": {
-                "user": {"login": "miss-islington"},
-                "merged_by": {"login": "miss-islington"},
+                "user": {"login": "bedevere-bot"},
+                "merged_by": {"login": "bedevere-bot"},
             }
         }
     )
-    result = await util.get_participants(gh, 5544)
-    assert result == "@miss-islington"
+    result = await util.get_gh_participants(gh, 5544)
+    assert result == "@bedevere-bot"
 
 
-async def test_get_participants_pr_not_merged():
+async def test_get_gh_participants_pr_not_merged():
     gh = FakeGH(
         getitem={
             "/repos/python/cpython/pulls/5544": {
-                "user": {"login": "miss-islington"},
+                "user": {"login": "bedevere-bot"},
                 "merged_by": None,
             }
         }
     )
-    result = await util.get_participants(gh, 5544)
-    assert result == "@miss-islington"
+    result = await util.get_gh_participants(gh, 5544)
+    assert result == "@bedevere-bot"
+
+
+async def test_get_gh_participants_merged_by_miss_islington():
+    gh = FakeGH(
+        getitem={
+            "/repos/python/cpython/pulls/5544": {
+                "user": {"login": "bedevere-bot"},
+                "merged_by": {"login": "miss-islington"},
+            }
+        }
+    )
+    result = await util.get_gh_participants(gh, 5544)
+    assert result == "@bedevere-bot"
+
+
+def test_get_participants_different_creator_and_committer():
+    assert (
+        util.get_participants("miss-islington", "bedevere-bot")
+        == "@miss-islington and @bedevere-bot"
+    )
+
+
+def test_get_participants_merged_by_miss_islington():
+    assert util.get_participants("bedevere-bot", "miss-islington") == "@bedevere-bot"
 
 
 @mock.patch("subprocess.check_output")

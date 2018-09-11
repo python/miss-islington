@@ -69,13 +69,13 @@ def is_cpython_repo():
     return True
 
 
-async def get_participants(gh, pr_number):
+async def get_gh_participants(gh, pr_number):
     pr_url = f"/repos/python/cpython/pulls/{pr_number}"
     pr_result = await gh.getitem(pr_url)
     created_by = pr_result["user"]["login"]
 
     merged_by = None
-    if pr_result["merged_by"]:
+    if pr_result["merged_by"] and pr_result["merged_by"]["login"] != "miss-islington":
         merged_by = pr_result["merged_by"]["login"]
 
     participants = ""
@@ -84,6 +84,15 @@ async def get_participants(gh, pr_number):
     else:
         participants = f"@{created_by} and @{merged_by}"
 
+    return participants
+
+
+def get_participants(created_by, merged_by):
+    participants = ""
+    if created_by == merged_by or merged_by == "miss-islington":
+        participants = f"@{created_by}"
+    else:
+        participants = f"@{created_by} and @{merged_by}"
     return participants
 
 
@@ -130,7 +139,6 @@ def pr_is_awaiting_merge(pr_labels):
 def pr_is_automerge(pr_labels):
     for label in pr_labels:
         if label["name"] == AUTOMERGE_LABEL:
-            print(f"{label['name']}, automerge {AUTOMERGE_LABEL}")
             return True
     return False
 
