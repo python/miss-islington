@@ -55,6 +55,58 @@ def test_title_normalization():
     assert util.normalize_title(title, body) == expected
 
 
+async def test_get_gh_participants_different_creator_and_committer():
+    gh = FakeGH(
+        getitem={
+            "/repos/python/cpython/pulls/5544": {
+                "user": {"login": "miss-islington"},
+                "merged_by": {"login": "bedevere-bot"},
+            }
+        }
+    )
+    result = await util.get_gh_participants(gh, 5544)
+    assert result == "@miss-islington and @bedevere-bot"
+
+
+async def test_get_gh_participants_same_creator_and_committer():
+    gh = FakeGH(
+        getitem={
+            "/repos/python/cpython/pulls/5544": {
+                "user": {"login": "bedevere-bot"},
+                "merged_by": {"login": "bedevere-bot"},
+            }
+        }
+    )
+    result = await util.get_gh_participants(gh, 5544)
+    assert result == "@bedevere-bot"
+
+
+async def test_get_gh_participants_pr_not_merged():
+    gh = FakeGH(
+        getitem={
+            "/repos/python/cpython/pulls/5544": {
+                "user": {"login": "bedevere-bot"},
+                "merged_by": None,
+            }
+        }
+    )
+    result = await util.get_gh_participants(gh, 5544)
+    assert result == "@bedevere-bot"
+
+
+async def test_get_gh_participants_merged_by_miss_islington():
+    gh = FakeGH(
+        getitem={
+            "/repos/python/cpython/pulls/5544": {
+                "user": {"login": "bedevere-bot"},
+                "merged_by": {"login": "miss-islington"},
+            }
+        }
+    )
+    result = await util.get_gh_participants(gh, 5544)
+    assert result == "@bedevere-bot"
+
+
 def test_get_participants_different_creator_and_committer():
     assert (
         util.get_participants("miss-islington", "bedevere-bot")
@@ -62,10 +114,8 @@ def test_get_participants_different_creator_and_committer():
     )
 
 
-def test_get_participants_same_creator_and_committer():
-    assert (
-        util.get_participants("miss-islington", "miss-islington") == "@miss-islington"
-    )
+def test_get_participants_merged_by_miss_islington():
+    assert util.get_participants("bedevere-bot", "miss-islington") == "@bedevere-bot"
 
 
 @mock.patch("subprocess.check_output")
@@ -120,9 +170,27 @@ def test_pr_is_awaiting_merge():
     assert util.pr_is_awaiting_merge(labels) is True
 
 
+def test_pr_is_automerge():
+    labels = [
+        {"name": "CLA Signed"},
+        {"name": util.AUTOMERGE_LABEL},
+        {"name": "awaiting review"},
+    ]
+    assert util.pr_is_automerge(labels) is True
+
+
 def test_pr_is_not_awaiting_merge():
-    labels = [{"name": "CLA Signed", "name": "skip issue", "name": "awaiting review"}]
+    labels = [
+        {"name": "CLA Signed"},
+        {"name": "skip issue"},
+        {"name": "awaiting review"},
+    ]
     assert util.pr_is_awaiting_merge(labels) is False
+
+
+def test_pr_is_not_automerge():
+    labels = [{"name": "CLA Signed"}, {"name": "awaiting merge"}]
+    assert util.pr_is_automerge(labels) is False
 
 
 def test_comment_on_pr_success(requests_mock):
@@ -170,3 +238,42 @@ def test_assign_pr_to_coredev_failed(requests_mock):
     requests_mock.patch(patch_url, status_code=400)
     response = util.assign_pr_to_core_dev(issue_number, coredev_login)
     assert response.status_code == 400
+
+
+async def test_get_pr_for_commit():
+    sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
+    gh = FakeGH(
+        getitem={
+            f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
+                "total_count": 1,
+                "items": [
+                    {
+                        "number": 5547,
+                        "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
+                        "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
+                    }
+                ],
+            }
+        }
+    )
+    result = await util.get_pr_for_commit(gh, sha)
+    assert result == {
+        "number": 5547,
+        "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
+        "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
+    }
+
+
+async def test_get_pr_for_commit_not_found():
+    sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
+    gh = FakeGH(
+        getitem={
+            f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
+                "total_count": 0,
+                "items": [],
+            }
+        }
+    )
+    result = await util.get_pr_for_commit(gh, sha)
+
+    assert result is None
