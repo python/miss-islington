@@ -105,6 +105,19 @@ def normalize_title(title, body):
         return title[:-1] + body[1:].partition("\r\n")[0]
 
 
+def normalize_message(body):
+    """Normalize the message body to make it commit-worthy.
+
+    Mostly this just means removing HTML comments, but also removes unwanted
+    leading or trailing whitespace.
+
+    Returns the normalized body.
+    """
+    while "<!--" in body:
+        body = body[: body.index("<!--")] + body[body.index("-->") + 3 :]
+    return "\n\n" + body.strip()
+
+
 # Copied over from https://github.com/python/bedevere
 async def is_core_dev(gh, username):
     """Check if the user is a CPython core developer."""

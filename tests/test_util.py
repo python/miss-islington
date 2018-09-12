@@ -55,6 +55,17 @@ def test_title_normalization():
     assert util.normalize_title(title, body) == expected
 
 
+def test_message_normalization():
+    message = "<!-- This is an HTML comment -->And this is the part we want"
+    assert util.normalize_message(message) == "\n\nAnd this is the part we want"
+
+    message = "<!-- HTML comment -->Part we want<!-- HTML comment 2 -->"
+    assert util.normalize_message(message) == "\n\nPart we want"
+
+    message = "\r\nParts <!--comment--> we want\r\nincluded"
+    assert util.normalize_message(message) == "\n\nParts  we want\r\nincluded"
+
+
 async def test_get_gh_participants_different_creator_and_committer():
     gh = FakeGH(
         getitem={
