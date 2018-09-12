@@ -113,9 +113,9 @@ def normalize_message(body):
 
     Returns the normalized body.
     """
-    while '<!--' in body:
-        body = body[:body.index('<!--')] + body[body.index('-->') + 3:]
-    return '\n\n' + body.strip()
+    while "<!--" in body:
+        body = body[: body.index("<!--")] + body[body.index("-->") + 3 :]
+    return "\n\n" + body.strip()
 
 
 # Copied over from https://github.com/python/bedevere
