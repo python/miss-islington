@@ -182,13 +182,21 @@ def test_pr_is_awaiting_merge():
 
 
 def test_pr_is_do_not_merge():
-    labels = [{"name": "CLA signed"}, {"name": "awaiting merge"}, {"name": "DO-NOT-MERGE"}]
+    labels = [
+        {"name": "CLA signed"},
+        {"name": "awaiting merge"},
+        {"name": "DO-NOT-MERGE"},
+    ]
     assert util.pr_is_awaiting_merge(labels) is False
 
     labels = [{"name": "CLA not signed"}, {"name": "awaiting merge"}]
     assert util.pr_is_awaiting_merge(labels) is False
 
-    labels = [{"name": "CLA not signed"}, {"name": "awaiting merge"}, {"name": "DO-NOT-MERGE"}]
+    labels = [
+        {"name": "CLA not signed"},
+        {"name": "awaiting merge"},
+        {"name": "DO-NOT-MERGE"},
+    ]
     assert util.pr_is_awaiting_merge(labels) is False
 
 
