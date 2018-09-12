@@ -1067,7 +1067,7 @@ async def test_awaiting_merge_label_and_automerge_label_added_not_miss_islington
     )
 
 
-async def test_awaiting_automerge_but_not_awaiting_merge():
+async def test_automerge_but_not_awaiting_merge():
     sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
     data = {
         "action": "labeled",
@@ -1140,3 +1140,154 @@ async def test_pr_not_found_for_commit():
     await status_change.router.dispatch(event, gh)
     assert not hasattr(gh, "post_data")  # does not leave a comment
     assert not hasattr(gh, "put_data")  # does not leave a comment
+
+
+async def test_automerge_multi_commits_in_pr():
+    sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
+    data = {
+        "action": "labeled",
+        "pull_request": {
+            "user": {"login": "Mariatta"},
+            "labels": [
+                {"name": "awaiting merge"},
+                {"name": AUTOMERGE_LABEL},
+                {"name": "CLA signed"},
+            ],
+            "head": {"sha": sha},
+        },
+    }
+
+    event = sansio.Event(data, event="pull_request", delivery_id="1")
+
+    getitem = {
+        f"/repos/python/cpython/commits/{sha}/status": {
+            "state": "success",
+            "statuses": [
+                {
+                    "state": "success",
+                    "description": "Issue report skipped",
+                    "context": "bedevere/issue-number",
+                },
+                {
+                    "state": "success",
+                    "description": "The Travis CI build passed",
+                    "target_url": "https://travis-ci.org/python/cpython/builds/340259685?utm_source=github_status&utm_medium=notification",
+                    "context": "continuous-integration/travis-ci/pr",
+                },
+            ],
+        },
+        "/repos/python/cpython/pulls/5547": {
+            "user": {"login": "Mariatta"},
+            "merged_by": None,
+            "labels": [
+                {"name": "awaiting merge"},
+                {"name": AUTOMERGE_LABEL},
+                {"name": "CLA signed"},
+            ],
+        },
+        f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
+            "total_count": 1,
+            "items": [
+                {
+                    "number": 5547,
+                    "title": "bpo-32720: Fixed the replacement field grammar documentation.",
+                    "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
+                    "labels": [
+                        {"name": "awaiting merge"},
+                        {"name": AUTOMERGE_LABEL},
+                        {"name": "CLA signed"},
+                    ],
+                }
+            ],
+        },
+    }
+
+    getiter = {
+        "/repos/python/cpython/pulls/5547/commits": [
+            {"sha": "5f007046b5d4766f971272a0cc99f8461215c1ec"},
+            {"sha": sha},
+        ]
+    }
+
+    gh = FakeGH(getitem=getitem, getiter=getiter)
+    await status_change.router.dispatch(event, gh)
+    assert not hasattr(gh, "post_data")  # does not leave a comment
+
+    assert gh.put_data["sha"] == sha  # is merged
+    assert gh.put_data["merge_method"] == "squash"
+    assert (
+        gh.put_data["commit_title"]
+        == "bpo-32720: Fixed the replacement field grammar documentation. (GH-5547)"
+    )
+    assert (
+        gh.put_data["commit_message"]
+        == "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`."
+    )
+
+
+async def test_automerge_commit_not_found():
+    sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
+    data = {
+        "action": "labeled",
+        "pull_request": {
+            "user": {"login": "Mariatta"},
+            "labels": [
+                {"name": "awaiting merge"},
+                {"name": AUTOMERGE_LABEL},
+                {"name": "CLA signed"},
+            ],
+            "head": {"sha": sha},
+        },
+    }
+
+    event = sansio.Event(data, event="pull_request", delivery_id="1")
+
+    getitem = {
+        f"/repos/python/cpython/commits/{sha}/status": {
+            "state": "success",
+            "statuses": [
+                {
+                    "state": "success",
+                    "description": "Issue report skipped",
+                    "context": "bedevere/issue-number",
+                },
+                {
+                    "state": "success",
+                    "description": "The Travis CI build passed",
+                    "target_url": "https://travis-ci.org/python/cpython/builds/340259685?utm_source=github_status&utm_medium=notification",
+                    "context": "continuous-integration/travis-ci/pr",
+                },
+            ],
+        },
+        "/repos/python/cpython/pulls/5547": {
+            "user": {"login": "Mariatta"},
+            "merged_by": None,
+            "labels": [
+                {"name": "awaiting merge"},
+                {"name": AUTOMERGE_LABEL},
+                {"name": "CLA signed"},
+            ],
+        },
+        f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
+            "total_count": 1,
+            "items": [
+                {
+                    "number": 5547,
+                    "title": "bpo-32720: Fixed the replacement field grammar documentation.",
+                    "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
+                    "labels": [
+                        {"name": "awaiting merge"},
+                        {"name": AUTOMERGE_LABEL},
+                        {"name": "CLA signed"},
+                    ],
+                }
+            ],
+        },
+    }
+
+    getiter = {"/repos/python/cpython/pulls/5547/commits": []}
+
+    gh = FakeGH(getitem=getitem, getiter=getiter)
+    await status_change.router.dispatch(event, gh)
+    assert not hasattr(gh, "post_data")  # does not leave a comment
+    assert not hasattr(gh, "put_data")  # does not merge
