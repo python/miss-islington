@@ -177,13 +177,32 @@ async def test_is_core_dev():
 
 
 def test_pr_is_awaiting_merge():
-    labels = [{"name": "CLA Signed"}, {"name": "awaiting merge"}]
+    labels = [{"name": "CLA signed"}, {"name": "awaiting merge"}]
     assert util.pr_is_awaiting_merge(labels) is True
+
+
+def test_pr_is_do_not_merge():
+    labels = [
+        {"name": "CLA signed"},
+        {"name": "awaiting merge"},
+        {"name": "DO-NOT-MERGE"},
+    ]
+    assert util.pr_is_awaiting_merge(labels) is False
+
+    labels = [{"name": "CLA not signed"}, {"name": "awaiting merge"}]
+    assert util.pr_is_awaiting_merge(labels) is False
+
+    labels = [
+        {"name": "CLA not signed"},
+        {"name": "awaiting merge"},
+        {"name": "DO-NOT-MERGE"},
+    ]
+    assert util.pr_is_awaiting_merge(labels) is False
 
 
 def test_pr_is_automerge():
     labels = [
-        {"name": "CLA Signed"},
+        {"name": "CLA signed"},
         {"name": util.AUTOMERGE_LABEL},
         {"name": "awaiting review"},
     ]
@@ -192,7 +211,7 @@ def test_pr_is_automerge():
 
 def test_pr_is_not_awaiting_merge():
     labels = [
-        {"name": "CLA Signed"},
+        {"name": "CLA signed"},
         {"name": "skip issue"},
         {"name": "awaiting review"},
     ]
@@ -200,7 +219,7 @@ def test_pr_is_not_awaiting_merge():
 
 
 def test_pr_is_not_automerge():
-    labels = [{"name": "CLA Signed"}, {"name": "awaiting merge"}]
+    labels = [{"name": "CLA signed"}, {"name": "awaiting merge"}]
     assert util.pr_is_automerge(labels) is False
 
 
