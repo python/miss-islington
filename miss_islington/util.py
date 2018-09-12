@@ -143,9 +143,9 @@ async def is_core_dev(gh, username):
 
 
 def pr_is_awaiting_merge(pr_labels):
-    for label in pr_labels:
-        if label["name"] == "awaiting merge":
-            return True
+    label_names = [label["name"] for label in pr_labels]
+    if "DO-NOT-MERGE" not in label_names and "awaiting merge" in label_names:
+        return True
     return False
 
 
