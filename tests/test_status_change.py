@@ -1146,7 +1146,7 @@ async def test_automerge_multi_commits_in_pr():
                     "context": "continuous-integration/travis-ci/pr",
                 },
             ],
-        },
+        }
     }
 
     getiter = {
