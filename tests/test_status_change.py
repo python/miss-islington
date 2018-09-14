@@ -1147,30 +1147,6 @@ async def test_automerge_multi_commits_in_pr():
                 },
             ],
         },
-        # "/repos/python/cpython/pulls/5547": {
-        #     "user": {"login": "Mariatta"},
-        #     "merged_by": None,
-        #     "labels": [
-        #         {"name": "awaiting merge"},
-        #         {"name": AUTOMERGE_LABEL},
-        #         {"name": "CLA signed"},
-        #     ],
-        # },
-        # f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
-        #     "total_count": 1,
-        #     "items": [
-        #         {
-        #             "number": 5547,
-        #             "title": "bpo-32720: Fixed the replacement field grammar documentation.",
-        #             "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
-        #             "labels": [
-        #                 {"name": "awaiting merge"},
-        #                 {"name": AUTOMERGE_LABEL},
-        #                 {"name": "CLA signed"},
-        #             ],
-        #         }
-        #     ],
-        # },
     }
 
     getiter = {
