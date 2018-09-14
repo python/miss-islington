@@ -38,6 +38,10 @@ async def main(request):
             # Give GitHub some time to reach internal consistency.
             await asyncio.sleep(1)
             await router.dispatch(event, gh)
+        try:
+            print(f"GH requests remaining: {gh.rate_limit.remaining}")
+        except AttributeError:
+            pass
         return web.Response(status=200)
     except Exception as exc:
         traceback.print_exc(file=sys.stderr)
