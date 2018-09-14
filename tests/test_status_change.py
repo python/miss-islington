@@ -204,6 +204,9 @@ async def test_awaiting_merge_label_added_and_ci_passed_pr_is_merged():
             "user": {"login": "miss-islington"},
             "labels": [{"name": "awaiting merge"}, {"name": "CLA signed"}],
             "head": {"sha": sha},
+            "number": 5547,
+            "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
+            "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
         },
     }
 
@@ -225,21 +228,7 @@ async def test_awaiting_merge_label_added_and_ci_passed_pr_is_merged():
                     "context": "continuous-integration/travis-ci/pr",
                 },
             ],
-        },
-        "/repos/python/cpython/pulls/5547": {
-            "labels": [{"name": "awaiting merge"}, {"name": "CLA signed"}]
-        },
-        f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
-            "total_count": 1,
-            "items": [
-                {
-                    "number": 5547,
-                    "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
-                    "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
-                    "labels": [{"name": "awaiting merge"}, {"name": "CLA signed"}],
-                }
-            ],
-        },
+        }
     }
 
     getiter = {
@@ -1001,6 +990,9 @@ async def test_awaiting_merge_label_and_automerge_label_added_not_miss_islington
                 {"name": "CLA signed"},
             ],
             "head": {"sha": sha},
+            "number": 5547,
+            "title": "bpo-32720: Fixed the replacement field grammar documentation.",
+            "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
         },
     }
 
@@ -1022,31 +1014,7 @@ async def test_awaiting_merge_label_and_automerge_label_added_not_miss_islington
                     "context": "continuous-integration/travis-ci/pr",
                 },
             ],
-        },
-        "/repos/python/cpython/pulls/5547": {
-            "user": {"login": "Mariatta"},
-            "merged_by": None,
-            "labels": [
-                {"name": "awaiting merge"},
-                {"name": AUTOMERGE_LABEL},
-                {"name": "CLA signed"},
-            ],
-        },
-        f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
-            "total_count": 1,
-            "items": [
-                {
-                    "number": 5547,
-                    "title": "bpo-32720: Fixed the replacement field grammar documentation.",
-                    "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
-                    "labels": [
-                        {"name": "awaiting merge"},
-                        {"name": AUTOMERGE_LABEL},
-                        {"name": "CLA signed"},
-                    ],
-                }
-            ],
-        },
+        }
     }
 
     getiter = {"/repos/python/cpython/pulls/5547/commits": [{"sha": sha}]}
@@ -1154,6 +1122,9 @@ async def test_automerge_multi_commits_in_pr():
                 {"name": "CLA signed"},
             ],
             "head": {"sha": sha},
+            "number": 5547,
+            "title": "bpo-32720: Fixed the replacement field grammar documentation.",
+            "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
         },
     }
 
@@ -1175,31 +1146,7 @@ async def test_automerge_multi_commits_in_pr():
                     "context": "continuous-integration/travis-ci/pr",
                 },
             ],
-        },
-        "/repos/python/cpython/pulls/5547": {
-            "user": {"login": "Mariatta"},
-            "merged_by": None,
-            "labels": [
-                {"name": "awaiting merge"},
-                {"name": AUTOMERGE_LABEL},
-                {"name": "CLA signed"},
-            ],
-        },
-        f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
-            "total_count": 1,
-            "items": [
-                {
-                    "number": 5547,
-                    "title": "bpo-32720: Fixed the replacement field grammar documentation.",
-                    "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
-                    "labels": [
-                        {"name": "awaiting merge"},
-                        {"name": AUTOMERGE_LABEL},
-                        {"name": "CLA signed"},
-                    ],
-                }
-            ],
-        },
+        }
     }
 
     getiter = {
@@ -1237,6 +1184,9 @@ async def test_automerge_commit_not_found():
                 {"name": "CLA signed"},
             ],
             "head": {"sha": sha},
+            "number": 5547,
+            "title": "bpo-32720: Fixed the replacement field grammar documentation.",
+            "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
         },
     }
 
@@ -1258,31 +1208,7 @@ async def test_automerge_commit_not_found():
                     "context": "continuous-integration/travis-ci/pr",
                 },
             ],
-        },
-        "/repos/python/cpython/pulls/5547": {
-            "user": {"login": "Mariatta"},
-            "merged_by": None,
-            "labels": [
-                {"name": "awaiting merge"},
-                {"name": AUTOMERGE_LABEL},
-                {"name": "CLA signed"},
-            ],
-        },
-        f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
-            "total_count": 1,
-            "items": [
-                {
-                    "number": 5547,
-                    "title": "bpo-32720: Fixed the replacement field grammar documentation.",
-                    "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
-                    "labels": [
-                        {"name": "awaiting merge"},
-                        {"name": AUTOMERGE_LABEL},
-                        {"name": "CLA signed"},
-                    ],
-                }
-            ],
-        },
+        }
     }
 
     getiter = {"/repos/python/cpython/pulls/5547/commits": []}

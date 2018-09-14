@@ -27,7 +27,11 @@ async def check_status(event, gh, *args, **kwargs):
             pr_labels = pr_for_commit["labels"]
             if util.pr_is_automerge(pr_labels) and util.pr_is_awaiting_merge(pr_labels):
                 await check_ci_status_and_approval(
-                    gh, sha, leave_comment=True, is_automerge=True
+                    gh,
+                    sha,
+                    pr_for_commit=pr_for_commit,
+                    leave_comment=True,
+                    is_automerge=True,
                 )
 
 
@@ -39,18 +43,22 @@ async def pr_reviewed(event, gh, *args, **kwargs):
     if util.pr_is_automerge(pr_labels) and util.pr_is_awaiting_merge(pr_labels):
         sha = event.data["pull_request"]["head"]["sha"]
 
-        await check_ci_status_and_approval(gh, sha, is_automerge=True)
+        await check_ci_status_and_approval(
+            gh, sha, pr_for_commit=event.data["pull_request"], is_automerge=True
+        )
     elif event.data["pull_request"]["user"][
         "login"
     ] == "miss-islington" and util.pr_is_awaiting_merge(
         event.data["pull_request"]["labels"]
     ):
         sha = event.data["pull_request"]["head"]["sha"]
-        await check_ci_status_and_approval(gh, sha)
+        await check_ci_status_and_approval(
+            gh, sha, pr_for_commit=event.data["pull_request"]
+        )
 
 
 async def check_ci_status_and_approval(
-    gh, sha, leave_comment=False, is_automerge=False
+    gh, sha, pr_for_commit=None, leave_comment=False, is_automerge=False
 ):
 
     result = await gh.getitem(f"/repos/python/cpython/commits/{sha}/status")
@@ -61,7 +69,8 @@ async def check_ci_status_and_approval(
         "pending" not in all_ci_status
         and "continuous-integration/travis-ci/pr" in all_ci_context
     ):
-        pr_for_commit = await util.get_pr_for_commit(gh, sha)
+        if not pr_for_commit:
+            pr_for_commit = await util.get_pr_for_commit(gh, sha)
         if pr_for_commit:
             pr_number = pr_for_commit["number"]
             normalized_pr_title = util.normalize_title(
