@@ -32,7 +32,6 @@ async def main(request):
             return web.Response(status=200)
         oauth_token = os.environ.get("GH_AUTH")
         async with aiohttp.ClientSession() as session:
-            print(f"oauth token len {len(oauth_token)}")
             gh = gh_aiohttp.GitHubAPI(
                 session, "python/cpython", oauth_token=oauth_token, cache=cache
             )
@@ -41,7 +40,7 @@ async def main(request):
             await router.dispatch(event, gh)
             try:
                 print(
-                    f"GH requests remaining: {gh.rate_limit.remaining}/{gh.rate_limit.limit}, reset time: {gh.rate_limit.reset_datetime:%b-%d-%Y %H:%M:%S %Z}"
+                    f"GH requests remaining: {gh.rate_limit.remaining}/{gh.rate_limit.limit}, reset time: {gh.rate_limit.reset_datetime:%b-%d-%Y %H:%M:%S %Z}, oauth token len {len(oauth_token)}"
                 )
             except AttributeError:
                 pass
