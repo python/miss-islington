@@ -32,6 +32,7 @@ async def main(request):
             return web.Response(status=200)
         oauth_token = os.environ.get("GH_AUTH")
         async with aiohttp.ClientSession() as session:
+            print(f"oauth token len {len(oauth_token)}")
             gh = gh_aiohttp.GitHubAPI(
                 session, "python/cpython", oauth_token=oauth_token, cache=cache
             )
