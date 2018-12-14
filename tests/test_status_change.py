@@ -8,13 +8,13 @@ from miss_islington.util import AUTOMERGE_LABEL
 
 
 class FakeGH:
-    def __init__(self, *, getitem=None, getiter=None, put=None):
+    def __init__(self, *, getitem=None, getiter=None, put=None, post=None):
         self._getitem_return = getitem
         self._getiter_return = getiter
         self.getitem_url = None
         self.getiter_url = None
         self._put_return = put
-        self._post_return = put
+        self._post_return = post
 
     async def getitem(self, url):
         self.getitem_url = url
@@ -30,7 +30,11 @@ class FakeGH:
     async def put(self, url, *, data):
         self.put_url = url
         self.put_data = data
-        return self._put_return
+        to_return = self._put_return
+        if isinstance(to_return, Exception):
+            raise to_return
+        else:
+            return to_return
 
     async def post(self, url, *, data):
         self.post_url = url
@@ -1217,3 +1221,67 @@ async def test_automerge_commit_not_found():
     await status_change.router.dispatch(event, gh)
     assert not hasattr(gh, "post_data")  # does not leave a comment
     assert not hasattr(gh, "put_data")  # does not merge
+
+async def test_automerge_failed():
+    sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
+    data = {
+        "action": "labeled",
+        "pull_request": {
+            "user": {"login": "Mariatta"},
+            "labels": [
+                {"name": "awaiting merge"},
+                {"name": AUTOMERGE_LABEL},
+                {"name": "CLA signed"},
+            ],
+            "head": {"sha": sha},
+            "number": 5547,
+            "title": "bpo-32720: Fixed the replacement field grammar documentation.",
+            "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
+        },
+    }
+
+    event = sansio.Event(data, event="pull_request", delivery_id="1")
+
+    getitem = {
+        f"/repos/python/cpython/commits/{sha}/status": {
+            "state": "success",
+            "statuses": [
+                {
+                    "state": "success",
+                    "description": "Issue report skipped",
+                    "context": "bedevere/issue-number",
+                },
+                {
+                    "state": "success",
+                    "description": "The Travis CI build passed",
+                    "target_url": "https://travis-ci.org/python/cpython/builds/340259685?utm_source=github_status&utm_medium=notification",
+                    "context": "continuous-integration/travis-ci/pr",
+                },
+            ],
+        }
+    }
+
+    getiter = {
+        "/repos/python/cpython/pulls/5547/commits": [
+            {"sha": "5f007046b5d4766f971272a0cc99f8461215c1ec"},
+            {"sha": sha},
+        ]
+    }
+
+    gh = FakeGH(getitem=getitem, getiter=getiter, put=gidgethub.BadRequest(status_code=http.HTTPStatus(400)), post={"html_url": f"https://github.com/python/cpython/pull/5547#issuecomment-401309376"})
+
+    await status_change.router.dispatch(event, gh)
+
+    assert gh.put_data["sha"] == sha
+    assert gh.put_data["merge_method"] == "squash"
+    assert (
+            gh.put_data["commit_title"]
+            == "bpo-32720: Fixed the replacement field grammar documentation. (GH-5547)"
+    )
+    assert (
+            gh.put_data["commit_message"]
+            == "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`."
+    )
+
+    assert "Sorry, I can't merge this PR" in gh.post_data["body"]
+
