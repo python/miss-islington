@@ -47,9 +47,20 @@ def setup_cpython_repo():
 @app.task()
 def backport_task(commit_hash, branch, *, issue_number, created_by, merged_by):
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(backport_task_asyncio(commit_hash, branch, issue_number=issue_number, created_by=created_by, merged_by=merged_by ))
+    loop.run_until_complete(
+        backport_task_asyncio(
+            commit_hash,
+            branch,
+            issue_number=issue_number,
+            created_by=created_by,
+            merged_by=merged_by,
+        )
+    )
 
-async def backport_task_asyncio(commit_hash, branch, *, issue_number, created_by, merged_by):
+
+async def backport_task_asyncio(
+    commit_hash, branch, *, issue_number, created_by, merged_by
+):
     """Backport a commit into a branch."""
 
     oauth_token = os.environ.get("GH_AUTH")
@@ -65,8 +76,8 @@ async def backport_task_asyncio(commit_hash, branch, *, issue_number, created_by
             else:
                 print(f"pwd: {os.getcwd()}, listdir: {os.listdir('.')}")
 
-
-                await util.comment_on_pr(gh,
+                await util.comment_on_pr(
+                    gh,
                     issue_number,
                     f"""{util.get_participants(created_by, merged_by)}, Something is wrong... I can't backport for now.
                                    Please backport using [cherry_picker](https://pypi.org/project/cherry-picker/) on command line.
