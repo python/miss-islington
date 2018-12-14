@@ -1222,6 +1222,7 @@ async def test_automerge_commit_not_found():
     assert not hasattr(gh, "post_data")  # does not leave a comment
     assert not hasattr(gh, "put_data")  # does not merge
 
+
 async def test_automerge_failed():
     sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
     data = {
@@ -1268,20 +1269,26 @@ async def test_automerge_failed():
         ]
     }
 
-    gh = FakeGH(getitem=getitem, getiter=getiter, put=gidgethub.BadRequest(status_code=http.HTTPStatus(400)), post={"html_url": f"https://github.com/python/cpython/pull/5547#issuecomment-401309376"})
+    gh = FakeGH(
+        getitem=getitem,
+        getiter=getiter,
+        put=gidgethub.BadRequest(status_code=http.HTTPStatus(400)),
+        post={
+            "html_url": f"https://github.com/python/cpython/pull/5547#issuecomment-401309376"
+        },
+    )
 
     await status_change.router.dispatch(event, gh)
 
     assert gh.put_data["sha"] == sha
     assert gh.put_data["merge_method"] == "squash"
     assert (
-            gh.put_data["commit_title"]
-            == "bpo-32720: Fixed the replacement field grammar documentation. (GH-5547)"
+        gh.put_data["commit_title"]
+        == "bpo-32720: Fixed the replacement field grammar documentation. (GH-5547)"
     )
     assert (
-            gh.put_data["commit_message"]
-            == "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`."
+        gh.put_data["commit_message"]
+        == "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`."
     )
 
     assert "Sorry, I can't merge this PR" in gh.post_data["body"]
-
