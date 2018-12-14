@@ -244,7 +244,11 @@ async def test_comment_on_pr_success():
     issue_number = 100
     message = "Thanks for the PR!"
 
-    gh = FakeGH(post={"html_url":  f"https://github.com/python/cpython/pull/{issue_number}#issuecomment-401309376"})
+    gh = FakeGH(
+        post={
+            "html_url": f"https://github.com/python/cpython/pull/{issue_number}#issuecomment-401309376"
+        }
+    )
 
     await util.comment_on_pr(gh, issue_number, message)
     assert gh.post_url == f"/repos/python/cpython/issues/{issue_number}/comments"
