@@ -9,12 +9,14 @@ from miss_islington import util
 
 
 class FakeGH:
-    def __init__(self, *, getiter=None, getitem=None, post=None):
+    def __init__(self, *, getiter=None, getitem=None, post=None, patch=None):
         self._getitem_return = getitem
         self._getiter_return = getiter
         self._post_return = post
+        self._patch_return = patch
         self.getitem_url = None
         self.getiter_url = None
+        self.patch_url = self.patch_data = None
         self.post_url = self.post_data = None
 
     async def getitem(self, url):
@@ -30,6 +32,21 @@ class FakeGH:
         to_iterate = self._getiter_return[url]
         for item in to_iterate:
             yield item
+
+    async def patch(self, url, *, data):
+        self.patch_url = url
+        self.patch_data = data
+        return self._patch_return
+
+    async def post(self, url, *, data):
+        self.post_url = url
+        self.post_data = data
+        print(type(self._post_return))
+        if isinstance(self._post_return, Exception):
+            print("raising")
+            raise self._post_return
+        else:
+            return self._post_return
 
 
 def test_title_normalization():
@@ -223,51 +240,34 @@ def test_pr_is_not_automerge():
     assert util.pr_is_automerge(labels) is False
 
 
-def test_comment_on_pr_success(requests_mock):
+async def test_comment_on_pr_success():
     issue_number = 100
     message = "Thanks for the PR!"
-    post_url = (
-        f"https://api.github.com/repos/python/cpython/issues/{issue_number}/comments"
-    )
-    requests_mock.post(
-        post_url,
-        json={
-            "html_url": "https://github.com/python/cpython/pull/{issue_number}#issuecomment-401309376"
-        },
-        status_code=201,
-    )
-    response = util.comment_on_pr(issue_number, message)
-    assert response.status_code == 201
+
+    gh = FakeGH(post={"html_url":  f"https://github.com/python/cpython/pull/{issue_number}#issuecomment-401309376"})
+
+    await util.comment_on_pr(gh, issue_number, message)
+    assert gh.post_url == f"/repos/python/cpython/issues/{issue_number}/comments"
+    assert gh.post_data == {"body": message}
 
 
-def test_comment_on_pr_failure(requests_mock):
+async def test_comment_on_pr_failure():
     issue_number = 100
     message = "Thanks for the PR!"
-    post_url = (
-        f"https://api.github.com/repos/python/cpython/issues/{issue_number}/comments"
-    )
-    requests_mock.post(post_url, status_code=400)
-    response = util.comment_on_pr(issue_number, message)
-    assert response.status_code == 400
+    gh = FakeGH(post=gidgethub.BadRequest(status_code=http.HTTPStatus(400)))
+
+    with pytest.raises(gidgethub.BadRequest):
+        await util.comment_on_pr(gh, issue_number, message)
 
 
-def test_assign_pr_to_coredev_success(requests_mock):
+async def test_assign_pr_to_coredev():
 
     issue_number = 100
     coredev_login = "Mariatta"
-    patch_url = f"https://api.github.com/repos/python/cpython/issues/{issue_number}"
-    requests_mock.patch(patch_url, status_code=201)
-    response = util.assign_pr_to_core_dev(issue_number, coredev_login)
-    assert response.status_code == 201
+    gh = FakeGH()
 
-
-def test_assign_pr_to_coredev_failed(requests_mock):
-    issue_number = 100
-    coredev_login = "Mariatta"
-    patch_url = f"https://api.github.com/repos/python/cpython/issues/{issue_number}"
-    requests_mock.patch(patch_url, status_code=400)
-    response = util.assign_pr_to_core_dev(issue_number, coredev_login)
-    assert response.status_code == 400
+    await util.assign_pr_to_core_dev(gh, issue_number, coredev_login)
+    assert gh.patch_url == f"/repos/python/cpython/issues/{issue_number}"
 
 
 async def test_get_pr_for_commit():

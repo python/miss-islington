@@ -1,54 +1,34 @@
-import requests
-import os
 import subprocess
 
 import gidgethub
-
-from gidgethub import sansio
 
 
 AUTOMERGE_LABEL = ":robot: automerge"
 
 
-def comment_on_pr(issue_number, message):
+async def comment_on_pr(gh, issue_number, message):
     """
     Leave a comment on a PR/Issue
     """
-    request_headers = sansio.create_headers(
-        "miss-islington", oauth_token=os.getenv("GH_AUTH")
-    )
     issue_comment_url = (
-        f"https://api.github.com/repos/python/cpython/issues/{issue_number}/comments"
+        f"/repos/python/cpython/issues/{issue_number}/comments"
     )
     data = {"body": message}
-    response = requests.post(issue_comment_url, headers=request_headers, json=data)
-    if response.status_code == requests.codes.created:
-        print(f"Commented at {response.json()['html_url']}, message: {message}")
-    else:
-        print(response.status_code)
-        print(response.text)
+    response = await gh.post(issue_comment_url, data=data)
+    print(f"Commented at {response['html_url']}, message: {message}")
     return response
 
-
-def assign_pr_to_core_dev(issue_number, coredev_login):
+async def assign_pr_to_core_dev(gh, issue_number, coredev_login):
     """
     Assign the PR to a core dev.  Should be done when miss-islington failed
     to backport.
     """
-    request_headers = sansio.create_headers(
-        "miss-islington", oauth_token=os.getenv("GH_AUTH")
-    )
+
     edit_issue_url = (
-        f"https://api.github.com/repos/python/cpython/issues/{issue_number}"
+        f"/repos/python/cpython/issues/{issue_number}"
     )
     data = {"assignees": [coredev_login]}
-    response = requests.patch(edit_issue_url, headers=request_headers, json=data)
-    if response.status_code == requests.codes.created:
-        print(f"Assigned PR {issue_number} to {coredev_login}")
-    else:
-        print(response.status_code)
-        print(response.text)
-    return response
+    await gh.patch(edit_issue_url, data=data)
 
 
 async def leave_comment(gh, pr_number, message):
