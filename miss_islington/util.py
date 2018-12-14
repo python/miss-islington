@@ -10,13 +10,12 @@ async def comment_on_pr(gh, issue_number, message):
     """
     Leave a comment on a PR/Issue
     """
-    issue_comment_url = (
-        f"/repos/python/cpython/issues/{issue_number}/comments"
-    )
+    issue_comment_url = f"/repos/python/cpython/issues/{issue_number}/comments"
     data = {"body": message}
     response = await gh.post(issue_comment_url, data=data)
     print(f"Commented at {response['html_url']}, message: {message}")
     return response
+
 
 async def assign_pr_to_core_dev(gh, issue_number, coredev_login):
     """
@@ -24,9 +23,7 @@ async def assign_pr_to_core_dev(gh, issue_number, coredev_login):
     to backport.
     """
 
-    edit_issue_url = (
-        f"/repos/python/cpython/issues/{issue_number}"
-    )
+    edit_issue_url = f"/repos/python/cpython/issues/{issue_number}"
     data = {"assignees": [coredev_login]}
     await gh.patch(edit_issue_url, data=data)
 
