@@ -109,15 +109,13 @@ async def merge_pr(gh, pr, sha, is_automerge=False):
     pr_number = pr["number"]
     async for commit in gh.getiter(f"/repos/python/cpython/pulls/{pr_number}/commits"):
         if commit["sha"] == sha:
-            pr_title = ""
-            pr_commit_msg = ""
-
             if is_automerge:
                 pr_commit_msg = util.normalize_message(pr["body"])
                 pr_title = f"{pr['title']} (GH-{pr_number})"
             else:
-                pr_commit_msg = commit["commit"]["message"].split("\n")
-                pr_title = f"{pr_commit_msg[0]}"
+                commit_msg = commit["commit"]["message"].split("\n")
+                pr_commit_msg = "\n".join(commit_msg[1:])
+                pr_title = f"{commit_msg[0]}"
 
             data = {
                 "commit_title": pr_title,
