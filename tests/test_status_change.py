@@ -104,6 +104,10 @@ async def test_ci_passed_with_awaiting_merge_label_pr_is_merged():
         gh.put_data["commit_title"]
         == "bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)"
     )
+    assert (
+        gh.put_data["commit_message"]
+        == "\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>"
+    )
 
 
 async def test_ci_passed_with_no_awaiting_merge_label_pr_is_not_merged():
@@ -254,6 +258,10 @@ async def test_awaiting_merge_label_added_and_ci_passed_pr_is_merged():
     assert (
         gh.put_data["commit_title"]
         == "bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)"
+    )
+    assert (
+        gh.put_data["commit_message"]
+        == "\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>"
     )
 
 
