@@ -5,6 +5,7 @@ python:
   - 3.6-dev
   - 3.7-dev
   - nightly
+dist: xenial
 
 before_install:
   - python3 -m pip install coverage
