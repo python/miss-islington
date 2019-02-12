@@ -1,5 +1,7 @@
 import re
 
+import gidgethub
+
 from gidgethub import routing
 
 from . import util
@@ -110,26 +112,23 @@ async def merge_pr(gh, pr, sha, is_automerge=False):
             if is_automerge:
                 pr_commit_msg = util.normalize_message(pr["body"])
                 pr_title = f"{pr['title']} (GH-{pr_number})"
-                await gh.put(
-                    f"/repos/python/cpython/pulls/{pr_number}/merge",
-                    data={
-                        "commit_title": pr_title,
-                        "commit_message": pr_commit_msg,
-                        "sha": sha,
-                        "merge_method": "squash",
-                    },
-                )
             else:
-                pr_commit_msg = commit["commit"]["message"].split("\n")
+                commit_msg = commit["commit"]["message"].split("\n")
+                pr_commit_msg = "\n".join(commit_msg[1:])
+                pr_title = f"{commit_msg[0]}"
 
-                cleaned_up_title = f"{pr_commit_msg[0]}"
+            data = {
+                "commit_title": pr_title,
+                "commit_message": pr_commit_msg,
+                "sha": sha,
+                "merge_method": "squash",
+            }
+            try:
                 await gh.put(
-                    f"/repos/python/cpython/pulls/{pr_number}/merge",
-                    data={
-                        "commit_title": cleaned_up_title,
-                        "commit_message": "\n".join(pr_commit_msg[1:]),
-                        "sha": sha,
-                        "merge_method": "squash",
-                    },
+                    f"/repos/python/cpython/pulls/{pr_number}/merge", data=data
+                )
+            except gidgethub.BadRequest as err:
+                await util.comment_on_pr(
+                    gh, pr_number, f"Sorry, I can't merge this PR. Reason: `{err}`."
                 )
             break
