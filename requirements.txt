@@ -1,4 +1,4 @@
--e git://github.com/python/core-workflow.git@4915f89e7950cc8cd122ee93374cc919dd80dcee#egg=elasticutils
+-e git://github.com/python/core-workflow.git@4915f89e7950cc8cd122ee93374cc919dd80dcee#egg=cherry-picker
 aiohttp==3.5.4
 gidgethub==3.1.0
 cachetools==3.1.0
