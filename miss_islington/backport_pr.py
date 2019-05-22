@@ -10,6 +10,8 @@ from . import tasks, util
 EASTER_EGG = "I'm not a witch! I'm not a witch!"
 
 router = gidgethub.routing.Router()
+
+
 @router.register("pull_request", action="closed")
 @router.register("pull_request", action="labeled")
 async def backport_pr(event, gh, *args, **kwargs):
@@ -46,7 +48,10 @@ async def backport_pr(event, gh, *args, **kwargs):
                 thanks_to = f"Thanks @{created_by} for the PR 🌮🎉."
             else:
                 thanks_to = f"Thanks @{created_by} for the PR, and @{merged_by} for merging it 🌮🎉."
-            message = f"{thanks_to}. I'm working now to backport this PR to: {', '.join(branches)}." f"\n🐍🍒⛏🤖 {easter_egg}"
+            message = (
+                f"{thanks_to}. I'm working now to backport this PR to: {', '.join(branches)}."
+                f"\n🐍🍒⛏🤖 {easter_egg}"
+            )
 
             await util.leave_comment(gh, issue_number, message)
 
@@ -55,10 +60,14 @@ async def backport_pr(event, gh, *args, **kwargs):
             )
 
             for branch in sorted_branches:
-                await kickoff_backport_task(gh, commit_hash, branch, issue_number, created_by, merged_by)
+                await kickoff_backport_task(
+                    gh, commit_hash, branch, issue_number, created_by, merged_by
+                )
 
 
-async def kickoff_backport_task(gh, commit_hash, branch, issue_number, created_by, merged_by, retry_num=0):
+async def kickoff_backport_task(
+    gh, commit_hash, branch, issue_number, created_by, merged_by, retry_num=0
+):
     try:
         tasks.backport_task.delay(
             commit_hash,
@@ -73,7 +82,15 @@ async def kickoff_backport_task(gh, commit_hash, branch, issue_number, created_b
             err_message = f"I'm having trouble backporting to `{branch}`. Reason: '`{ce}`'. Will retry in 1 minute. Retry # {retry_num}"
             await util.leave_comment(gh, issue_number, err_message)
             await asyncio.sleep(int(os.environ.get("RETRY_SLEEP_TIME", "60")))
-            await kickoff_backport_task(gh, commit_hash, branch, issue_number, created_by, merged_by, retry_num=retry_num)
+            await kickoff_backport_task(
+                gh,
+                commit_hash,
+                branch,
+                issue_number,
+                created_by,
+                merged_by,
+                retry_num=retry_num,
+            )
         else:
             err_message = f"I'm still having trouble backporting after {retry_num} attempts. Please backport manually."
             await util.leave_comment(gh, issue_number, err_message)
