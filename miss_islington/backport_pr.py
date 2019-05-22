@@ -1,15 +1,15 @@
-import gidgethub.routing
-
+import asyncio
+import os
 import random
 
-from . import tasks
-from . import util
+import gidgethub.routing
+import redis
+
+from . import tasks, util
 
 EASTER_EGG = "I'm not a witch! I'm not a witch!"
 
 router = gidgethub.routing.Router()
-
-
 @router.register("pull_request", action="closed")
 @router.register("pull_request", action="labeled")
 async def backport_pr(event, gh, *args, **kwargs):
@@ -55,10 +55,26 @@ async def backport_pr(event, gh, *args, **kwargs):
             )
 
             for branch in sorted_branches:
-                tasks.backport_task.delay(
-                    commit_hash,
-                    branch,
-                    issue_number=issue_number,
-                    created_by=created_by,
-                    merged_by=merged_by,
-                )
+                await kickoff_backport_task(gh, commit_hash, branch, issue_number, created_by, merged_by)
+
+
+async def kickoff_backport_task(gh, commit_hash, branch, issue_number, created_by, merged_by, retry_num=0):
+    try:
+        tasks.backport_task.delay(
+            commit_hash,
+            branch,
+            issue_number=issue_number,
+            created_by=created_by,
+            merged_by=merged_by,
+        )
+    except redis.exceptions.ConnectionError as ce:
+        retry_num = retry_num + 1
+        if retry_num < 5:
+            err_message = f"I'm having trouble backporting to `{branch}`. Reason: '`{ce}`'. Will retry in 1 minute. Retry # {retry_num}"
+            await util.leave_comment(gh, issue_number, err_message)
+            await asyncio.sleep(int(os.environ.get("RETRY_SLEEP_TIME", "60")))
+            await kickoff_backport_task(gh, commit_hash, branch, issue_number, created_by, merged_by, retry_num=retry_num)
+        else:
+            err_message = f"I'm still having trouble backporting after {retry_num} attempts. Please backport manually."
+            await util.leave_comment(gh, issue_number, err_message)
+            await util.assign_pr_to_core_dev(gh, issue_number, merged_by)
