@@ -3,7 +3,8 @@ import os
 import random
 
 import gidgethub.routing
-import redis
+from kombu import exceptions as kombu_ex
+from redis import exceptions as redis_ex
 
 from . import tasks, util
 
@@ -76,10 +77,10 @@ async def kickoff_backport_task(
             created_by=created_by,
             merged_by=merged_by,
         )
-    except redis.exceptions.ConnectionError as ce:
+    except (redis_ex.ConnectionError, kombu_ex.OperationalError) as ex:
         retry_num = retry_num + 1
         if retry_num < 5:
-            err_message = f"I'm having trouble backporting to `{branch}`. Reason: '`{ce}`'. Will retry in 1 minute. Retry # {retry_num}"
+            err_message = f"I'm having trouble backporting to `{branch}`. Reason: '`{ex}`'. Will retry in 1 minute. Retry # {retry_num}"
             await util.leave_comment(gh, issue_number, err_message)
             await asyncio.sleep(int(os.environ.get("RETRY_SLEEP_TIME", "60")))
             await kickoff_backport_task(

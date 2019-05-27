@@ -1,8 +1,10 @@
 import os
 from unittest import mock
 
-import redis
 from gidgethub import sansio
+
+import redis
+import kombu
 
 os.environ["REDIS_URL"] = "someurl"
 os.environ["RETRY_SLEEP_TIME"] = "1"
@@ -246,5 +248,38 @@ async def test_backport_pr_redis_connection_error():
     gh = FakeGH(getitem=getitem)
     with mock.patch("miss_islington.tasks.backport_task.delay") as backport_delay_mock:
         backport_delay_mock.side_effect = redis.exceptions.ConnectionError
+        await backport_pr.router.dispatch(event, gh)
+        assert "trouble backporting after 5 attempts" in gh.post_data["body"]
+
+
+async def test_backport_pr_kombu_operational_error():
+    data = {
+        "action": "closed",
+        "pull_request": {
+            "merged": True,
+            "number": 1,
+            "merged_by": {"login": "Mariatta"},
+            "user": {"login": "gvanrossum"},
+            "merge_commit_sha": "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9",
+        },
+        "repository": {
+            "issues_url": "https://api.github.com/repos/python/cpython/issues/1"
+        },
+    }
+    event = sansio.Event(data, event="pull_request", delivery_id="1")
+
+    getitem = {
+        "https://api.github.com/repos/python/cpython/issues/1": {
+            "labels_url": "https://api.github.com/repos/python/cpython/issues/1/labels{/name}"
+        },
+        "https://api.github.com/repos/python/cpython/issues/1/labels": [
+            {"name": "CLA signed"},
+            {"name": "needs backport to 3.7"},
+        ],
+    }
+
+    gh = FakeGH(getitem=getitem)
+    with mock.patch("miss_islington.tasks.backport_task.delay") as backport_delay_mock:
+        backport_delay_mock.side_effect = kombu.exceptions.OperationalError
         await backport_pr.router.dispatch(event, gh)
         assert "trouble backporting after 5 attempts" in gh.post_data["body"]
