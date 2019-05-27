@@ -1,6 +1,6 @@
 cherry_picker==1.2.2
 aiohttp==3.5.4
 gidgethub==3.1.0
-cachetools==3.1.0
+cachetools==3.1.1
 redis==3.2.1
 celery==4.3.0
