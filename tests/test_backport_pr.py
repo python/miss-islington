@@ -7,7 +7,6 @@ import redis
 import kombu
 
 os.environ["REDIS_URL"] = "someurl"
-os.environ["RETRY_SLEEP_TIME"] = "1"
 
 from miss_islington import backport_pr
 
@@ -249,7 +248,7 @@ async def test_backport_pr_redis_connection_error():
     with mock.patch("miss_islington.tasks.backport_task.delay") as backport_delay_mock:
         backport_delay_mock.side_effect = redis.exceptions.ConnectionError
         await backport_pr.router.dispatch(event, gh)
-        assert "trouble backporting after 5 attempts" in gh.post_data["body"]
+        assert "I'm having trouble backporting to `3.7`" in gh.post_data["body"]
 
 
 async def test_backport_pr_kombu_operational_error():
@@ -282,4 +281,4 @@ async def test_backport_pr_kombu_operational_error():
     with mock.patch("miss_islington.tasks.backport_task.delay") as backport_delay_mock:
         backport_delay_mock.side_effect = kombu.exceptions.OperationalError
         await backport_pr.router.dispatch(event, gh)
-        assert "trouble backporting after 5 attempts" in gh.post_data["body"]
+        assert "I'm having trouble backporting to `3.7`" in gh.post_data["body"]
