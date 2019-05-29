@@ -7,19 +7,16 @@ import redis
 import kombu
 
 os.environ["REDIS_URL"] = "someurl"
-os.environ["RETRY_SLEEP_TIME"] = "1"
 
 from miss_islington import backport_pr
 
 
 class FakeGH:
-    def __init__(self, *, getitem=None, post=None, patch=None):
+    def __init__(self, *, getitem=None, post=None):
         self._getitem_return = getitem
         self.getitem_url = None
         self.getiter_url = None
         self._post_return = post
-        self._patch_return = patch
-        self.patch_url = self.patch_data = None
 
     async def getitem(self, url, url_vars={}):
         self.getitem_url = sansio.format_url(url, url_vars)
@@ -29,11 +26,6 @@ class FakeGH:
         self.post_url = url
         self.post_data = data
         return self._post_return
-
-    async def patch(self, url, *, data):
-        self.patch_url = url
-        self.patch_data = data
-        return self._patch_return
 
 
 async def test_unmerged_pr_is_ignored():
@@ -249,7 +241,7 @@ async def test_backport_pr_redis_connection_error():
     with mock.patch("miss_islington.tasks.backport_task.delay") as backport_delay_mock:
         backport_delay_mock.side_effect = redis.exceptions.ConnectionError
         await backport_pr.router.dispatch(event, gh)
-        assert "trouble backporting after 5 attempts" in gh.post_data["body"]
+        assert "I'm having trouble backporting to `3.7`" in gh.post_data["body"]
 
 
 async def test_backport_pr_kombu_operational_error():
@@ -282,4 +274,4 @@ async def test_backport_pr_kombu_operational_error():
     with mock.patch("miss_islington.tasks.backport_task.delay") as backport_delay_mock:
         backport_delay_mock.side_effect = kombu.exceptions.OperationalError
         await backport_pr.router.dispatch(event, gh)
-        assert "trouble backporting after 5 attempts" in gh.post_data["body"]
+        assert "I'm having trouble backporting to `3.7`" in gh.post_data["body"]

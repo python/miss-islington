@@ -67,7 +67,7 @@ async def backport_pr(event, gh, *args, **kwargs):
 
 
 async def kickoff_backport_task(
-    gh, commit_hash, branch, issue_number, created_by, merged_by, retry_num=0
+    gh, commit_hash, branch, issue_number, created_by, merged_by
 ):
     try:
         tasks.backport_task.delay(
@@ -78,21 +78,5 @@ async def kickoff_backport_task(
             merged_by=merged_by,
         )
     except (redis_ex.ConnectionError, kombu_ex.OperationalError) as ex:
-        retry_num = retry_num + 1
-        if retry_num < 5:
-            err_message = f"I'm having trouble backporting to `{branch}`. Reason: '`{ex}`'. Will retry in 1 minute. Retry # {retry_num}"
-            await util.leave_comment(gh, issue_number, err_message)
-            await asyncio.sleep(int(os.environ.get("RETRY_SLEEP_TIME", "60")))
-            await kickoff_backport_task(
-                gh,
-                commit_hash,
-                branch,
-                issue_number,
-                created_by,
-                merged_by,
-                retry_num=retry_num,
-            )
-        else:
-            err_message = f"I'm still having trouble backporting after {retry_num} attempts. Please backport manually."
-            await util.leave_comment(gh, issue_number, err_message)
-            await util.assign_pr_to_core_dev(gh, issue_number, merged_by)
+        err_message = f"I'm having trouble backporting to `{branch}`. Reason: '`{ex}`'. Please retry by removing and re-adding the `needs backport to {branch}` label."
+        await util.leave_comment(gh, issue_number, err_message)
