@@ -17,8 +17,6 @@ class FakeGH:
         self.getitem_url = None
         self.getiter_url = None
         self._post_return = post
-        self._patch_return = patch
-        self.patch_url = self.patch_data = None
 
     async def getitem(self, url, url_vars={}):
         self.getitem_url = sansio.format_url(url, url_vars)
