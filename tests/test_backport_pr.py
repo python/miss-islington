@@ -12,7 +12,7 @@ from miss_islington import backport_pr
 
 
 class FakeGH:
-    def __init__(self, *, getitem=None, post=None, patch=None):
+    def __init__(self, *, getitem=None, post=None):
         self._getitem_return = getitem
         self.getitem_url = None
         self.getiter_url = None
@@ -28,11 +28,6 @@ class FakeGH:
         self.post_url = url
         self.post_data = data
         return self._post_return
-
-    async def patch(self, url, *, data):
-        self.patch_url = url
-        self.patch_data = data
-        return self._patch_return
 
 
 async def test_unmerged_pr_is_ignored():
