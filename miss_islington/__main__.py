@@ -20,6 +20,9 @@ router = routing.Router(backport_pr.router, delete_branch.router, status_change.
 
 cache = cachetools.LRUCache(maxsize=500)
 
+import sentry_sdk
+sentry_sdk.init(os.environ.get("SENTRY_DSN"))
+
 
 async def main(request):
     try:
