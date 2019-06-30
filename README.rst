@@ -38,5 +38,5 @@ automatically merged once all the CI checks passed.
 =========================================
 
 According to Wikipedia, Miss Islington is the name of the witch in the
-`Monty Python and the Holy Grail <https://www.youtube.com/watch?v=k3jt5ibfRzw&feature=youtu.be>`_
+`Monty Python and the Holy Grail <https://www.youtube.com/watch?v=yp_l5ntikaU>`_
 sketch.
