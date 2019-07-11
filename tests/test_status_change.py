@@ -8,7 +8,16 @@ from miss_islington.util import AUTOMERGE_LABEL
 
 
 class FakeGH:
-    def __init__(self, *, getitem=None, getiter=None, put=None, post=None, patch=None, delete=None):
+    def __init__(
+        self,
+        *,
+        getitem=None,
+        getiter=None,
+        put=None,
+        post=None,
+        patch=None,
+        delete=None,
+    ):
         self._getitem_return = getitem
         self._getiter_return = getiter
         self.getitem_url = None
@@ -18,7 +27,6 @@ class FakeGH:
         self._post_return = post
         self._patch_return = patch
         self.patch_url = self.patch_data = None
-
 
     async def getitem(self, url):
         self.getitem_url = url
@@ -232,12 +240,8 @@ async def test_awaiting_merge_label_added_and_ci_passed_pr_is_merged():
             "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
             "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
         },
-        "sender": {
-            "login": "Mariatta",
-        },
-        "label": {
-            "name": "awaiting merge"
-        }
+        "sender": {"login": "Mariatta"},
+        "label": {"name": "awaiting merge"},
     }
 
     event = sansio.Event(data, event="pull_request", delivery_id="1")
@@ -296,12 +300,8 @@ async def test_awaiting_merge_webhook_ci_failure_pr_is_not_merged():
             "labels": [{"name": "awaiting merge"}],
             "head": {"sha": sha},
         },
-        "sender": {
-            "login": "Mariatta",
-        },
-        "label": {
-            "name": "awaiting merge"
-        }
+        "sender": {"login": "Mariatta"},
+        "label": {"name": "awaiting merge"},
     }
 
     event = sansio.Event(data, event="pull_request", delivery_id="1")
@@ -352,12 +352,8 @@ async def test_awaiting_core_review_label_added_is_not_merged():
             "labels": [{"name": "awaiting core review"}],
             "head": {"sha": sha},
         },
-        "sender": {
-            "login": "bedevere-bot",
-        },
-        "label": {
-            "name": "awaiting core review"
-        }
+        "sender": {"login": "bedevere-bot"},
+        "label": {"name": "awaiting core review"},
     }
 
     event = sansio.Event(data, event="pull_request", delivery_id="1")
@@ -407,14 +403,11 @@ async def test_awaiting_merge_label_ignore_non_miss_islingtons_pr():
             "labels": [{"name": "awaiting merge"}],
             "head": {"sha": sha},
             "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
-            "url": "https://api.github.com/repos/python/cpython/pulls/5547"
+            "url": "https://api.github.com/repos/python/cpython/pulls/5547",
         },
-        "sender": {
-            "login": "Mariatta",
-        },
-        "label": {
-            "name": AUTOMERGE_LABEL
-        }    }
+        "sender": {"login": "Mariatta"},
+        "label": {"name": AUTOMERGE_LABEL},
+    }
 
     event = sansio.Event(data, event="pull_request", delivery_id="1")
 
@@ -435,13 +428,10 @@ async def test_awaiting_merge_label_ignore_non_miss_islingtons_pr():
                 },
             ],
         },
-        "/teams/42/memberships/Mariatta": True
-
+        "/teams/42/memberships/Mariatta": True,
     }
 
-    getiter = {
-        "/orgs/python/teams": [{"name": "python core", "id": 42}],
-    }
+    getiter = {"/orgs/python/teams": [{"name": "python core", "id": 42}]}
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
     await status_change.router.dispatch(event, gh)
@@ -747,14 +737,11 @@ async def test_awaiting_merge_label_added_not_miss_islingtons_pr():
             "labels": [{"name": "awaiting merge"}],
             "head": {"sha": sha},
             "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
-            "url": "https://api.github.com/repos/python/cpython/pulls/5547"
+            "url": "https://api.github.com/repos/python/cpython/pulls/5547",
         },
-        "sender": {
-            "login": "Mariatta",
-        },
-        "label": {
-            "name": AUTOMERGE_LABEL
-        }    }
+        "sender": {"login": "Mariatta"},
+        "label": {"name": AUTOMERGE_LABEL},
+    }
 
     event = sansio.Event(data, event="pull_request", delivery_id="1")
 
@@ -780,8 +767,7 @@ async def test_awaiting_merge_label_added_not_miss_islingtons_pr():
             "merged_by": {"login": "Mariatta"},
         },
         "/repos/python/cpython/pulls/5547": {"labels": [{"name": "awaiting merge"}]},
-        "/teams/42/memberships/Mariatta": True
-
+        "/teams/42/memberships/Mariatta": True,
     }
 
     getiter = {
@@ -812,7 +798,6 @@ async def test_awaiting_merge_label_added_not_miss_islingtons_pr():
             }
         ],
         "/orgs/python/teams": [{"name": "python core", "id": 42}],
-
     }
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
@@ -829,14 +814,11 @@ async def test_awaiting_core_review_label_added_miss_islingtons_pr():
             "labels": [{"name": "awaiting core review"}],
             "head": {"sha": sha},
             "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
-            "url": "https://api.github.com/repos/python/cpython/pulls/5547"
+            "url": "https://api.github.com/repos/python/cpython/pulls/5547",
         },
-        "sender": {
-            "login": "Mariatta",
-        },
-        "label": {
-            "name": AUTOMERGE_LABEL
-        }    }
+        "sender": {"login": "Mariatta"},
+        "label": {"name": AUTOMERGE_LABEL},
+    }
 
     event = sansio.Event(data, event="pull_request", delivery_id="1")
 
@@ -864,8 +846,7 @@ async def test_awaiting_core_review_label_added_miss_islingtons_pr():
         "/repos/python/cpython/pulls/5547": {
             "labels": [{"name": "awaiting core review"}]
         },
-        "/teams/42/memberships/Mariatta": True
-
+        "/teams/42/memberships/Mariatta": True,
     }
 
     getiter = {
@@ -896,7 +877,6 @@ async def test_awaiting_core_review_label_added_miss_islingtons_pr():
             }
         ],
         "/orgs/python/teams": [{"name": "python core", "id": 42}],
-
     }
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
@@ -1074,14 +1054,10 @@ async def test_awaiting_merge_label_and_automerge_label_added_not_miss_islington
             "number": 5547,
             "title": "bpo-32720: Fixed the replacement field grammar documentation.",
             "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
-            "url": "https://api.github.com/repos/python/cpython/pulls/5547"
+            "url": "https://api.github.com/repos/python/cpython/pulls/5547",
         },
-        "sender": {
-            "login": "Mariatta",
-        },
-        "label": {
-            "name": AUTOMERGE_LABEL
-        }
+        "sender": {"login": "Mariatta"},
+        "label": {"name": AUTOMERGE_LABEL},
     }
 
     event = sansio.Event(data, event="pull_request", delivery_id="1")
@@ -1103,13 +1079,13 @@ async def test_awaiting_merge_label_and_automerge_label_added_not_miss_islington
                 },
             ],
         },
-        "/teams/42/memberships/Mariatta": True
-
+        "/teams/42/memberships/Mariatta": True,
     }
 
-    getiter = {"/repos/python/cpython/pulls/5547/commits": [{"sha": sha}],
-               "/orgs/python/teams": [{"name": "python core", "id": 42}],
-               }
+    getiter = {
+        "/repos/python/cpython/pulls/5547/commits": [{"sha": sha}],
+        "/orgs/python/teams": [{"name": "python core", "id": 42}],
+    }
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
     await status_change.router.dispatch(event, gh)
@@ -1136,14 +1112,10 @@ async def test_automerge_but_not_awaiting_merge():
             "labels": [{"name": "awaiting review"}, {"name": AUTOMERGE_LABEL}],
             "head": {"sha": sha},
             "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
-            "url": "https://api.github.com/repos/python/cpython/pulls/5547"
+            "url": "https://api.github.com/repos/python/cpython/pulls/5547",
         },
-        "sender": {
-            "login": "Mariatta",
-        },
-        "label": {
-            "name": AUTOMERGE_LABEL
-        }
+        "sender": {"login": "Mariatta"},
+        "label": {"name": AUTOMERGE_LABEL},
     }
 
     event = sansio.Event(data, event="pull_request", delivery_id="1")
@@ -1181,13 +1153,13 @@ async def test_automerge_but_not_awaiting_merge():
                 }
             ],
         },
-        "/teams/42/memberships/Mariatta": True
-
+        "/teams/42/memberships/Mariatta": True,
     }
 
-    getiter = {"/repos/python/cpython/pulls/5547/commits": [{"sha": sha}],
-               "/orgs/python/teams": [{"name": "python core", "id": 42}],
-               }
+    getiter = {
+        "/repos/python/cpython/pulls/5547/commits": [{"sha": sha}],
+        "/orgs/python/teams": [{"name": "python core", "id": 42}],
+    }
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
     await status_change.router.dispatch(event, gh)
@@ -1229,14 +1201,10 @@ async def test_automerge_multi_commits_in_pr():
             "number": 5547,
             "title": "bpo-32720: Fixed the replacement field grammar documentation.",
             "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
-            "url": "https://api.github.com/repos/python/cpython/pulls/5547"
+            "url": "https://api.github.com/repos/python/cpython/pulls/5547",
         },
-        "sender": {
-            "login": "Mariatta",
-        },
-        "label": {
-            "name": AUTOMERGE_LABEL
-        }
+        "sender": {"login": "Mariatta"},
+        "label": {"name": AUTOMERGE_LABEL},
     }
 
     event = sansio.Event(data, event="pull_request", delivery_id="1")
@@ -1258,8 +1226,7 @@ async def test_automerge_multi_commits_in_pr():
                 },
             ],
         },
-        "/teams/42/memberships/Mariatta": True
-
+        "/teams/42/memberships/Mariatta": True,
     }
 
     getiter = {
@@ -1268,7 +1235,6 @@ async def test_automerge_multi_commits_in_pr():
             {"sha": sha},
         ],
         "/orgs/python/teams": [{"name": "python core", "id": 42}],
-
     }
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
@@ -1302,14 +1268,10 @@ async def test_automerge_commit_not_found():
             "number": 5547,
             "title": "bpo-32720: Fixed the replacement field grammar documentation.",
             "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
-            "url": "https://api.github.com/repos/python/cpython/pulls/5547"
+            "url": "https://api.github.com/repos/python/cpython/pulls/5547",
         },
-        "sender": {
-            "login": "Mariatta",
-        },
-        "label": {
-            "name": AUTOMERGE_LABEL
-        }
+        "sender": {"login": "Mariatta"},
+        "label": {"name": AUTOMERGE_LABEL},
     }
 
     event = sansio.Event(data, event="pull_request", delivery_id="1")
@@ -1331,13 +1293,13 @@ async def test_automerge_commit_not_found():
                 },
             ],
         },
-        "/teams/42/memberships/Mariatta": True
-
+        "/teams/42/memberships/Mariatta": True,
     }
 
-    getiter = {"/repos/python/cpython/pulls/5547/commits": [],
-               "/orgs/python/teams": [{"name": "python core", "id": 42}],
-}
+    getiter = {
+        "/repos/python/cpython/pulls/5547/commits": [],
+        "/orgs/python/teams": [{"name": "python core", "id": 42}],
+    }
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
     await status_change.router.dispatch(event, gh)
@@ -1360,14 +1322,10 @@ async def test_automerge_failed():
             "number": 5547,
             "title": "bpo-32720: Fixed the replacement field grammar documentation.",
             "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
-            "url": "https://api.github.com/repos/python/cpython/pulls/5547"
+            "url": "https://api.github.com/repos/python/cpython/pulls/5547",
         },
-        "sender": {
-            "login": "Mariatta",
-        },
-        "label": {
-            "name": AUTOMERGE_LABEL
-        }
+        "sender": {"login": "Mariatta"},
+        "label": {"name": AUTOMERGE_LABEL},
     }
 
     event = sansio.Event(data, event="pull_request", delivery_id="1")
@@ -1389,7 +1347,7 @@ async def test_automerge_failed():
                 },
             ],
         },
-        "/teams/42/memberships/Mariatta": True
+        "/teams/42/memberships/Mariatta": True,
     }
 
     getiter = {
@@ -1441,14 +1399,10 @@ async def test_automerge_label_added_by_non_core_dev():
             "title": "bpo-32720: Fixed the replacement field grammar documentation.",
             "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
             "url": "https://api.github.com/repos/python/cpython/pulls/5547",
-            "issue_url": "https://api.github.com/repos/python/cpython/issues/5547"
+            "issue_url": "https://api.github.com/repos/python/cpython/issues/5547",
         },
-        "sender": {
-            "login": "miss-islington",
-        },
-        "label": {
-            "name": AUTOMERGE_LABEL
-        }
+        "sender": {"login": "miss-islington"},
+        "label": {"name": AUTOMERGE_LABEL},
     }
 
     event = sansio.Event(data, event="pull_request", delivery_id="1")
@@ -1470,23 +1424,25 @@ async def test_automerge_label_added_by_non_core_dev():
                 },
             ],
         },
-        "/teams/42/memberships/miss-islington":  gidgethub.BadRequest(
-            status_code=http.HTTPStatus(404))
-
+        "/teams/42/memberships/miss-islington": gidgethub.BadRequest(
+            status_code=http.HTTPStatus(404)
+        ),
     }
 
-    getiter = {"/repos/python/cpython/pulls/5547/commits": [{"sha": sha}],
-               "/orgs/python/teams": [{"name": "python core", "id": 42}],
-               }
+    getiter = {
+        "/repos/python/cpython/pulls/5547/commits": [{"sha": sha}],
+        "/orgs/python/teams": [{"name": "python core", "id": 42}],
+    }
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
     await status_change.router.dispatch(event, gh)
-    assert gh.delete_url == f'{data["pull_request"]["issue_url"]}/labels/{AUTOMERGE_LABEL}'
+    assert (
+        gh.delete_url == f'{data["pull_request"]["issue_url"]}/labels/{AUTOMERGE_LABEL}'
+    )
     assert not hasattr(gh, "post_data")  # does not leave a comment
 
     assert not hasattr(gh, "post_data")  # does not leave a comment
     assert not hasattr(gh, "put_data")  # does not merge
-
 
 
 async def test_automerge_label_triggered_by_added_to_pr():
@@ -1505,14 +1461,10 @@ async def test_automerge_label_triggered_by_added_to_pr():
             "title": "bpo-32720: Fixed the replacement field grammar documentation.",
             "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
             "url": "https://api.github.com/repos/python/cpython/pulls/5547",
-            "issue_url": "https://api.github.com/repos/python/cpython/issues/5547"
+            "issue_url": "https://api.github.com/repos/python/cpython/issues/5547",
         },
-        "sender": {
-            "login": "Mariatta",
-        },
-        "label": {
-            "name": AUTOMERGE_LABEL
-        }
+        "sender": {"login": "Mariatta"},
+        "label": {"name": AUTOMERGE_LABEL},
     }
 
     event = sansio.Event(data, event="pull_request", delivery_id="1")
@@ -1534,15 +1486,17 @@ async def test_automerge_label_triggered_by_added_to_pr():
                 },
             ],
         },
-        "/teams/42/memberships/Mariatta": True
-
+        "/teams/42/memberships/Mariatta": True,
     }
 
-    getiter = {"/repos/python/cpython/pulls/5547/commits": [{"sha": sha}],
-               "/orgs/python/teams": [{"name": "python core", "id": 42}],
-               }
+    getiter = {
+        "/repos/python/cpython/pulls/5547/commits": [{"sha": sha}],
+        "/orgs/python/teams": [{"name": "python core", "id": 42}],
+    }
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
     await status_change.router.dispatch(event, gh)
     assert gh.patch_url == f'{data["pull_request"]["url"]}'
-    assert gh.patch_data == {"body": f"{data['pull_request']['body']}\n\nAutomerge-Triggered-By: @Mariatta"}
+    assert gh.patch_data == {
+        "body": f"{data['pull_request']['body']}\n\nAutomerge-Triggered-By: @Mariatta"
+    }
