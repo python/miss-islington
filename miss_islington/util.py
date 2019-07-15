@@ -145,3 +145,11 @@ async def get_pr_for_commit(gh, sha):
         pr_for_commit = prs_for_commit["items"][0]
         return pr_for_commit
     return None
+
+
+async def remove_automerge(gh, pr_data):
+    """Remove the automerge label"""
+    await gh.delete(
+        f"{pr_data['issue_url']}/labels/{AUTOMERGE_LABEL}",
+        accept="application/vnd.github.symmetra-preview+json",
+    )

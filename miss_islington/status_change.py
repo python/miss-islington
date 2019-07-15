@@ -41,6 +41,15 @@ async def check_status(event, gh, *args, **kwargs):
 async def pr_reviewed(event, gh, *args, **kwargs):
 
     pr_labels = event.data["pull_request"]["labels"]
+    sender = event.data["sender"]["login"]
+    label = event.data["label"]["name"]
+
+    if label == util.AUTOMERGE_LABEL:
+        if await util.is_core_dev(gh, sender):
+            await add_automerged_by(gh, event.data["pull_request"], sender)
+        else:
+            await util.remove_automerge(gh, event.data["pull_request"])
+            return
 
     if util.pr_is_automerge(pr_labels) and util.pr_is_awaiting_merge(pr_labels):
         sha = event.data["pull_request"]["head"]["sha"]
@@ -132,3 +141,9 @@ async def merge_pr(gh, pr, sha, is_automerge=False):
                     gh, pr_number, f"Sorry, I can't merge this PR. Reason: `{err}`."
                 )
             break
+
+
+async def add_automerged_by(gh, pr_data, username):
+
+    new_pr_body = f"{pr_data['body']}\n\nAutomerge-Triggered-By: @{username}"
+    await gh.patch(pr_data["url"], data={"body": new_pr_body})
