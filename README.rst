@@ -10,7 +10,7 @@ miss-islington
 
 🐍🍒⛏🤖
 
-Bot for backporting `CPython <https://github.com/python/cpython/>`_ Pull Requests.
+Bot for backporting and merging `CPython <https://github.com/python/cpython/>`_ Pull Requests.
 
 miss-islington requires Python 3.6. Python 3.7 is not yet supported.
 
@@ -33,6 +33,15 @@ Merging the Backport PR
 
 If a Python core developer approved the backport PR made by miss-islington, it will be
 automatically merged once all the CI checks passed.
+
+
+Merging PRs
+===========
+
+If a Python core developer approved a PR made by anyone and added an "automerge" label,
+it will be autmatically merged once all the CI checks pass. This works for PRs from
+anyone.
+
 
 **Aside**: where does the name come from?
 =========================================
