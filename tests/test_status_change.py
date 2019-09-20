@@ -1801,7 +1801,7 @@ async def test_automerge_label_triggered_by_added_to_pr():
     await status_change.router.dispatch(event, gh)
     assert gh.patch_url == f'{data["pull_request"]["url"]}'
     assert gh.patch_data == {
-        "body": f"{data['pull_request']['body']}\n\nAutomerge-Triggered-By: @Mariatta"
+        "body": f"{data['pull_request']['body']}\n\nAutomerge-Triggered-By: GH:Mariatta"
     }
 
 
