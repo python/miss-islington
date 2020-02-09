@@ -39,7 +39,7 @@ Merging PRs
 ===========
 
 If a Python core developer approved a PR made by anyone and added the "🤖 automerge" label,
-it will be autmatically merged once all the CI checks pass.
+it will be automatically merged once all the CI checks pass.
 
 
 **Aside**: where does the name come from?
