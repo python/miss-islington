@@ -1,6 +1,9 @@
+import re
 import subprocess
 
 import gidgethub
+
+from .status_change import AUTOMERGE_TRAILER
 
 
 AUTOMERGE_LABEL = ":robot: automerge"
@@ -92,6 +95,13 @@ def normalize_message(body):
     """
     while "<!--" in body:
         body = body[: body.index("<!--")] + body[body.index("-->") + 3 :]
+    # Delete BPO link added by Bedevere.
+    body = re.sub(r"https://bugs.python.org/issue(\d+)", "", body)
+    # Strip additional newlines between commit body and automerge label.
+    body_parts = body.split(AUTOMERGE_TRAILER)
+    if len(body_parts) > 1:
+        body, automerge_user = body_parts
+        body = f"{body.strip()}\n\n{AUTOMERGE_TRAILER}{automerge_user}"
     return "\n\n" + body.strip()
 
 
