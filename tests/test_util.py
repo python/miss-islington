@@ -1,4 +1,6 @@
 import http
+import textwrap
+
 import pytest
 import gidgethub
 
@@ -81,6 +83,31 @@ def test_message_normalization():
 
     message = "\r\nParts <!--comment--> we want\r\nincluded"
     assert util.normalize_message(message) == "\n\nParts  we want\r\nincluded"
+
+    message = textwrap.dedent("""
+    The truncate() method of io.BufferedReader() should raise
+    UnsupportedOperation when it is called on a read-only
+    io.BufferedReader() instance.
+    
+    
+    
+    
+    
+    https://bugs.python.org/issue35950
+    
+    
+    
+    Automerge-Triggered-By: @methane
+    """)
+
+    expected_message = textwrap.dedent("""
+
+    The truncate() method of io.BufferedReader() should raise
+    UnsupportedOperation when it is called on a read-only
+    io.BufferedReader() instance.
+    
+    Automerge-Triggered-By: @methane""")
+    assert util.normalize_message(message) == expected_message
 
 
 async def test_get_gh_participants_different_creator_and_committer():

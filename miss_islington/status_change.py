@@ -9,6 +9,7 @@ from . import util
 router = routing.Router()
 
 TITLE_RE = re.compile(r"\[(?P<branch>\d+\.\d+)\].+?(?P<pr>\d+)\)")
+AUTOMERGE_TRAILER = "Automerge-Triggered-By"
 
 
 @router.register("status")
@@ -144,6 +145,5 @@ async def merge_pr(gh, pr, sha, is_automerge=False):
 
 
 async def add_automerged_by(gh, pr_data, username):
-
-    new_pr_body = f"{pr_data['body']}\n\nAutomerge-Triggered-By: @{username}"
+    new_pr_body = f"{pr_data['body']}\n\n{AUTOMERGE_TRAILER}: @{username}"
     await gh.patch(pr_data["url"], data={"body": new_pr_body})
