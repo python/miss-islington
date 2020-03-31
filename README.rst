@@ -12,8 +12,7 @@ miss-islington
 
 Bot for backporting and merging `CPython <https://github.com/python/cpython/>`_ Pull Requests.
 
-miss-islington requires Python 3.6. Python 3.7 is not yet supported.
-
+miss-islington requires Python 3.6+.
 
 Backporting a PR on CPython
 ===========================
