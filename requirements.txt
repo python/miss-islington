@@ -3,5 +3,5 @@ aiohttp==3.6.2
 gidgethub==4.1.0
 cachetools==4.1.0
 redis==3.5.3
-celery==4.4.4
+celery==4.4.2
 sentry-sdk==0.14.4
