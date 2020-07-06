@@ -1,4 +1,4 @@
-name: Publish codecov result
+name: Codecov
 on: [push]
 jobs:
   run:
