@@ -79,8 +79,8 @@ async def backport_task_asyncio(
                 await util.comment_on_pr(
                     gh,
                     issue_number,
-                    f"""{util.get_participants(created_by, merged_by)}, Something is wrong... I can't backport for now.
-                                   Please backport using [cherry_picker](https://pypi.org/project/cherry-picker/) on command line.
+                    f"""{util.get_participants(created_by, merged_by)}, I can't backport for now.  Please try again later or
+                                   backport using [cherry_picker](https://pypi.org/project/cherry-picker/) on command line.
                                    ```
                                    cherry_picker {commit_hash} {branch}
                                    ```
