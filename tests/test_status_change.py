@@ -1500,3 +1500,112 @@ async def test_automerge_label_triggered_by_added_to_pr():
     assert gh.patch_data == {
         "body": f"{data['pull_request']['body']}\n\nAutomerge-Triggered-By: @Mariatta"
     }
+
+
+async def test_automerge_label_removed():
+    sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
+    data = {
+        "action": "unlabeled",
+        "pull_request": {
+            "user": {"login": "miss-islington"},
+            "labels": [
+                {"name": "awaiting merge"},
+                {"name": "CLA signed"},
+            ],
+            "head": {"sha": sha},
+            "number": 5547,
+            "title": "bpo-32720: Fixed the replacement field grammar documentation.",
+            "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n\nAutomerge-Triggered-By: @miss-islington",
+            "url": "https://api.github.com/repos/python/cpython/pulls/5547",
+            "issue_url": "https://api.github.com/repos/python/cpython/issues/5547",
+        },
+        "sender": {"login": "miss-islington"},
+        "label": {"name": AUTOMERGE_LABEL},
+    }
+
+    event = sansio.Event(data, event="pull_request", delivery_id="1")
+
+    getitem = {
+        f"/repos/python/cpython/commits/{sha}/status": {
+            "state": "success",
+            "statuses": [
+                {
+                    "state": "success",
+                    "description": "Issue report skipped",
+                    "context": "bedevere/issue-number",
+                },
+                {
+                    "state": "success",
+                    "description": "The Travis CI build passed",
+                    "target_url": "https://travis-ci.org/python/cpython/builds/340259685?utm_source=github_status&utm_medium=notification",
+                    "context": "continuous-integration/travis-ci/pr",
+                },
+            ],
+        },
+        "/teams/42/memberships/miss-islington": True,
+    }
+
+    getiter = {
+        "/repos/python/cpython/pulls/5547/commits": [{"sha": sha}],
+        "/orgs/python/teams": [{"name": "python core", "id": 42}],
+    }
+
+    gh = FakeGH(getitem=getitem, getiter=getiter)
+    await status_change.router.dispatch(event, gh)
+    assert 'body' in gh.patch_data
+    assert 'Automerge-Triggered-By: @miss-islington' not in gh.patch_data['body']
+
+async def test_automerge_label_removed():
+    sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
+    data = {
+        "action": "unlabeled",
+        "pull_request": {
+            "user": {"login": "miss-islington"},
+            "labels": [
+                {"name": "awaiting merge"},
+                {"name": "CLA signed"},
+            ],
+            "head": {"sha": sha},
+            "number": 5547,
+            "title": "bpo-32720: Fixed the replacement field grammar documentation.",
+            "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n\nAutomerge-Triggered-By: @miss-islington",
+            "url": "https://api.github.com/repos/python/cpython/pulls/5547",
+            "issue_url": "https://api.github.com/repos/python/cpython/issues/5547",
+        },
+        "sender": {"login": "miss-islington"},
+        "label": {"name": AUTOMERGE_LABEL},
+    }
+
+    event = sansio.Event(data, event="pull_request", delivery_id="1")
+
+    getitem = {
+        f"/repos/python/cpython/commits/{sha}/status": {
+            "state": "success",
+            "statuses": [
+                {
+                    "state": "success",
+                    "description": "Issue report skipped",
+                    "context": "bedevere/issue-number",
+                },
+                {
+                    "state": "success",
+                    "description": "The Travis CI build passed",
+                    "target_url": "https://travis-ci.org/python/cpython/builds/340259685?utm_source=github_status&utm_medium=notification",
+                    "context": "continuous-integration/travis-ci/pr",
+                },
+            ],
+        },
+        "/teams/42/memberships/miss-islington": gidgethub.BadRequest(
+            status_code=http.HTTPStatus(404)
+        ),
+    }
+
+    getiter = {
+        "/repos/python/cpython/pulls/5547/commits": [{"sha": sha}],
+        "/orgs/python/teams": [{"name": "python core", "id": 42}],
+    }
+
+    gh = FakeGH(getitem=getitem, getiter=getiter)
+    await status_change.router.dispatch(event, gh)
+    assert 'labels' in gh.post_data
+    assert AUTOMERGE_LABEL in gh.post_data['labels']
