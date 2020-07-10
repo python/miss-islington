@@ -1664,3 +1664,56 @@ async def test_label_other_than_automerge_removed():
     await status_change.router.dispatch(event, gh)
     assert not hasattr(gh, 'put_data')
     assert not hasattr(gh, 'post_data')
+
+
+async def test_automerge_removed_but_trailer_text_edited_out():
+    sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
+    data = {
+        "action": "unlabeled",
+        "pull_request": {
+            "user": {"login": "miss-islington"},
+            "labels": [
+                {"name": "awaiting merge"},
+                {"name": "CLA signed"},
+            ],
+            "head": {"sha": sha},
+            "number": 5547,
+            "title": "bpo-32720: Fixed the replacement field grammar documentation.",
+            "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
+            "url": "https://api.github.com/repos/python/cpython/pulls/5547",
+            "issue_url": "https://api.github.com/repos/python/cpython/issues/5547",
+        },
+        "sender": {"login": "miss-islington"},
+        "label": {"name": AUTOMERGE_LABEL},
+    }
+
+    event = sansio.Event(data, event="pull_request", delivery_id="1")
+
+    getitem = {
+        f"/repos/python/cpython/commits/{sha}/status": {
+            "state": "success",
+            "statuses": [
+                {
+                    "state": "success",
+                    "description": "Issue report skipped",
+                    "context": "bedevere/issue-number",
+                },
+                {
+                    "state": "success",
+                    "description": "The Travis CI build passed",
+                    "target_url": "https://travis-ci.org/python/cpython/builds/340259685?utm_source=github_status&utm_medium=notification",
+                    "context": "continuous-integration/travis-ci/pr",
+                },
+            ],
+        },
+        "/teams/42/memberships/miss-islington": True,
+    }
+
+    getiter = {
+        "/repos/python/cpython/pulls/5547/commits": [{"sha": sha}],
+        "/orgs/python/teams": [{"name": "python core", "id": 42}],
+    }
+
+    gh = FakeGH(getitem=getitem, getiter=getiter)
+    await status_change.router.dispatch(event, gh)
+    assert gh.patch_data["body"] == data["pull_request"]["body"]
