@@ -303,11 +303,7 @@ async def test_ci_passed_and_check_run_failure_awaiting_merge_label_pr_is_not_me
                     "name": "Travis CI - Pull Request",
                     "status": "completed",
                 },
-                {
-                    "conclusion": "success",
-                    "name": "Docs",
-                    "status": "completed",
-                },
+                {"conclusion": "success", "name": "Docs", "status": "completed"},
             ],
             "total_count": 1,
         },
@@ -364,11 +360,7 @@ async def test_ci_passed_and_check_run_pending_awaiting_merge_label_pr_is_not_me
                     "name": "Travis CI - Pull Request",
                     "status": "pending",
                 },
-                {
-                    "conclusion": "success",
-                    "name": "Docs",
-                    "status": "completed",
-                },
+                {"conclusion": "success", "name": "Docs", "status": "completed"},
             ],
             "total_count": 1,
         },
@@ -425,11 +417,7 @@ async def test_ci_passed_and_check_run_timed_out_awaiting_merge_label_pr_is_not_
                     "name": "Travis CI - Pull Request",
                     "status": "completed",
                 },
-                {
-                    "conclusion": "success",
-                    "name": "Docs",
-                    "status": "completed",
-                },
+                {"conclusion": "success", "name": "Docs", "status": "completed"},
             ],
             "total_count": 1,
         },
@@ -483,11 +471,7 @@ async def test_awaiting_merge_label_added_and_ci_passed_pr_is_merged():
                     "name": "Travis CI - Pull Request",
                     "status": "completed",
                 },
-                {
-                    "conclusion": "success",
-                    "name": "Docs",
-                    "status": "completed",
-                },
+                {"conclusion": "success", "name": "Docs", "status": "completed"},
             ],
             "total_count": 1,
         },
@@ -1827,10 +1811,7 @@ async def test_automerge_label_removed_by_core_dev():
         "action": "unlabeled",
         "pull_request": {
             "user": {"login": "miss-islington"},
-            "labels": [
-                {"name": "awaiting merge"},
-                {"name": "CLA signed"},
-            ],
+            "labels": [{"name": "awaiting merge"}, {"name": "CLA signed"}],
             "head": {"sha": sha},
             "number": 5547,
             "title": "bpo-32720: Fixed the replacement field grammar documentation.",
@@ -1881,10 +1862,7 @@ async def test_automerge_label_removed_by_non_core_dev():
         "action": "unlabeled",
         "pull_request": {
             "user": {"login": "miss-islington"},
-            "labels": [
-                {"name": "awaiting merge"},
-                {"name": "CLA signed"},
-            ],
+            "labels": [{"name": "awaiting merge"}, {"name": "CLA signed"}],
             "head": {"sha": sha},
             "number": 5547,
             "title": "bpo-32720: Fixed the replacement field grammar documentation.",
@@ -1937,10 +1915,7 @@ async def test_label_other_than_automerge_removed():
         "action": "unlabeled",
         "pull_request": {
             "user": {"login": "miss-islington"},
-            "labels": [
-                {"name": "awaiting merge"},
-                {"name": "CLA signed"},
-            ],
+            "labels": [{"name": "awaiting merge"}, {"name": "CLA signed"}],
             "head": {"sha": sha},
             "number": 5547,
             "title": "bpo-32720: Fixed the replacement field grammar documentation.",
@@ -1991,10 +1966,7 @@ async def test_automerge_removed_but_trailer_text_edited_out():
         "action": "unlabeled",
         "pull_request": {
             "user": {"login": "miss-islington"},
-            "labels": [
-                {"name": "awaiting merge"},
-                {"name": "CLA signed"},
-            ],
+            "labels": [{"name": "awaiting merge"}, {"name": "CLA signed"}],
             "head": {"sha": sha},
             "number": 5547,
             "title": "bpo-32720: Fixed the replacement field grammar documentation.",
