@@ -5,7 +5,6 @@ import gidgethub
 
 from .status_change import AUTOMERGE_TRAILER
 
-
 AUTOMERGE_LABEL = ":robot: automerge"
 
 
@@ -162,4 +161,11 @@ async def remove_automerge(gh, pr_data):
     await gh.delete(
         f"{pr_data['issue_url']}/labels/{AUTOMERGE_LABEL}",
         accept="application/vnd.github.symmetra-preview+json",
+    )
+
+
+async def get_check_runs_for_sha(gh, sha):
+    return await gh.getitem(
+        f"/repos/python/cpython/commits/{sha}/check-runs",
+        accept="application/vnd.github.antiope-preview+json",
     )

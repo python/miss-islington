@@ -1,6 +1,6 @@
 import http
-import gidgethub
 
+import gidgethub
 from gidgethub import sansio
 
 from miss_islington import status_change
@@ -28,7 +28,7 @@ class FakeGH:
         self._patch_return = patch
         self.patch_url = self.patch_data = None
 
-    async def getitem(self, url):
+    async def getitem(self, url, accept=None):
         self.getitem_url = url
         to_return = self._getitem_return[self.getitem_url]
         if isinstance(to_return, Exception):
@@ -106,6 +106,16 @@ async def test_ci_passed_with_awaiting_merge_label_pr_is_merged():
                 }
             ],
         },
+        f"/repos/python/cpython/commits/{sha}/check-runs": {
+            "check_runs": [
+                {
+                    "conclusion": "success",
+                    "name": "Travis CI - Pull Request",
+                    "status": "completed",
+                }
+            ],
+            "total_count": 1,
+        },
     }
 
     getiter = {
@@ -134,7 +144,7 @@ async def test_ci_passed_with_awaiting_merge_label_pr_is_merged():
     )
 
 
-async def test_ci_passed_with_no_awaiting_merge_label_pr_is_not_merged():
+async def test_ci_and_check_run_passed_with_no_awaiting_merge_label_pr_is_not_merged():
     sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
     data = {"sha": sha, "commit": {"committer": {"login": "miss-islington"}}}
     event = sansio.Event(data, event="status", delivery_id="1")
@@ -173,6 +183,16 @@ async def test_ci_passed_with_no_awaiting_merge_label_pr_is_not_merged():
                     "labels": [{"name": "awaiting core review"}],
                 }
             ],
+        },
+        f"/repos/python/cpython/commits/{sha}/check-runs": {
+            "check_runs": [
+                {
+                    "conclusion": "success",
+                    "name": "Travis CI - Pull Request",
+                    "status": "completed",
+                }
+            ],
+            "total_count": 1,
         },
     }
 
@@ -220,6 +240,187 @@ async def test_ci_not_passed_awaiting_merge_label_pr_is_not_merged():
                 }
             ],
         },
+        f"/repos/python/cpython/commits/{sha}/check-runs": {
+            "check_runs": [
+                {
+                    "conclusion": "success",
+                    "name": "Travis CI - Pull Request",
+                    "status": "completed",
+                }
+            ],
+            "total_count": 1,
+        },
+    }
+
+    gh = FakeGH(getitem=getitem)
+    await status_change.router.dispatch(event, gh)
+    assert len(gh.post_data["body"]) is not None  # leaves a comment
+    assert not hasattr(gh, "put_data")  # is not merged
+
+
+async def test_ci_passed_and_check_run_failure_awaiting_merge_label_pr_is_not_merged():
+    sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
+    data = {"sha": sha, "commit": {"committer": {"login": "miss-islington"}}}
+    event = sansio.Event(data, event="status", delivery_id="1")
+
+    getitem = {
+        f"/repos/python/cpython/commits/{sha}/status": {
+            "state": "success",
+            "statuses": [
+                {
+                    "state": "success",
+                    "description": "Issue report skipped",
+                    "context": "bedevere/issue-number",
+                },
+                {
+                    "state": "success",
+                    "description": "The Travis CI build passed",
+                    "target_url": "https://travis-ci.org/python/cpython/builds/340259685?utm_source=github_status&utm_medium=notification",
+                    "context": "continuous-integration/travis-ci/pr",
+                },
+            ],
+        },
+        "/repos/python/cpython/pulls/5544": {
+            "user": {"login": "miss-islington"},
+            "merged_by": {"login": "Mariatta"},
+        },
+        "/repos/python/cpython/pulls/5547": {"labels": [{"name": "awaiting merge"}]},
+        f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
+            "total_count": 1,
+            "items": [
+                {
+                    "number": 5547,
+                    "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
+                    "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
+                    "labels": [{"name": "awaiting merge"}],
+                }
+            ],
+        },
+        f"/repos/python/cpython/commits/{sha}/check-runs": {
+            "check_runs": [
+                {
+                    "conclusion": "failure",
+                    "name": "Travis CI - Pull Request",
+                    "status": "completed",
+                },
+                {"conclusion": "success", "name": "Docs", "status": "completed"},
+            ],
+            "total_count": 1,
+        },
+    }
+
+    gh = FakeGH(getitem=getitem)
+    await status_change.router.dispatch(event, gh)
+    assert len(gh.post_data["body"]) is not None  # leaves a comment
+    assert not hasattr(gh, "put_data")  # is not merged
+
+
+async def test_ci_passed_and_check_run_pending_awaiting_merge_label_pr_is_not_merged():
+    sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
+    data = {"sha": sha, "commit": {"committer": {"login": "miss-islington"}}}
+    event = sansio.Event(data, event="status", delivery_id="1")
+
+    getitem = {
+        f"/repos/python/cpython/commits/{sha}/status": {
+            "state": "success",
+            "statuses": [
+                {
+                    "state": "success",
+                    "description": "Issue report skipped",
+                    "context": "bedevere/issue-number",
+                },
+                {
+                    "state": "success",
+                    "description": "The Travis CI build passed",
+                    "target_url": "https://travis-ci.org/python/cpython/builds/340259685?utm_source=github_status&utm_medium=notification",
+                    "context": "continuous-integration/travis-ci/pr",
+                },
+            ],
+        },
+        "/repos/python/cpython/pulls/5544": {
+            "user": {"login": "miss-islington"},
+            "merged_by": {"login": "Mariatta"},
+        },
+        "/repos/python/cpython/pulls/5547": {"labels": [{"name": "awaiting merge"}]},
+        f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
+            "total_count": 1,
+            "items": [
+                {
+                    "number": 5547,
+                    "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
+                    "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
+                    "labels": [{"name": "awaiting merge"}],
+                }
+            ],
+        },
+        f"/repos/python/cpython/commits/{sha}/check-runs": {
+            "check_runs": [
+                {
+                    "conclusion": None,
+                    "name": "Travis CI - Pull Request",
+                    "status": "pending",
+                },
+                {"conclusion": "success", "name": "Docs", "status": "completed"},
+            ],
+            "total_count": 1,
+        },
+    }
+
+    gh = FakeGH(getitem=getitem)
+    await status_change.router.dispatch(event, gh)
+    assert len(gh.post_data["body"]) is not None  # leaves a comment
+    assert not hasattr(gh, "put_data")  # is not merged
+
+
+async def test_ci_passed_and_check_run_timed_out_awaiting_merge_label_pr_is_not_merged():
+    sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
+    data = {"sha": sha, "commit": {"committer": {"login": "miss-islington"}}}
+    event = sansio.Event(data, event="status", delivery_id="1")
+
+    getitem = {
+        f"/repos/python/cpython/commits/{sha}/status": {
+            "state": "success",
+            "statuses": [
+                {
+                    "state": "success",
+                    "description": "Issue report skipped",
+                    "context": "bedevere/issue-number",
+                },
+                {
+                    "state": "success",
+                    "description": "The Travis CI build passed",
+                    "target_url": "https://travis-ci.org/python/cpython/builds/340259685?utm_source=github_status&utm_medium=notification",
+                    "context": "continuous-integration/travis-ci/pr",
+                },
+            ],
+        },
+        "/repos/python/cpython/pulls/5544": {
+            "user": {"login": "miss-islington"},
+            "merged_by": {"login": "Mariatta"},
+        },
+        "/repos/python/cpython/pulls/5547": {"labels": [{"name": "awaiting merge"}]},
+        f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
+            "total_count": 1,
+            "items": [
+                {
+                    "number": 5547,
+                    "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
+                    "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
+                    "labels": [{"name": "awaiting merge"}],
+                }
+            ],
+        },
+        f"/repos/python/cpython/commits/{sha}/check-runs": {
+            "check_runs": [
+                {
+                    "conclusion": "timed_out",
+                    "name": "Travis CI - Pull Request",
+                    "status": "completed",
+                },
+                {"conclusion": "success", "name": "Docs", "status": "completed"},
+            ],
+            "total_count": 1,
+        },
     }
 
     gh = FakeGH(getitem=getitem)
@@ -262,7 +463,18 @@ async def test_awaiting_merge_label_added_and_ci_passed_pr_is_merged():
                     "context": "continuous-integration/travis-ci/pr",
                 },
             ],
-        }
+        },
+        f"/repos/python/cpython/commits/{sha}/check-runs": {
+            "check_runs": [
+                {
+                    "conclusion": "success",
+                    "name": "Travis CI - Pull Request",
+                    "status": "completed",
+                },
+                {"conclusion": "success", "name": "Docs", "status": "completed"},
+            ],
+            "total_count": 1,
+        },
     }
 
     getiter = {
@@ -429,6 +641,16 @@ async def test_awaiting_merge_label_ignore_non_miss_islingtons_pr():
             ],
         },
         "/teams/42/memberships/Mariatta": True,
+        f"/repos/python/cpython/commits/{sha}/check-runs": {
+            "check_runs": [
+                {
+                    "conclusion": "success",
+                    "name": "Travis CI - Pull Request",
+                    "status": "completed",
+                }
+            ],
+            "total_count": 1,
+        },
     }
 
     getiter = {"/orgs/python/teams": [{"name": "python core", "id": 42}]}
@@ -511,44 +733,15 @@ async def test_ci_pending():
             "user": {"login": "miss-islington"},
             "merged_by": {"login": "Mariatta"},
         },
-    }
-
-    getiter = {
-        "/repos/python/cpython/pulls/5547/commits": [
-            {
-                "sha": "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9",
-                "commit": {
-                    "message": "bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>"
-                },
-            }
-        ]
-    }
-
-    gh = FakeGH(getitem=getitem, getiter=getiter)
-    await status_change.router.dispatch(event, gh)
-    assert not hasattr(gh, "post_data")  # does not leave a comment
-    assert not hasattr(gh, "put_data")  # is not merged
-
-
-async def test_travis_not_done():
-    sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
-    data = {"sha": sha, "commit": {"committer": {"login": "miss-islington"}}}
-    event = sansio.Event(data, event="status", delivery_id="1")
-
-    getitem = {
-        f"/repos/python/cpython/commits/{sha}/status": {
-            "state": "success",
-            "statuses": [
+        f"/repos/python/cpython/commits/{sha}/check-runs": {
+            "check_runs": [
                 {
-                    "state": "success",
-                    "description": "Issue report skipped",
-                    "context": "bedevere/issue-number",
+                    "conclusion": "success",
+                    "name": "Travis CI - Pull Request",
+                    "status": "completed",
                 }
             ],
-        },
-        "/repos/python/cpython/pulls/5544": {
-            "user": {"login": "miss-islington"},
-            "merged_by": {"login": "Mariatta"},
+            "total_count": 1,
         },
     }
 
@@ -605,6 +798,16 @@ async def test_pr_title_does_not_match():
                     "labels": [{"name": "awaiting merge"}],
                 }
             ],
+        },
+        f"/repos/python/cpython/commits/{sha}/check-runs": {
+            "check_runs": [
+                {
+                    "conclusion": "success",
+                    "name": "Travis CI - Pull Request",
+                    "status": "completed",
+                }
+            ],
+            "total_count": 1,
         },
     }
 
@@ -665,6 +868,16 @@ async def test_ci_passed_awaiting_core_review_is_not_merged():
                 }
             ],
         },
+        f"/repos/python/cpython/commits/{sha}/check-runs": {
+            "check_runs": [
+                {
+                    "conclusion": "success",
+                    "name": "Travis CI - Pull Request",
+                    "status": "completed",
+                }
+            ],
+            "total_count": 1,
+        },
     }
 
     gh = FakeGH(getitem=getitem)
@@ -709,6 +922,16 @@ async def test_branch_sha_not_matched_pr_not_merged():
                     "labels": [{"name": "awaiting merge"}],
                 }
             ],
+        },
+        f"/repos/python/cpython/commits/{sha}/check-runs": {
+            "check_runs": [
+                {
+                    "conclusion": "success",
+                    "name": "Travis CI - Pull Request",
+                    "status": "completed",
+                }
+            ],
+            "total_count": 1,
         },
     }
 
@@ -915,6 +1138,16 @@ async def test_no_pr_containing_sha():
             "total_count": 0,
             "items": [],
         },
+        f"/repos/python/cpython/commits/{sha}/check-runs": {
+            "check_runs": [
+                {
+                    "conclusion": "success",
+                    "name": "Travis CI - Pull Request",
+                    "status": "completed",
+                }
+            ],
+            "total_count": 1,
+        },
     }
 
     gh = FakeGH(getitem=getitem)
@@ -968,6 +1201,16 @@ async def test_ci_passed_automerge():
                     ],
                 }
             ],
+        },
+        f"/repos/python/cpython/commits/{sha}/check-runs": {
+            "check_runs": [
+                {
+                    "conclusion": "success",
+                    "name": "Travis CI - Pull Request",
+                    "status": "completed",
+                }
+            ],
+            "total_count": 1,
         },
     }
 
@@ -1031,6 +1274,16 @@ async def test_ci_passed_not_automerge():
                 }
             ],
         },
+        f"/repos/python/cpython/commits/{sha}/check-runs": {
+            "check_runs": [
+                {
+                    "conclusion": "success",
+                    "name": "Travis CI - Pull Request",
+                    "status": "completed",
+                }
+            ],
+            "total_count": 1,
+        },
     }
 
     gh = FakeGH(getitem=getitem)
@@ -1080,6 +1333,16 @@ async def test_awaiting_merge_label_and_automerge_label_added_not_miss_islington
             ],
         },
         "/teams/42/memberships/Mariatta": True,
+        f"/repos/python/cpython/commits/{sha}/check-runs": {
+            "check_runs": [
+                {
+                    "conclusion": "success",
+                    "name": "Travis CI - Pull Request",
+                    "status": "completed",
+                }
+            ],
+            "total_count": 1,
+        },
     }
 
     getiter = {
@@ -1227,6 +1490,16 @@ async def test_automerge_multi_commits_in_pr():
             ],
         },
         "/teams/42/memberships/Mariatta": True,
+        f"/repos/python/cpython/commits/{sha}/check-runs": {
+            "check_runs": [
+                {
+                    "conclusion": "success",
+                    "name": "Travis CI - Pull Request",
+                    "status": "completed",
+                }
+            ],
+            "total_count": 1,
+        },
     }
 
     getiter = {
@@ -1294,6 +1567,16 @@ async def test_automerge_commit_not_found():
             ],
         },
         "/teams/42/memberships/Mariatta": True,
+        f"/repos/python/cpython/commits/{sha}/check-runs": {
+            "check_runs": [
+                {
+                    "conclusion": "success",
+                    "name": "Travis CI - Pull Request",
+                    "status": "completed",
+                }
+            ],
+            "total_count": 1,
+        },
     }
 
     getiter = {
@@ -1348,6 +1631,16 @@ async def test_automerge_failed():
             ],
         },
         "/teams/42/memberships/Mariatta": True,
+        f"/repos/python/cpython/commits/{sha}/check-runs": {
+            "check_runs": [
+                {
+                    "conclusion": "success",
+                    "name": "Travis CI - Pull Request",
+                    "status": "completed",
+                }
+            ],
+            "total_count": 1,
+        },
     }
 
     getiter = {
@@ -1487,6 +1780,16 @@ async def test_automerge_label_triggered_by_added_to_pr():
             ],
         },
         "/teams/42/memberships/Mariatta": True,
+        f"/repos/python/cpython/commits/{sha}/check-runs": {
+            "check_runs": [
+                {
+                    "conclusion": "success",
+                    "name": "Travis CI - Pull Request",
+                    "status": "completed",
+                }
+            ],
+            "total_count": 1,
+        },
     }
 
     getiter = {
@@ -1508,10 +1811,7 @@ async def test_automerge_label_removed_by_core_dev():
         "action": "unlabeled",
         "pull_request": {
             "user": {"login": "miss-islington"},
-            "labels": [
-                {"name": "awaiting merge"},
-                {"name": "CLA signed"},
-            ],
+            "labels": [{"name": "awaiting merge"}, {"name": "CLA signed"}],
             "head": {"sha": sha},
             "number": 5547,
             "title": "bpo-32720: Fixed the replacement field grammar documentation.",
@@ -1552,8 +1852,8 @@ async def test_automerge_label_removed_by_core_dev():
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
     await status_change.router.dispatch(event, gh)
-    assert 'body' in gh.patch_data
-    assert 'Automerge-Triggered-By: @miss-islington' not in gh.patch_data['body']
+    assert "body" in gh.patch_data
+    assert "Automerge-Triggered-By: @miss-islington" not in gh.patch_data["body"]
 
 
 async def test_automerge_label_removed_by_non_core_dev():
@@ -1562,10 +1862,7 @@ async def test_automerge_label_removed_by_non_core_dev():
         "action": "unlabeled",
         "pull_request": {
             "user": {"login": "miss-islington"},
-            "labels": [
-                {"name": "awaiting merge"},
-                {"name": "CLA signed"},
-            ],
+            "labels": [{"name": "awaiting merge"}, {"name": "CLA signed"}],
             "head": {"sha": sha},
             "number": 5547,
             "title": "bpo-32720: Fixed the replacement field grammar documentation.",
@@ -1608,8 +1905,8 @@ async def test_automerge_label_removed_by_non_core_dev():
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
     await status_change.router.dispatch(event, gh)
-    assert 'labels' in gh.post_data
-    assert AUTOMERGE_LABEL in gh.post_data['labels']
+    assert "labels" in gh.post_data
+    assert AUTOMERGE_LABEL in gh.post_data["labels"]
 
 
 async def test_label_other_than_automerge_removed():
@@ -1618,10 +1915,7 @@ async def test_label_other_than_automerge_removed():
         "action": "unlabeled",
         "pull_request": {
             "user": {"login": "miss-islington"},
-            "labels": [
-                {"name": "awaiting merge"},
-                {"name": "CLA signed"},
-            ],
+            "labels": [{"name": "awaiting merge"}, {"name": "CLA signed"}],
             "head": {"sha": sha},
             "number": 5547,
             "title": "bpo-32720: Fixed the replacement field grammar documentation.",
@@ -1662,8 +1956,8 @@ async def test_label_other_than_automerge_removed():
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
     await status_change.router.dispatch(event, gh)
-    assert not hasattr(gh, 'put_data')
-    assert not hasattr(gh, 'post_data')
+    assert not hasattr(gh, "put_data")
+    assert not hasattr(gh, "post_data")
 
 
 async def test_automerge_removed_but_trailer_text_edited_out():
@@ -1672,10 +1966,7 @@ async def test_automerge_removed_but_trailer_text_edited_out():
         "action": "unlabeled",
         "pull_request": {
             "user": {"login": "miss-islington"},
-            "labels": [
-                {"name": "awaiting merge"},
-                {"name": "CLA signed"},
-            ],
+            "labels": [{"name": "awaiting merge"}, {"name": "CLA signed"}],
             "head": {"sha": sha},
             "number": 5547,
             "title": "bpo-32720: Fixed the replacement field grammar documentation.",
