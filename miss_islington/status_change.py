@@ -1,7 +1,6 @@
 import re
 
 import gidgethub
-
 from gidgethub import routing
 
 from . import util
@@ -94,12 +93,22 @@ async def check_ci_status_and_approval(
 
     result = await gh.getitem(f"/repos/python/cpython/commits/{sha}/status")
     all_ci_status = [status["state"] for status in result["statuses"]]
-    all_ci_context = [status["context"] for status in result["statuses"]]
+
+    check_runs = await util.get_check_runs_for_sha(gh, sha)
+
+    all_check_run_status = [
+        check_run["status"] for check_run in check_runs["check_runs"]
+    ]
+    all_check_run_conclusions = [
+        check_run["conclusion"] for check_run in check_runs["check_runs"]
+    ]
 
     if (
         "pending" not in all_ci_status
-        and "continuous-integration/travis-ci/pr" in all_ci_context
-    ):
+        and "in_progress" not in all_check_run_status
+        and "queued" not in all_check_run_status
+    ):  # wait until all status and check runs are completed
+
         if not pr_for_commit:
             pr_for_commit = await util.get_pr_for_commit(gh, sha)
         if pr_for_commit:
@@ -110,6 +119,10 @@ async def check_ci_status_and_approval(
 
             title_match = TITLE_RE.match(normalized_pr_title)
             if title_match or is_automerge:
+                success = result["state"] == "success" and not any(
+                    elem in [None, "failure", "timed_out"]
+                    for elem in all_check_run_conclusions
+                )
                 if leave_comment:
                     if is_automerge:
                         participants = await util.get_gh_participants(gh, pr_number)
@@ -118,16 +131,16 @@ async def check_ci_status_and_approval(
                         participants = await util.get_gh_participants(
                             gh, original_pr_number
                         )
-
-                    emoji = "✅" if result["state"] == "success" else "❌"
-
+                    if success:
+                        emoji = "✅"
+                    else:
+                        emoji = "❌"
                     await util.leave_comment(
                         gh,
                         pr_number=pr_number,
                         message=f"{participants}: Status check is done, and it's a {result['state']} {emoji} .",
                     )
-                if result["state"] == "success":
-
+                if success:
                     if util.pr_is_awaiting_merge(pr_for_commit["labels"]):
                         await merge_pr(
                             gh, pr_for_commit, sha, is_automerge=is_automerge
