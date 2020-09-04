@@ -1,26 +1,23 @@
-import aiohttp
 import asyncio
 import os
 import sys
 import traceback
+
+import aiohttp
 import cachetools
-
+import sentry_sdk
 from aiohttp import web
-
 from gidgethub import aiohttp as gh_aiohttp
-from gidgethub import routing
-from gidgethub import sansio
+from gidgethub import routing, sansio
 
+from . import backport_pr, check_run, delete_branch, status_change
 
-from . import backport_pr
-from . import delete_branch
-from . import status_change
-
-router = routing.Router(backport_pr.router, delete_branch.router, status_change.router)
+router = routing.Router(
+    backport_pr.router, delete_branch.router, status_change.router, check_run.router
+)
 
 cache = cachetools.LRUCache(maxsize=500)
 
-import sentry_sdk
 
 sentry_sdk.init(os.environ.get("SENTRY_DSN"))
 
