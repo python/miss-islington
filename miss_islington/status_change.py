@@ -135,6 +135,7 @@ async def check_ci_status_and_approval(
                         emoji = "✅"
                     else:
                         emoji = "❌"
+                    print("leaving a comment")
                     await util.leave_comment(
                         gh,
                         pr_number=pr_number,
