@@ -13,9 +13,7 @@ async def test_check_run_completed_ci_passed_with_awaiting_merge_label_pr_is_mer
     data = {
         "action": "completed",
         "check_run": {"head_sha": sha},
-        "sender": {
-            "login": "miss-islington",
-        },
+        "sender": {"login": "miss-islington"},
     }
     event = sansio.Event(data, event="check_run", delivery_id="1")
 
@@ -97,9 +95,7 @@ async def test_check_run_completed_other_check_run_pending_with_awaiting_merge_l
     data = {
         "action": "completed",
         "check_run": {"head_sha": sha},
-        "sender": {
-            "login": "miss-islington",
-        },
+        "sender": {"login": "miss-islington"},
     }
     event = sansio.Event(data, event="check_run", delivery_id="1")
 
@@ -145,11 +141,7 @@ async def test_check_run_completed_other_check_run_pending_with_awaiting_merge_l
                     "name": "Travis CI - Pull Request",
                     "status": "completed",
                 },
-                {
-                    "conclusion": None,
-                    "name": "Docs",
-                    "status": "queued",
-                },
+                {"conclusion": None, "name": "Docs", "status": "queued"},
             ],
             "total_count": 1,
         },
@@ -166,9 +158,7 @@ async def test_check_run_completed_other_check_run_queued_with_awaiting_merge_la
     data = {
         "action": "completed",
         "check_run": {"head_sha": sha},
-        "sender": {
-            "login": "miss-islington",
-        },
+        "sender": {"login": "miss-islington"},
     }
     event = sansio.Event(data, event="check_run", delivery_id="1")
 
@@ -214,11 +204,7 @@ async def test_check_run_completed_other_check_run_queued_with_awaiting_merge_la
                     "name": "Travis CI - Pull Request",
                     "status": "completed",
                 },
-                {
-                    "conclusion": None,
-                    "name": "Docs",
-                    "status": "queued",
-                },
+                {"conclusion": None, "name": "Docs", "status": "queued"},
             ],
             "total_count": 1,
         },
@@ -235,9 +221,7 @@ async def test_check_run_completed_failure_with_awaiting_merge_label_pr_is_not_m
     data = {
         "action": "completed",
         "check_run": {"head_sha": sha},
-        "sender": {
-            "login": "miss-islington",
-        },
+        "sender": {"login": "miss-islington"},
     }
     event = sansio.Event(data, event="check_run", delivery_id="1")
 
@@ -283,11 +267,7 @@ async def test_check_run_completed_failure_with_awaiting_merge_label_pr_is_not_m
                     "name": "Travis CI - Pull Request",
                     "status": "completed",
                 },
-                {
-                    "conclusion": "failure",
-                    "name": "Docs",
-                    "status": "completed",
-                },
+                {"conclusion": "failure", "name": "Docs", "status": "completed"},
             ],
             "total_count": 1,
         },
@@ -304,9 +284,7 @@ async def test_check_run_completed_timed_out_with_awaiting_merge_label_pr_is_not
     data = {
         "action": "completed",
         "check_run": {"head_sha": sha},
-        "sender": {
-            "login": "miss-islington",
-        },
+        "sender": {"login": "miss-islington"},
     }
     event = sansio.Event(data, event="check_run", delivery_id="1")
 
@@ -352,11 +330,7 @@ async def test_check_run_completed_timed_out_with_awaiting_merge_label_pr_is_not
                     "name": "Travis CI - Pull Request",
                     "status": "completed",
                 },
-                {
-                    "conclusion": "timed_out",
-                    "name": "Docs",
-                    "status": "completed",
-                },
+                {"conclusion": "timed_out", "name": "Docs", "status": "completed"},
             ],
             "total_count": 1,
         },
@@ -368,15 +342,12 @@ async def test_check_run_completed_timed_out_with_awaiting_merge_label_pr_is_not
     assert not hasattr(gh, "put_data")  # is not merged
 
 
-
 async def test_check_run_created_with_awaiting_merge_label_pr_is_not_merged():
     sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
     data = {
         "action": "created",
         "check_run": {"head_sha": sha},
-        "sender": {
-            "login": "miss-islington",
-        },
+        "sender": {"login": "miss-islington"},
     }
     event = sansio.Event(data, event="check_run", delivery_id="1")
 
