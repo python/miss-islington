@@ -429,7 +429,6 @@ async def test_pr_not_found_for_commit():
     assert not hasattr(gh, "put_data")  # does not leave a comment
 
 
-
 async def test_ci_passed_automerge():
     sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
     data = {
@@ -514,7 +513,6 @@ async def test_ci_passed_automerge():
     )
 
 
-
 async def test_ci_passed_not_automerge():
     sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
     data = {
@@ -544,10 +542,7 @@ async def test_ci_passed_not_automerge():
         "/repos/python/cpython/pulls/5547": {
             "user": {"login": "bedevere-bot"},
             "merged_by": None,
-            "labels": [
-                {"name": "awaiting merge"},
-                {"name": "CLA signed"},
-            ],
+            "labels": [{"name": "awaiting merge"}, {"name": "CLA signed"}],
         },
         f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
             "total_count": 1,
@@ -556,10 +551,7 @@ async def test_ci_passed_not_automerge():
                     "number": 5547,
                     "title": "bpo-32720: Fixed the replacement field grammar documentation.",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
-                    "labels": [
-                        {"name": "awaiting merge"},
-                        {"name": "CLA signed"},
-                    ],
+                    "labels": [{"name": "awaiting merge"}, {"name": "CLA signed"}],
                 }
             ],
         },
