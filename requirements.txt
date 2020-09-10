@@ -4,4 +4,4 @@ gidgethub==4.1.1
 cachetools==4.1.1
 redis==3.5.3
 celery==4.4.7
-sentry-sdk==0.17.3
+sentry-sdk==0.17.4
