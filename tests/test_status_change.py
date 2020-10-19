@@ -1815,7 +1815,7 @@ async def test_automerge_label_removed_by_core_dev():
             "head": {"sha": sha},
             "number": 5547,
             "title": "bpo-32720: Fixed the replacement field grammar documentation.",
-            "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n\nAutomerge-Triggered-By: @miss-islington",
+            "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n\nAutomerge-Triggered-By: GH:miss-islington\n\nAutomerge-Triggered-By: @miss-islington",
             "url": "https://api.github.com/repos/python/cpython/pulls/5547",
             "issue_url": "https://api.github.com/repos/python/cpython/issues/5547",
         },
@@ -1854,6 +1854,8 @@ async def test_automerge_label_removed_by_core_dev():
     await status_change.router.dispatch(event, gh)
     assert "body" in gh.patch_data
     assert "Automerge-Triggered-By: @miss-islington" not in gh.patch_data["body"]
+    assert "Automerge-Triggered-By: GH:miss-islington" not in gh.patch_data["body"]
+    assert gh.patch_data["body"].endswith("`integer`.")
 
 
 async def test_automerge_label_removed_by_non_core_dev():
