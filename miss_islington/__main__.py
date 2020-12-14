@@ -7,6 +7,7 @@ import aiohttp
 import cachetools
 import sentry_sdk
 from aiohttp import web
+from sentry_sdk.integrations.celery import CeleryIntegration
 from gidgethub import aiohttp as gh_aiohttp
 from gidgethub import routing, sansio
 
@@ -19,7 +20,7 @@ router = routing.Router(
 cache = cachetools.LRUCache(maxsize=500)
 
 
-sentry_sdk.init(os.environ.get("SENTRY_DSN"))
+sentry_sdk.init(os.environ.get("SENTRY_DSN"), integrations=[CeleryIntegration()])
 
 
 async def main(request):
