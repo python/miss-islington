@@ -48,7 +48,7 @@ async def pr_reviewed(event, gh, *args, **kwargs):
         if await util.is_core_dev(gh, sender):
             await add_automerged_by(gh, event.data["pull_request"], sender)
         else:
-            await util.remove_automerge(gh, event.data["pull_request"])
+            # await util.remove_automerge(gh, event.data["pull_request"])
             return
 
     if util.pr_is_automerge(pr_labels) and util.pr_is_awaiting_merge(pr_labels):
