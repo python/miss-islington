@@ -1,9 +1,9 @@
 miss-islington
 ==============
 
-.. image:: https://travis-ci.org/python/miss-islington.svg?branch=master
-    :target: https://travis-ci.org/python/miss-islington
-.. image:: https://codecov.io/gh/python/miss-islington/branch/master/graph/badge.svg
+.. image:: https://github.com/python/miss-islington/actions/workflows/ci.yml/badge.svg?event=push
+    :target: https://github.com/python/miss-islington/actions
+.. image:: https://codecov.io/gh/python/miss-islington/branch/main/graph/badge.svg
     :target: https://codecov.io/gh/python/miss-islington
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/ambv/black
