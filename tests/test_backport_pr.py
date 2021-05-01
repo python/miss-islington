@@ -99,15 +99,7 @@ async def test_merged_pr_no_backport_label():
     assert not hasattr(gh, "post_url")
 
 
-@pytest.mark.parametrize(
-    "branch",
-    [
-        "3.10",
-        "3.11",
-        "4.0",
-        "3.7",
-    ],
-)
+@pytest.mark.parametrize("branch", ["3.10", "3.11", "4.0", "3.7"])
 async def test_merged_pr_with_backport_label(branch):
     data = {
         "action": "closed",
