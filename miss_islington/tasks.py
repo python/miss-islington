@@ -21,6 +21,14 @@ app.conf.update(
 
 cache = cachetools.LRUCache(maxsize=500)
 
+CHERRY_PICKER_CONFIG = {
+    "team": "python",
+    "repo": "cpython",
+    "check_sha": "7f777ed95a19224294949e1b4ce56bbffcb1fe9f",
+    "fix_commit_msg": True,
+    "default_branch": "main",
+}
+
 
 @app.task()
 def setup_cpython_repo():
@@ -88,7 +96,11 @@ async def backport_task_asyncio(
                 )
                 await util.assign_pr_to_core_dev(gh, issue_number, merged_by)
         cp = cherry_picker.CherryPicker(
-            "origin", commit_hash, [branch], prefix_commit=False
+            "origin",
+            commit_hash,
+            [branch],
+            config=CHERRY_PICKER_CONFIG,
+            prefix_commit=False,
         )
         try:
             cp.backport()
