@@ -3,6 +3,7 @@ from unittest import mock
 
 from gidgethub import sansio
 
+import pytest
 import redis
 import kombu
 
@@ -98,7 +99,16 @@ async def test_merged_pr_no_backport_label():
     assert not hasattr(gh, "post_url")
 
 
-async def test_merged_pr_with_backport_label():
+@pytest.mark.parametrize(
+    "branch",
+    [
+        "3.10",
+        "3.11",
+        "4.0",
+        "3.7",
+    ],
+)
+async def test_merged_pr_with_backport_label(branch):
     data = {
         "action": "closed",
         "pull_request": {
@@ -120,14 +130,16 @@ async def test_merged_pr_with_backport_label():
         },
         "https://api.github.com/repos/python/cpython/issues/1/labels": [
             {"name": "CLA signed"},
-            {"name": "needs backport to 3.7"},
+            {"name": f"needs backport to {branch}"},
         ],
     }
 
     gh = FakeGH(getitem=getitem)
     with mock.patch("miss_islington.tasks.backport_task.delay"):
         await backport_pr.router.dispatch(event, gh)
-        assert "I'm working now to backport this PR to: 3.7" in gh.post_data["body"]
+        assert (
+            f"I'm working now to backport this PR to: {branch}" in gh.post_data["body"]
+        )
         assert gh.post_url == "/repos/python/cpython/issues/1/comments"
 
 
