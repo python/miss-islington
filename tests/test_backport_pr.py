@@ -7,7 +7,7 @@ import pytest
 import redis
 import kombu
 
-os.environ["REDIS_URL"] = "someurl"
+os.environ["HEROKU_REDIS_MAROON_URL"] = "someurl"
 
 from miss_islington import backport_pr
 
