@@ -1,17 +1,18 @@
-import celery
 import asyncio
 import os
 import subprocess
+
 import aiohttp
-from gidgethub import aiohttp as gh_aiohttp
-
 import cachetools
-
-from celery import bootsteps
-
+import celery
 from cherry_picker import cherry_picker
+from celery import bootsteps
+from gidgethub import aiohttp as gh_aiohttp
+import sentry_sdk
+from sentry_sdk.integrations.celery import CeleryIntegration
 
 from . import util
+
 
 app = celery.Celery("backport_cpython")
 
@@ -21,6 +22,8 @@ app.conf.update(
 )
 
 cache = cachetools.LRUCache(maxsize=500)
+sentry_sdk.init(os.environ.get("SENTRY_DSN"), integrations=[CeleryIntegration()])
+
 
 CHERRY_PICKER_CONFIG = {
     "team": "python",
