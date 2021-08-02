@@ -8,6 +8,9 @@ import cachetools
 from aiohttp import web
 from gidgethub import aiohttp as gh_aiohttp
 from gidgethub import routing, sansio
+import sentry_sdk
+from sentry_sdk.integrations.aiohttp import AioHttpIntegration
+
 
 from . import backport_pr, check_run, delete_branch, status_change
 
@@ -53,11 +56,11 @@ GH delivery ID {event.delivery_id} \
         return web.Response(status=500)
 
 
-if __name__ == "__main__":  # pragma: no cover
-    app = web.Application()
-    app.router.add_post("/", main)
-    port = os.environ.get("PORT")
-    if port is not None:
-        port = int(port)
+sentry_sdk.init(dsn=os.environ.get("SENTRY_DSN"), integrations=[AioHttpIntegration()])
+app = web.Application()
+app.router.add_post("/", main)
+port = os.environ.get("PORT")
+if port is not None:
+    port = int(port)
 
-    web.run_app(app, port=port)
+web.run_app(app, port=port)
