@@ -99,13 +99,7 @@ async def backport_task_asyncio(
                                    """,
                 )
                 await util.assign_pr_to_core_dev(gh, issue_number, merged_by)
-        cp = cherry_picker.CherryPicker(
-            "origin",
-            commit_hash,
-            [branch],
-            config=CHERRY_PICKER_CONFIG,
-            prefix_commit=False,
-        )
+        cp = _get_cherry_picker(commit_hash, branch)
         try:
             cp.backport()
         except cherry_picker.BranchCheckoutException:
@@ -120,6 +114,12 @@ async def backport_task_asyncio(
                                 """,
             )
             await util.assign_pr_to_core_dev(gh, issue_number, merged_by)
+            # We need to set the state to BACKPORT_PAUSED so that CherryPicker allows us to
+            # abort it, switch back to the default branch, and clean up the backport branch
+            #
+            # Ideally, we would be able to do it in a less-hacky way but that will require some changes
+            # in the upstream, so for now this is probably the best we can do here.
+            cp.initial_state = cherry_picker.WORKFLOW_STATES.BACKPORT_PAUSED
             cp.abort_cherry_pick()
         except cherry_picker.CherryPickException:
             await util.comment_on_pr(
@@ -133,7 +133,19 @@ async def backport_task_asyncio(
                                 """,
             )
             await util.assign_pr_to_core_dev(gh, issue_number, merged_by)
+            # we need to get a new CherryPicker here to get an up-to-date (PAUSED) state
+            cp = _get_cherry_picker(commit_hash, branch)
             cp.abort_cherry_pick()
+
+
+def _get_cherry_picker(commit_hash, branch):
+    cp = cherry_picker.CherryPicker(
+        "origin",
+        commit_hash,
+        [branch],
+        config=CHERRY_PICKER_CONFIG,
+        prefix_commit=False,
+    )
 
 
 class InitRepoStep(bootsteps.StartStopStep):
