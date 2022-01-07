@@ -133,13 +133,15 @@ async def check_ci_status_and_approval(
                         )
                     if success:
                         emoji = "✅"
+                        description = "success"
                     else:
                         emoji = "❌"
+                        description = "failure"
                     print("leaving a comment")
                     await util.leave_comment(
                         gh,
                         pr_number=pr_number,
-                        message=f"{participants}: Status check is done, and it's a {result['state']} {emoji} .",
+                        message=f"{participants}: Status check is done, and it's a {description} {emoji} .",
                     )
                 if success:
                     if util.pr_is_awaiting_merge(pr_for_commit["labels"]):
