@@ -68,25 +68,6 @@ async def pr_reviewed(event, gh, *args, **kwargs):
         )
 
 
-@router.register("pull_request", action="unlabeled")
-async def pr_unlabeled(event, gh, *args, **kwargs):
-    label = event.data["label"]["name"]
-    if label != util.AUTOMERGE_LABEL:
-        return
-
-    sender = event.data["sender"]["login"]
-    if not await util.is_core_dev(gh, sender):
-        # Apply the AUTOMERGE label back
-        issue_url = event.data["pull_request"]["issue_url"]
-        await gh.post(f"{issue_url}/labels", data={"labels": [util.AUTOMERGE_LABEL]})
-        return
-
-    body = event.data["pull_request"]["body"]
-    url = event.data["pull_request"]["url"]
-    new_body = re.sub(rf"{AUTOMERGE_TRAILER}: (GH:|@)(\w|\-)+", "", body).rstrip()
-    await gh.patch(url, data={"body": new_body})
-
-
 async def check_ci_status_and_approval(
     gh, sha, pr_for_commit=None, leave_comment=False, is_automerge=False
 ):
