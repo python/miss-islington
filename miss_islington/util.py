@@ -133,7 +133,7 @@ def pr_is_awaiting_merge(pr_labels):
     if (
         "DO-NOT-MERGE" not in label_names
         and "awaiting merge" in label_names
-        and "CLA signed" in label_names
+        and "CLA not signed" not in label_names
     ):
         return True
     return False

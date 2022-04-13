@@ -93,6 +93,7 @@ async def check_ci_status_and_approval(
         if not pr_for_commit:
             pr_for_commit = await util.get_pr_for_commit(gh, sha)
         if pr_for_commit:
+            print(pr_for_commit)
             pr_number = pr_for_commit["number"]
             normalized_pr_title = util.normalize_title(
                 pr_for_commit["title"], pr_for_commit["body"]
