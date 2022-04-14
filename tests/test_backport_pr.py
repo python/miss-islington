@@ -58,7 +58,7 @@ async def test_labeled_on_merged_pr_no_backport_label():
         "repository": {
             "issues_url": "https://api.github.com/repos/python/cpython/issues{/number}"
         },
-        "label": {"name": "CLA signed"},
+        "label": {"name": "skip news"},
     }
     event = sansio.Event(data, event="pull_request", delivery_id="1")
 
@@ -89,7 +89,7 @@ async def test_merged_pr_no_backport_label():
             "labels_url": "https://api.github.com/repos/python/cpython/issues/1/labels{/name}"
         },
         "https://api.github.com/repos/python/cpython/issues/1/labels": [
-            {"name": "CLA signed"}
+            {"name": "skip news"}
         ],
     }
 
@@ -121,7 +121,6 @@ async def test_merged_pr_with_backport_label(branch):
             "labels_url": "https://api.github.com/repos/python/cpython/issues/1/labels{/name}"
         },
         "https://api.github.com/repos/python/cpython/issues/1/labels": [
-            {"name": "CLA signed"},
             {"name": f"needs backport to {branch}"},
         ],
     }
@@ -156,7 +155,6 @@ async def test_merged_pr_with_backport_label_thank_pr_author():
             "labels_url": "https://api.github.com/repos/python/cpython/issues/1/labels{/name}"
         },
         "https://api.github.com/repos/python/cpython/issues/1/labels": [
-            {"name": "CLA signed"},
             {"name": "needs backport to 3.7"},
         ],
     }
@@ -190,7 +188,6 @@ async def test_easter_egg():
             "labels_url": "https://api.github.com/repos/python/cpython/issues/1/labels{/name}"
         },
         "https://api.github.com/repos/python/cpython/issues/1/labels": [
-            {"name": "CLA signed"},
             {"name": "needs backport to 3.7"},
         ],
     }
@@ -236,7 +233,6 @@ async def test_backport_pr_redis_connection_error():
             "labels_url": "https://api.github.com/repos/python/cpython/issues/1/labels{/name}"
         },
         "https://api.github.com/repos/python/cpython/issues/1/labels": [
-            {"name": "CLA signed"},
             {"name": "needs backport to 3.7"},
         ],
     }
@@ -269,7 +265,6 @@ async def test_backport_pr_kombu_operational_error():
             "labels_url": "https://api.github.com/repos/python/cpython/issues/1/labels{/name}"
         },
         "https://api.github.com/repos/python/cpython/issues/1/labels": [
-            {"name": "CLA signed"},
             {"name": "needs backport to 3.7"},
         ],
     }
