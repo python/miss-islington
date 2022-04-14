@@ -27,8 +27,8 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: python3 -m pip install -U -r dev-requirements.txt
-      - run: python3 -m coverage run --branch -m pytest tests/
-      - uses: codecov/codecov-action@v1
+      - run: pytest --cov=. --cov-report=xml
+      - uses: codecov/codecov-action@v2
         if: always()
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
