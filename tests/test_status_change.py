@@ -92,9 +92,7 @@ async def test_ci_passed_with_awaiting_merge_label_pr_is_merged():
             "user": {"login": "miss-islington"},
             "merged_by": {"login": "Mariatta"},
         },
-        "/repos/python/cpython/pulls/5547": {
-            "labels": [{"name": "awaiting merge"}, {"name": "CLA signed"}]
-        },
+        "/repos/python/cpython/pulls/5547": {"labels": [{"name": "awaiting merge"}]},
         f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
             "total_count": 1,
             "items": [
@@ -102,7 +100,7 @@ async def test_ci_passed_with_awaiting_merge_label_pr_is_merged():
                     "number": 5547,
                     "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
-                    "labels": [{"name": "awaiting merge"}, {"name": "CLA signed"}],
+                    "labels": [{"name": "awaiting merge"}],
                 }
             ],
         },
@@ -435,7 +433,7 @@ async def test_awaiting_merge_label_added_and_ci_passed_pr_is_merged():
         "action": "labeled",
         "pull_request": {
             "user": {"login": "miss-islington"},
-            "labels": [{"name": "awaiting merge"}, {"name": "CLA signed"}],
+            "labels": [{"name": "awaiting merge"}],
             "head": {"sha": sha},
             "number": 5547,
             "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
@@ -465,15 +463,8 @@ async def test_awaiting_merge_label_added_and_ci_passed_pr_is_merged():
             ],
         },
         f"/repos/python/cpython/commits/{sha}/check-runs": {
-            "check_runs": [
-                {
-                    "conclusion": "success",
-                    "name": "Travis CI - Pull Request",
-                    "status": "completed",
-                },
-                {"conclusion": "success", "name": "Docs", "status": "completed"},
-            ],
-            "total_count": 1,
+            "check_runs": [],
+            "total_count": 0,
         },
     }
 
@@ -511,6 +502,9 @@ async def test_awaiting_merge_webhook_ci_failure_pr_is_not_merged():
             "user": {"login": "miss-islington"},
             "labels": [{"name": "awaiting merge"}],
             "head": {"sha": sha},
+            "number": 5547,
+            "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
+            "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
         },
         "sender": {"login": "Mariatta"},
         "label": {"name": "awaiting merge"},
@@ -546,6 +540,16 @@ async def test_awaiting_merge_webhook_ci_failure_pr_is_not_merged():
                     "labels": [{"name": "awaiting merge"}],
                 }
             ],
+        },
+        f"/repos/python/cpython/commits/{sha}/check-runs": {
+            "check_runs": [
+                {
+                    "conclusion": "failure",
+                    "name": "Travis CI - Pull Request",
+                    "status": "completed",
+                }
+            ],
+            "total_count": 1,
         },
     }
 
@@ -1183,7 +1187,6 @@ async def test_ci_passed_automerge():
             "merged_by": None,
             "labels": [
                 {"name": "awaiting merge"},
-                {"name": "CLA signed"},
                 {"name": AUTOMERGE_LABEL},
             ],
         },
@@ -1197,7 +1200,6 @@ async def test_ci_passed_automerge():
                     "labels": [
                         {"name": "awaiting merge"},
                         {"name": AUTOMERGE_LABEL},
-                        {"name": "CLA signed"},
                     ],
                 }
             ],
@@ -1301,7 +1303,6 @@ async def test_awaiting_merge_label_and_automerge_label_added_not_miss_islington
             "labels": [
                 {"name": "awaiting merge"},
                 {"name": AUTOMERGE_LABEL},
-                {"name": "CLA signed"},
             ],
             "head": {"sha": sha},
             "number": 5547,
@@ -1458,7 +1459,6 @@ async def test_automerge_multi_commits_in_pr():
             "labels": [
                 {"name": "awaiting merge"},
                 {"name": AUTOMERGE_LABEL},
-                {"name": "CLA signed"},
             ],
             "head": {"sha": sha},
             "number": 5547,
@@ -1535,7 +1535,6 @@ async def test_automerge_commit_not_found():
             "labels": [
                 {"name": "awaiting merge"},
                 {"name": AUTOMERGE_LABEL},
-                {"name": "CLA signed"},
             ],
             "head": {"sha": sha},
             "number": 5547,
@@ -1599,7 +1598,6 @@ async def test_automerge_failed():
             "labels": [
                 {"name": "awaiting merge"},
                 {"name": AUTOMERGE_LABEL},
-                {"name": "CLA signed"},
             ],
             "head": {"sha": sha},
             "number": 5547,
@@ -1685,7 +1683,6 @@ async def test_automerge_label_added_by_non_core_dev():
             "labels": [
                 {"name": "awaiting merge"},
                 {"name": AUTOMERGE_LABEL},
-                {"name": "CLA signed"},
             ],
             "head": {"sha": sha},
             "number": 5547,
@@ -1747,7 +1744,6 @@ async def test_automerge_label_triggered_by_added_to_pr():
             "labels": [
                 {"name": "awaiting merge"},
                 {"name": AUTOMERGE_LABEL},
-                {"name": "CLA signed"},
             ],
             "head": {"sha": sha},
             "number": 5547,
@@ -1803,5 +1799,3 @@ async def test_automerge_label_triggered_by_added_to_pr():
     assert gh.patch_data == {
         "body": f"{data['pull_request']['body']}\n\nAutomerge-Triggered-By: GH:Mariatta"
     }
-
-
