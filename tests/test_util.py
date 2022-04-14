@@ -84,7 +84,8 @@ def test_message_normalization():
     message = "\r\nParts <!--comment--> we want\r\nincluded"
     assert util.normalize_message(message) == "\n\nParts  we want\r\nincluded"
 
-    message = textwrap.dedent("""
+    message = textwrap.dedent(
+        """
     The truncate() method of io.BufferedReader() should raise
     UnsupportedOperation when it is called on a read-only
     io.BufferedReader() instance.
@@ -98,15 +99,18 @@ def test_message_normalization():
     
     
     Automerge-Triggered-By: @methane
-    """)
+    """
+    )
 
-    expected_message = textwrap.dedent("""
+    expected_message = textwrap.dedent(
+        """
 
     The truncate() method of io.BufferedReader() should raise
     UnsupportedOperation when it is called on a read-only
     io.BufferedReader() instance.
     
-    Automerge-Triggered-By: @methane""")
+    Automerge-Triggered-By: @methane"""
+    )
     assert util.normalize_message(message) == expected_message
 
 
@@ -221,13 +225,12 @@ async def test_is_core_dev():
 
 
 def test_pr_is_awaiting_merge():
-    labels = [{"name": "CLA signed"}, {"name": "awaiting merge"}]
+    labels = [{"name": "awaiting merge"}]
     assert util.pr_is_awaiting_merge(labels) is True
 
 
 def test_pr_is_do_not_merge():
     labels = [
-        {"name": "CLA signed"},
         {"name": "awaiting merge"},
         {"name": "DO-NOT-MERGE"},
     ]
@@ -246,7 +249,6 @@ def test_pr_is_do_not_merge():
 
 def test_pr_is_automerge():
     labels = [
-        {"name": "CLA signed"},
         {"name": util.AUTOMERGE_LABEL},
         {"name": "awaiting review"},
     ]
@@ -255,7 +257,6 @@ def test_pr_is_automerge():
 
 def test_pr_is_not_awaiting_merge():
     labels = [
-        {"name": "CLA signed"},
         {"name": "skip issue"},
         {"name": "awaiting review"},
     ]
@@ -263,7 +264,7 @@ def test_pr_is_not_awaiting_merge():
 
 
 def test_pr_is_not_automerge():
-    labels = [{"name": "CLA signed"}, {"name": "awaiting merge"}]
+    labels = [{"name": "awaiting merge"}]
     assert util.pr_is_automerge(labels) is False
 
 

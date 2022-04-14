@@ -36,7 +36,7 @@ CHERRY_PICKER_CONFIG = {
 
 @app.task()
 def setup_cpython_repo():
-    print("Setting up CPython repository")
+    print("Setting up CPython repository") # pragma: nocover
     if "cpython" not in os.listdir("."):
         subprocess.check_output(
             f"git clone https://{os.environ.get('GH_AUTH')}:x-oauth-basic@github.com/miss-islington/cpython.git".split()

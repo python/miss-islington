@@ -38,9 +38,7 @@ async def test_check_run_completed_ci_passed_with_awaiting_merge_label_pr_is_mer
             "user": {"login": "miss-islington"},
             "merged_by": {"login": "Mariatta"},
         },
-        "/repos/python/cpython/pulls/5547": {
-            "labels": [{"name": "awaiting merge"}, {"name": "CLA signed"}]
-        },
+        "/repos/python/cpython/pulls/5547": {"labels": [{"name": "awaiting merge"}]},
         f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
             "total_count": 1,
             "items": [
@@ -48,7 +46,7 @@ async def test_check_run_completed_ci_passed_with_awaiting_merge_label_pr_is_mer
                     "number": 5547,
                     "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
-                    "labels": [{"name": "awaiting merge"}, {"name": "CLA signed"}],
+                    "labels": [{"name": "awaiting merge"}],
                 }
             ],
         },
@@ -120,9 +118,7 @@ async def test_check_run_completed_other_check_run_pending_with_awaiting_merge_l
             "user": {"login": "miss-islington"},
             "merged_by": {"login": "Mariatta"},
         },
-        "/repos/python/cpython/pulls/5547": {
-            "labels": [{"name": "awaiting merge"}, {"name": "CLA signed"}]
-        },
+        "/repos/python/cpython/pulls/5547": {"labels": [{"name": "awaiting merge"}]},
         f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
             "total_count": 1,
             "items": [
@@ -130,7 +126,7 @@ async def test_check_run_completed_other_check_run_pending_with_awaiting_merge_l
                     "number": 5547,
                     "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
-                    "labels": [{"name": "awaiting merge"}, {"name": "CLA signed"}],
+                    "labels": [{"name": "awaiting merge"}],
                 }
             ],
         },
@@ -183,9 +179,7 @@ async def test_check_run_completed_other_check_run_queued_with_awaiting_merge_la
             "user": {"login": "miss-islington"},
             "merged_by": {"login": "Mariatta"},
         },
-        "/repos/python/cpython/pulls/5547": {
-            "labels": [{"name": "awaiting merge"}, {"name": "CLA signed"}]
-        },
+        "/repos/python/cpython/pulls/5547": {"labels": [{"name": "awaiting merge"}]},
         f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
             "total_count": 1,
             "items": [
@@ -193,7 +187,7 @@ async def test_check_run_completed_other_check_run_queued_with_awaiting_merge_la
                     "number": 5547,
                     "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
-                    "labels": [{"name": "awaiting merge"}, {"name": "CLA signed"}],
+                    "labels": [{"name": "awaiting merge"}],
                 }
             ],
         },
@@ -246,9 +240,7 @@ async def test_check_run_completed_failure_with_awaiting_merge_label_pr_is_not_m
             "user": {"login": "miss-islington"},
             "merged_by": {"login": "Mariatta"},
         },
-        "/repos/python/cpython/pulls/5547": {
-            "labels": [{"name": "awaiting merge"}, {"name": "CLA signed"}]
-        },
+        "/repos/python/cpython/pulls/5547": {"labels": [{"name": "awaiting merge"}]},
         f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
             "total_count": 1,
             "items": [
@@ -256,7 +248,7 @@ async def test_check_run_completed_failure_with_awaiting_merge_label_pr_is_not_m
                     "number": 5547,
                     "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
-                    "labels": [{"name": "awaiting merge"}, {"name": "CLA signed"}],
+                    "labels": [{"name": "awaiting merge"}],
                 }
             ],
         },
@@ -309,9 +301,7 @@ async def test_check_run_completed_timed_out_with_awaiting_merge_label_pr_is_not
             "user": {"login": "miss-islington"},
             "merged_by": {"login": "Mariatta"},
         },
-        "/repos/python/cpython/pulls/5547": {
-            "labels": [{"name": "awaiting merge"}, {"name": "CLA signed"}]
-        },
+        "/repos/python/cpython/pulls/5547": {"labels": [{"name": "awaiting merge"}]},
         f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
             "total_count": 1,
             "items": [
@@ -319,7 +309,7 @@ async def test_check_run_completed_timed_out_with_awaiting_merge_label_pr_is_not
                     "number": 5547,
                     "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
-                    "labels": [{"name": "awaiting merge"}, {"name": "CLA signed"}],
+                    "labels": [{"name": "awaiting merge"}],
                 }
             ],
         },
@@ -460,7 +450,6 @@ async def test_ci_passed_automerge():
             "merged_by": None,
             "labels": [
                 {"name": "awaiting merge"},
-                {"name": "CLA signed"},
                 {"name": AUTOMERGE_LABEL},
             ],
         },
@@ -474,7 +463,6 @@ async def test_ci_passed_automerge():
                     "labels": [
                         {"name": "awaiting merge"},
                         {"name": AUTOMERGE_LABEL},
-                        {"name": "CLA signed"},
                     ],
                 }
             ],
@@ -542,7 +530,7 @@ async def test_ci_passed_not_automerge():
         "/repos/python/cpython/pulls/5547": {
             "user": {"login": "bedevere-bot"},
             "merged_by": None,
-            "labels": [{"name": "awaiting merge"}, {"name": "CLA signed"}],
+            "labels": [{"name": "awaiting merge"}],
         },
         f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
             "total_count": 1,
@@ -551,7 +539,7 @@ async def test_ci_passed_not_automerge():
                     "number": 5547,
                     "title": "bpo-32720: Fixed the replacement field grammar documentation.",
                     "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
-                    "labels": [{"name": "awaiting merge"}, {"name": "CLA signed"}],
+                    "labels": [{"name": "awaiting merge"}],
                 }
             ],
         },
