@@ -118,7 +118,6 @@ async def check_ci_status_and_approval(
                     else:
                         emoji = "❌"
                         description = "failure"
-                    print("leaving a comment")
                     await util.leave_comment(
                         gh,
                         pr_number=pr_number,
@@ -133,8 +132,8 @@ async def check_ci_status_and_approval(
 
 async def merge_pr(gh, pr, sha, is_automerge=False):
     pr_number = pr["number"]
-    async for commit in gh.getiter(f"/repos/python/cpython/pulls/{pr_number}/commits"):
-        if commit["sha"] == sha:
+    async for commit in gh.getiter(f"/repos/python/cpython/pulls/{pr_number}/commits"):  # pragma: no branch
+        if commit["sha"] == sha:  # pragma: no branch
             if is_automerge:
                 pr_commit_msg = util.normalize_message(pr["body"])
                 pr_title = f"{pr['title']} (GH-{pr_number})"
