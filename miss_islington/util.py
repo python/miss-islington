@@ -110,7 +110,7 @@ async def is_core_dev(gh, username):
     org_teams = "/orgs/python/teams"
     team_name = "python core"
     async for team in gh.getiter(org_teams):
-        if team["name"].lower() == team_name:
+        if team["name"].lower() == team_name:  # pragma: no branch
             break
     else:
         raise ValueError(f"{team_name!r} not found at {org_teams!r}")
