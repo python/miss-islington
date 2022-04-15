@@ -1,3 +1,5 @@
+import asyncio
+
 import gidgethub.routing
 
 router = gidgethub.routing.Router()
