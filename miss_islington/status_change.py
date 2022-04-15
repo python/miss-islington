@@ -107,7 +107,6 @@ async def check_ci_status_and_approval(
                 if leave_comment:
                     if success:
                         emoji = "✅"
-                        description = "success"
                     else:
                         emoji = "❌"
                     message = f"Status check is done, and it's a {result['state']} {emoji} ."
