@@ -68,25 +68,6 @@ async def pr_reviewed(event, gh, *args, **kwargs):
         )
 
 
-@router.register("pull_request", action="unlabeled")
-async def pr_unlabeled(event, gh, *args, **kwargs):
-    label = event.data["label"]["name"]
-    if label != util.AUTOMERGE_LABEL:
-        return
-
-    sender = event.data["sender"]["login"]
-    if not await util.is_core_dev(gh, sender):
-        # Apply the AUTOMERGE label back
-        issue_url = event.data["pull_request"]["issue_url"]
-        await gh.post(f"{issue_url}/labels", data={"labels": [util.AUTOMERGE_LABEL]})
-        return
-
-    body = event.data["pull_request"]["body"]
-    url = event.data["pull_request"]["url"]
-    new_body = re.sub(rf"{AUTOMERGE_TRAILER}: (GH:|@)(\w|\-)+", "", body).rstrip()
-    await gh.patch(url, data={"body": new_body})
-
-
 async def check_ci_status_and_approval(
     gh, sha, pr_for_commit=None, leave_comment=False, is_automerge=False
 ):
@@ -133,13 +114,14 @@ async def check_ci_status_and_approval(
                         )
                     if success:
                         emoji = "✅"
+                        description = "success"
                     else:
                         emoji = "❌"
-                    print("leaving a comment")
+                        description = "failure"
                     await util.leave_comment(
                         gh,
                         pr_number=pr_number,
-                        message=f"{participants}: Status check is done, and it's a {result['state']} {emoji} .",
+                        message=f"{participants}: Status check is done, and it's a {description} {emoji} .",
                     )
                 if success:
                     if util.pr_is_awaiting_merge(pr_for_commit["labels"]):
@@ -150,8 +132,8 @@ async def check_ci_status_and_approval(
 
 async def merge_pr(gh, pr, sha, is_automerge=False):
     pr_number = pr["number"]
-    async for commit in gh.getiter(f"/repos/python/cpython/pulls/{pr_number}/commits"):
-        if commit["sha"] == sha:
+    async for commit in gh.getiter(f"/repos/python/cpython/pulls/{pr_number}/commits"):  # pragma: no branch
+        if commit["sha"] == sha:  # pragma: no branch
             if is_automerge:
                 pr_commit_msg = util.normalize_message(pr["body"])
                 pr_title = f"{pr['title']} (GH-{pr_number})"

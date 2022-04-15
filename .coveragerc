@@ -1,0 +1,7 @@
+[run]
+branch = True
+omit =
+    miss_islington/tasks.py
+
+[report]
+fail_under = 100
