@@ -313,6 +313,73 @@ async def test_ci_passed_and_check_run_failure_awaiting_merge_label_pr_is_not_me
     assert not hasattr(gh, "put_data")  # is not merged
 
 
+async def test_automerge_with_check_run_failure():
+    sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
+    data = {"sha": sha, "commit": {"committer": {"login": "Mariatta"}}}
+    event = sansio.Event(data, event="status", delivery_id="1")
+
+    getitem = {
+        f"/repos/python/cpython/commits/{sha}/status": {
+            "state": "success",
+            "statuses": [
+                {
+                    "state": "success",
+                    "description": "Issue report skipped",
+                    "context": "bedevere/issue-number",
+                },
+                {
+                    "state": "success",
+                    "description": "The Travis CI build passed",
+                    "target_url": "https://travis-ci.org/python/cpython/builds/340259685?utm_source=github_status&utm_medium=notification",
+                    "context": "continuous-integration/travis-ci/pr",
+                },
+            ],
+        },
+        "/repos/python/cpython/pulls/5544": {
+            "user": {"login": "miss-islington"},
+            "merged_by": {"login": "Mariatta"},
+        },
+        "/repos/python/cpython/pulls/5547": {
+            "user": {"login": "Mariatta"},
+            "merged_by": None,
+            "labels": [
+                {"name": "awaiting merge"},
+                {"name": AUTOMERGE_LABEL},
+            ],
+        },
+        f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
+            "total_count": 1,
+            "items": [
+                {
+                    "number": 5547,
+                    "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
+                    "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
+                    "labels": [
+                        {"name": "awaiting merge"},
+                        {"name": AUTOMERGE_LABEL},
+                    ],
+                }
+            ],
+        },
+        f"/repos/python/cpython/commits/{sha}/check-runs": {
+            "check_runs": [
+                {
+                    "conclusion": "failure",
+                    "name": "Travis CI - Pull Request",
+                    "status": "completed",
+                },
+                {"conclusion": "success", "name": "Docs", "status": "completed"},
+            ],
+            "total_count": 1,
+        },
+    }
+
+    gh = FakeGH(getitem=getitem)
+    await status_change.router.dispatch(event, gh)
+    assert len(gh.post_data["body"]) is not None  # leaves a comment
+    assert not hasattr(gh, "put_data")  # is not merged
+
+
 async def test_ci_passed_and_check_run_pending_awaiting_merge_label_pr_is_not_merged():
     sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
     data = {"sha": sha, "commit": {"committer": {"login": "miss-islington"}}}

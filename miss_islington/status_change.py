@@ -105,23 +105,24 @@ async def check_ci_status_and_approval(
                     for elem in all_check_run_conclusions
                 )
                 if leave_comment:
-                    if is_automerge:
-                        participants = await util.get_gh_participants(gh, pr_number)
-                    else:
-                        original_pr_number = title_match.group("pr")
-                        participants = await util.get_gh_participants(
-                            gh, original_pr_number
-                        )
                     if success:
                         emoji = "✅"
-                        description = "success"
                     else:
                         emoji = "❌"
-                        description = "failure"
+                    message = f"Status check is done, and it's a {result['state']} {emoji} ."
+                    if not success:
+                        if is_automerge:
+                            participants = await util.get_gh_participants(gh, pr_number)
+                        else:
+                            original_pr_number = title_match.group("pr")
+                            participants = await util.get_gh_participants(
+                                gh, original_pr_number
+                            )
+                        message = f"{participants}: {message}"
                     await util.leave_comment(
                         gh,
                         pr_number=pr_number,
-                        message=f"{participants}: Status check is done, and it's a {description} {emoji} .",
+                        message=message,
                     )
                 if success:
                     if util.pr_is_awaiting_merge(pr_for_commit["labels"]):
