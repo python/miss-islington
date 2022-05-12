@@ -24,11 +24,6 @@ async def check_run_completed(event, gh, *args, **kwargs):
         pr_for_commit = await util.get_pr_for_commit(gh, sha)
         if pr_for_commit:
             pr_labels = pr_for_commit["labels"]
-            print("is auomer")
-            print(util.pr_is_automerge(pr_labels))
-            print(util.pr_is_awaiting_merge(pr_labels))
-            print("pr label")
-            print(pr_labels)
             if util.pr_is_automerge(pr_labels) and util.pr_is_awaiting_merge(pr_labels):
                 await check_ci_status_and_approval(
                     gh,
