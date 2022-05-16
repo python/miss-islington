@@ -165,7 +165,7 @@ async def remove_automerge(gh, pr_data):
 
 
 async def remove_awaiting_merge(gh, pr_data):
-    """Remove the automerge label"""
+    """Remove the awaiting merge label"""
     await gh.delete(
         f"{pr_data['issue_url']}/labels/{AWAITING_MERGE_LABEL}",
         accept="application/vnd.github.symmetra-preview+json",
