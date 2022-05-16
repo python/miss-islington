@@ -4,7 +4,7 @@ import gidgethub
 from gidgethub import sansio
 
 from miss_islington import status_change
-from miss_islington.util import AUTOMERGE_LABEL
+from miss_islington.util import AUTOMERGE_LABEL, AWAITING_MERGE_LABEL
 
 
 class FakeGH:
@@ -533,6 +533,7 @@ async def test_awaiting_merge_label_added_and_ci_passed_pr_is_merged():
             "check_runs": [],
             "total_count": 0,
         },
+        "/teams/42/memberships/Mariatta": True,
     }
 
     getiter = {
@@ -543,7 +544,8 @@ async def test_awaiting_merge_label_added_and_ci_passed_pr_is_merged():
                     "message": "bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>"
                 },
             }
-        ]
+        ],
+        "/orgs/python/teams": [{"name": "python core", "id": 42}],
     }
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
@@ -618,9 +620,14 @@ async def test_awaiting_merge_webhook_ci_failure_pr_is_not_merged():
             ],
             "total_count": 1,
         },
+        "/teams/42/memberships/Mariatta": True,
     }
 
-    gh = FakeGH(getitem=getitem)
+    getiter = {
+        "/repos/python/cpython/pulls/5547/commits": [{"sha": sha}],
+        "/orgs/python/teams": [{"name": "python core", "id": 42}],
+    }
+    gh = FakeGH(getitem=getitem, getiter=getiter)
     await status_change.router.dispatch(event, gh)
     assert not hasattr(gh, "post_data")  # does not leave a comment
     assert not hasattr(gh, "put_data")  # is not merged
@@ -1795,6 +1802,65 @@ async def test_automerge_label_added_by_non_core_dev():
     await status_change.router.dispatch(event, gh)
     assert (
         gh.delete_url == f'{data["pull_request"]["issue_url"]}/labels/{AUTOMERGE_LABEL}'
+    )
+    assert not hasattr(gh, "post_data")  # does not leave a comment
+
+    assert not hasattr(gh, "post_data")  # does not leave a comment
+    assert not hasattr(gh, "put_data")  # does not merge
+
+async def test_awaiting_merge_label_added_by_non_core_dev():
+    sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
+    data = {
+        "action": "labeled",
+        "pull_request": {
+            "user": {"login": "miss-islington"},
+            "labels": [
+                {"name": "awaiting merge"},
+            ],
+            "head": {"sha": sha},
+            "number": 5547,
+            "title": "bpo-32720: Fixed the replacement field grammar documentation.",
+            "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.",
+            "url": "https://api.github.com/repos/python/cpython/pulls/5547",
+            "issue_url": "https://api.github.com/repos/python/cpython/issues/5547",
+        },
+        "sender": {"login": "miss-islington"},
+        "label": {"name": AWAITING_MERGE_LABEL},
+    }
+
+    event = sansio.Event(data, event="pull_request", delivery_id="1")
+
+    getitem = {
+        f"/repos/python/cpython/commits/{sha}/status": {
+            "state": "success",
+            "statuses": [
+                {
+                    "state": "success",
+                    "description": "Issue report skipped",
+                    "context": "bedevere/issue-number",
+                },
+                {
+                    "state": "success",
+                    "description": "The Travis CI build passed",
+                    "target_url": "https://travis-ci.org/python/cpython/builds/340259685?utm_source=github_status&utm_medium=notification",
+                    "context": "continuous-integration/travis-ci/pr",
+                },
+            ],
+        },
+        "/teams/42/memberships/miss-islington": gidgethub.BadRequest(
+            status_code=http.HTTPStatus(404)
+        ),
+    }
+
+    getiter = {
+        "/repos/python/cpython/pulls/5547/commits": [{"sha": sha}],
+        "/orgs/python/teams": [{"name": "python core", "id": 42}],
+    }
+
+    gh = FakeGH(getitem=getitem, getiter=getiter)
+    await status_change.router.dispatch(event, gh)
+    assert (
+        gh.delete_url == f'{data["pull_request"]["issue_url"]}/labels/{AWAITING_MERGE_LABEL}'
     )
     assert not hasattr(gh, "post_data")  # does not leave a comment
 

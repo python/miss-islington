@@ -6,7 +6,7 @@ import gidgethub
 from .status_change import AUTOMERGE_TRAILER
 
 AUTOMERGE_LABEL = ":robot: automerge"
-
+AWAITING_MERGE_LABEL = "awaiting merge"
 
 async def comment_on_pr(gh, issue_number, message):
     """
@@ -160,6 +160,14 @@ async def remove_automerge(gh, pr_data):
     """Remove the automerge label"""
     await gh.delete(
         f"{pr_data['issue_url']}/labels/{AUTOMERGE_LABEL}",
+        accept="application/vnd.github.symmetra-preview+json",
+    )
+
+
+async def remove_awaiting_merge(gh, pr_data):
+    """Remove the automerge label"""
+    await gh.delete(
+        f"{pr_data['issue_url']}/labels/{AWAITING_MERGE_LABEL}",
         accept="application/vnd.github.symmetra-preview+json",
     )
 

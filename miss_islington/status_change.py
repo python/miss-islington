@@ -50,6 +50,10 @@ async def pr_reviewed(event, gh, *args, **kwargs):
         else:
             await util.remove_automerge(gh, event.data["pull_request"])
             return
+    if label == util.AWAITING_MERGE_LABEL:
+        if not await util.is_core_dev(gh, sender):
+            await util.remove_awaiting_merge(gh, event.data["pull_request"])
+            return
 
     if util.pr_is_automerge(pr_labels) and util.pr_is_awaiting_merge(pr_labels):
         sha = event.data["pull_request"]["head"]["sha"]
