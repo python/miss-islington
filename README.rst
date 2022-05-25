@@ -41,6 +41,29 @@ If a Python core developer approved a PR made by anyone and added the "🤖 auto
 it will be automatically merged once all the CI checks pass.
 
 
+Setup Info
+==========
+
+Requires Python 3.6+
+
+```
+$ python3 -m venv venv
+$ source venv/bin/activate
+
+// for development
+(venv) $ pip install -r dev-requirements.txt
+
+// for production
+(venv) $ pip install -r dev-requirements.txt
+
+```
+
+Run the test code:
+```
+(venv) $ pytest
+
+```
+
 **Aside**: where does the name come from?
 =========================================
 
