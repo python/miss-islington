@@ -46,20 +46,19 @@ Setup Info
 
 Requires Python 3.6+
 
-Create virtual environment and activate it:
-.. code-block:: shell
-   $ python3 -m venv venv
-   $ source venv/bin/activate
+Create virtual environment and activate it::
 
-Install development or production dependencies:
-.. code-block:: shell
-   (venv) $ pip install -r dev-requirements.txt  # for development
-   (venv) $ pip install -r requirements.txt  # for production
+    $ python3 -m venv venv
+    $ source venv/bin/activate
 
-Run the test code:
-.. code-block:: shell
-   (venv) $ pytest
+Install development or production dependencies::
 
+    (venv) $ pip install -r dev-requirements.txt  # for development
+    (venv) $ pip install -r requirements.txt  # for production
+
+Run the test code::
+
+    (venv) $ pytest
 
 **Aside**: where does the name come from?
 =========================================
