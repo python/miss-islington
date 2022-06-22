@@ -92,10 +92,14 @@ def normalize_message(body):
 
     Returns the normalized body.
     """
+    # Remove issue mentions added by Bedevere.
+    # This should catch both current gh- and legacy bpo- messages.
+    body = re.sub(r"(?s)<!-- (gh-)?issue-number:.*/\1issue-number -->", "", body)
+    # Remove other HTML comments
     while "<!--" in body:
         body = body[: body.index("<!--")] + body[body.index("-->") + 3 :]
-    # Delete BPO link added by Bedevere.
-    body = re.sub(r"https://bugs.python.org/issue(\d+)", "", body)
+    # Delete BPO links on their own line, probably added by an old version of Bedevere.
+    body = re.sub(r"\nhttps://bugs.python.org/issue(\d+)\n", "", body)
     # Strip additional newlines between commit body and automerge label.
     body_parts = body.split(AUTOMERGE_TRAILER)
     if len(body_parts) > 1:
