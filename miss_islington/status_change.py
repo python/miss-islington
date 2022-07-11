@@ -100,13 +100,13 @@ async def check_ci_status_and_approval(
 
             title_match = TITLE_RE.match(normalized_pr_title)
             if title_match or is_automerge:
-                success = result["state"] == "success"
                 failure = any(
                     elem in [None, "failure", "timed_out"]
                     for elem in all_check_run_conclusions
                 )
+                success = result["state"] == "success" and not failure
                 if leave_comment:
-                    if success and not failure:
+                    if success:
                         emoji = "✅"
                         status = "it's a success"
                     if failure:
@@ -130,7 +130,7 @@ async def check_ci_status_and_approval(
                         pr_number=pr_number,
                         message=message,
                     )
-                if success and not failure:
+                if success:
                     if util.pr_is_awaiting_merge(pr_for_commit["labels"]):
                         await merge_pr(
                             gh, pr_for_commit, sha, is_automerge=is_automerge
@@ -139,7 +139,9 @@ async def check_ci_status_and_approval(
 
 async def merge_pr(gh, pr, sha, is_automerge=False):
     pr_number = pr["number"]
-    async for commit in gh.getiter(f"/repos/python/cpython/pulls/{pr_number}/commits"):  # pragma: no branch
+    async for commit in gh.getiter(
+        f"/repos/python/cpython/pulls/{pr_number}/commits"
+    ):  # pragma: no branch
         if commit["sha"] == sha:  # pragma: no branch
             if is_automerge:
                 pr_commit_msg = util.normalize_message(pr["body"])

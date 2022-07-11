@@ -2,7 +2,6 @@ import http
 
 import gidgethub
 from gidgethub import sansio
-
 from miss_islington import status_change
 from miss_islington.util import AUTOMERGE_LABEL
 
@@ -536,7 +535,7 @@ async def test_ci_passed_and_check_run_timed_out_awaiting_merge_label_pr_is_not_
     await status_change.router.dispatch(event, gh)
     assert (
         gh.post_data["body"]
-        == "Status check is done, and it's a failure or timed out ❌."
+        == "@miss-islington and @Mariatta: Status check is done, and it's a failure or timed out ❌."
     )
     assert not hasattr(gh, "put_data")  # is not merged
 
