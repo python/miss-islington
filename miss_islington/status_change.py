@@ -100,16 +100,22 @@ async def check_ci_status_and_approval(
 
             title_match = TITLE_RE.match(normalized_pr_title)
             if title_match or is_automerge:
-                success = result["state"] == "success" and not any(
+                success = result["state"] == "success"
+                failure = any(
                     elem in [None, "failure", "timed_out"]
                     for elem in all_check_run_conclusions
                 )
                 if leave_comment:
-                    if success:
+                    if success and not failure:
                         emoji = "✅"
+                        status = "it's a success"
+                    if failure:
+                        emoji = "❌"
+                        status = "it's a failure or timed out"
                     else:
                         emoji = "❌"
-                    message = f"Status check is done, and it's a {result['state']} {emoji} ."
+                        status = "it's a failure"
+                    message = f"Status check is done, and {status} {emoji}."
                     if not success:
                         if is_automerge:
                             participants = await util.get_gh_participants(gh, pr_number)
@@ -124,7 +130,7 @@ async def check_ci_status_and_approval(
                         pr_number=pr_number,
                         message=message,
                     )
-                if success:
+                if success and not failure:
                     if util.pr_is_awaiting_merge(pr_for_commit["labels"]):
                         await merge_pr(
                             gh, pr_for_commit, sha, is_automerge=is_automerge

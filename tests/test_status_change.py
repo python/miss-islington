@@ -307,7 +307,18 @@ async def test_ci_passed_and_check_run_failure_awaiting_merge_label_pr_is_not_me
         },
     }
 
-    gh = FakeGH(getitem=getitem)
+    getiter = {
+        "/repos/python/cpython/pulls/5547/commits": [
+            {
+                "sha": "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9",
+                "commit": {
+                    "message": "bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>"
+                },
+            }
+        ]
+    }
+
+    gh = FakeGH(getitem=getitem, getiter=getiter)
     await status_change.router.dispatch(event, gh)
     assert len(gh.post_data["body"]) is not None  # leaves a comment
     assert not hasattr(gh, "put_data")  # is not merged
@@ -374,7 +385,18 @@ async def test_automerge_with_check_run_failure():
         },
     }
 
-    gh = FakeGH(getitem=getitem)
+    getiter = {
+        "/repos/python/cpython/pulls/5547/commits": [
+            {
+                "sha": "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9",
+                "commit": {
+                    "message": "bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>"
+                },
+            }
+        ]
+    }
+
+    gh = FakeGH(getitem=getitem, getiter=getiter)
     await status_change.router.dispatch(event, gh)
     assert len(gh.post_data["body"]) is not None  # leaves a comment
     assert not hasattr(gh, "put_data")  # is not merged
@@ -431,7 +453,18 @@ async def test_ci_passed_and_check_run_pending_awaiting_merge_label_pr_is_not_me
         },
     }
 
-    gh = FakeGH(getitem=getitem)
+    getiter = {
+        "/repos/python/cpython/pulls/5547/commits": [
+            {
+                "sha": "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9",
+                "commit": {
+                    "message": "bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>"
+                },
+            }
+        ]
+    }
+
+    gh = FakeGH(getitem=getitem, getiter=getiter)
     await status_change.router.dispatch(event, gh)
     assert len(gh.post_data["body"]) is not None  # leaves a comment
     assert not hasattr(gh, "put_data")  # is not merged
@@ -488,9 +521,23 @@ async def test_ci_passed_and_check_run_timed_out_awaiting_merge_label_pr_is_not_
         },
     }
 
-    gh = FakeGH(getitem=getitem)
+    getiter = {
+        "/repos/python/cpython/pulls/5547/commits": [
+            {
+                "sha": "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9",
+                "commit": {
+                    "message": "bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>"
+                },
+            }
+        ]
+    }
+
+    gh = FakeGH(getitem=getitem, getiter=getiter)
     await status_change.router.dispatch(event, gh)
-    assert len(gh.post_data["body"]) is not None  # leaves a comment
+    assert (
+        gh.post_data["body"]
+        == "Status check is done, and it's a failure or timed out ❌."
+    )
     assert not hasattr(gh, "put_data")  # is not merged
 
 
