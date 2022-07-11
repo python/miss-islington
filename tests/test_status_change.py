@@ -2,6 +2,7 @@ import http
 
 import gidgethub
 from gidgethub import sansio
+
 from miss_islington import status_change
 from miss_islington.util import AUTOMERGE_LABEL
 
