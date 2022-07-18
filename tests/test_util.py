@@ -89,15 +89,15 @@ def test_message_normalization():
     The truncate() method of io.BufferedReader() should raise
     UnsupportedOperation when it is called on a read-only
     io.BufferedReader() instance.
-    
-    
-    
-    
-    
+
+
+
+
+
     https://bugs.python.org/issue35950
-    
-    
-    
+
+
+
     Automerge-Triggered-By: @methane
     """
     )
@@ -108,10 +108,27 @@ def test_message_normalization():
     The truncate() method of io.BufferedReader() should raise
     UnsupportedOperation when it is called on a read-only
     io.BufferedReader() instance.
-    
+
     Automerge-Triggered-By: @methane"""
     )
     assert util.normalize_message(message) == expected_message
+
+    message = textwrap.dedent(
+        """
+    Some commit message.
+
+
+    <!-- gh-issue-number: gh-93516 -->
+    * Issue: gh-93516
+    Exact content between comments shouldn't matter, it should all go away.
+    <!-- /gh-issue-number -->
+
+    <!-- issue-number: [bpo-24766](https://www.bugs.python.org/issue24766) -->
+    https://bugs.python.org/issue24766
+    <!-- /issue-number -->
+    """
+    )
+    assert util.normalize_message(message) == "\n\nSome commit message."
 
 
 async def test_get_gh_participants_different_creator_and_committer():
