@@ -44,6 +44,8 @@ it will be automatically merged once all the CI checks pass.
 Setup Info
 ==========
 
+.. highlight:: shell
+
 Requires Python 3.6+
 
 Create virtual environment and activate it::
