@@ -534,10 +534,9 @@ async def test_ci_passed_and_check_run_timed_out_awaiting_merge_label_pr_is_not_
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
     await status_change.router.dispatch(event, gh)
-    assert (
-        gh.post_data["body"]
-        == "@miss-islington and @Mariatta: Status check is done, and it's a failure or timed out ❌."
-    )
+    expected_body = ("@miss-islington and @Mariatta: Status check is done, "
+                      "and it's a failure or timed out ❌.")
+    assert gh.post_data["body"] == expected_body
     assert not hasattr(gh, "put_data")  # is not merged
 
 
