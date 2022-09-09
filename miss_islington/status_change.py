@@ -107,12 +107,9 @@ async def check_ci_status_and_approval(
                 )
                 success = result["state"] == "success" and not failure
                 if leave_comment:
-                    if failure:
+                    if failure or not success:
                         emoji = "❌"
                         status = "it's a failure or timed out"
-                    elif not success:
-                        emoji = "❌"
-                        status = "it's a failure"
                     else:
                         emoji = "✅"
                         status = "it's a success"
