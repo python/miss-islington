@@ -129,8 +129,9 @@ async def test_ci_passed_with_awaiting_merge_label_pr_is_merged():
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
     await status_change.router.dispatch(event, gh)
-    expected_body = "Status check is done, and it's a success ✅."
-    assert gh.post_data["body"] == expected_body
+    # Leave comment temporarily disabled when automerge not used. See #577.
+    # expected_body = "Status check is done, and it's a success ✅."
+    # assert gh.post_data["body"] == expected_body
     assert gh.put_data["sha"] == sha  # is merged
     assert gh.put_data["merge_method"] == "squash"
     assert (
@@ -197,8 +198,9 @@ async def test_ci_and_check_run_passed_with_no_awaiting_merge_label_pr_is_not_me
 
     gh = FakeGH(getitem=getitem)
     await status_change.router.dispatch(event, gh)
-    expected_body = "Status check is done, and it's a success ✅."
-    assert gh.post_data["body"] == expected_body
+    # Leave comment temporarily disabled when automerge not used. See #577.
+    # expected_body = "Status check is done, and it's a success ✅."
+    # assert gh.post_data["body"] == expected_body
     assert not hasattr(gh, "put_data")  # is not merged
 
 
@@ -254,8 +256,9 @@ async def test_ci_not_passed_awaiting_merge_label_pr_is_not_merged():
 
     gh = FakeGH(getitem=getitem)
     await status_change.router.dispatch(event, gh)
-    expected_body = "@miss-islington and @Mariatta: Status check is done, and it's a failure ❌."
-    assert gh.post_data["body"] == expected_body
+    # Leave comment temporarily disabled when automerge not used. See #577.
+    # expected_body = "@miss-islington and @Mariatta: Status check is done, and it's a failure ❌."
+    # assert gh.post_data["body"] == expected_body
     assert not hasattr(gh, "put_data")  # is not merged
 
 
@@ -323,8 +326,9 @@ async def test_ci_passed_and_check_run_failure_awaiting_merge_label_pr_is_not_me
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
     await status_change.router.dispatch(event, gh)
-    expected_body = "@miss-islington and @Mariatta: Status check is done, and it's a failure or timed out ❌."
-    assert gh.post_data["body"] == expected_body
+    # Leave comment temporarily disabled when automerge not used. See #577.
+    # expected_body = "@miss-islington and @Mariatta: Status check is done, and it's a failure or timed out ❌."
+    # assert gh.post_data["body"] == expected_body
     assert not hasattr(gh, "put_data")  # is not merged
 
 
@@ -471,8 +475,9 @@ async def test_ci_passed_and_check_run_pending_awaiting_merge_label_pr_is_not_me
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
     await status_change.router.dispatch(event, gh)
-    expected_body = "@miss-islington and @Mariatta: Status check is done, and it's a failure or timed out ❌."
-    assert gh.post_data["body"] == expected_body
+    # Leave comment temporarily disabled when automerge not used. See #577.
+    # expected_body = "@miss-islington and @Mariatta: Status check is done, and it's a failure or timed out ❌."
+    # assert gh.post_data["body"] == expected_body
     assert not hasattr(gh, "put_data")  # is not merged
 
 
@@ -540,9 +545,10 @@ async def test_ci_passed_and_check_run_timed_out_awaiting_merge_label_pr_is_not_
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
     await status_change.router.dispatch(event, gh)
-    expected_body = ("@miss-islington and @Mariatta: Status check is done, "
-                      "and it's a failure or timed out ❌.")
-    assert gh.post_data["body"] == expected_body
+    # Leave comment temporarily disabled when automerge not used. See #577.
+    # expected_body = ("@miss-islington and @Mariatta: Status check is done, "
+    #                   "and it's a failure or timed out ❌.")
+    # assert gh.post_data["body"] == expected_body
     assert not hasattr(gh, "put_data")  # is not merged
 
 

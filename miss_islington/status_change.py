@@ -22,7 +22,8 @@ async def check_status(event, gh, *args, **kwargs):
         event.data["commit"].get("committer")
         and event.data["commit"]["committer"]["login"] == "miss-islington"
     ):
-        await check_ci_status_and_approval(gh, sha, leave_comment=True)
+        # Leave comment temporarily disabled when automerge not used. See #577.
+        await check_ci_status_and_approval(gh, sha, leave_comment=False)
     else:
         pr_for_commit = await util.get_pr_for_commit(gh, sha)
         if pr_for_commit:
@@ -106,12 +107,9 @@ async def check_ci_status_and_approval(
                 )
                 success = result["state"] == "success" and not failure
                 if leave_comment:
-                    if failure:
+                    if failure or not success:
                         emoji = "❌"
                         status = "it's a failure or timed out"
-                    elif not success:
-                        emoji = "❌"
-                        status = "it's a failure"
                     else:
                         emoji = "✅"
                         status = "it's a success"
