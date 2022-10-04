@@ -8,7 +8,6 @@ from .status_change import check_ci_status_and_approval
 router = routing.Router()
 
 TITLE_RE = re.compile(r"\[(?P<branch>\d+\.\d+)\].+?(?P<pr>\d+)\)")
-AUTOMERGE_TRAILER = "Automerge-Triggered-By"
 
 
 @router.register("check_run", action="completed")
@@ -19,7 +18,8 @@ async def check_run_completed(event, gh, *args, **kwargs):
     sha = event.data["check_run"]["head_sha"]
 
     if event.data["sender"]["login"] == "miss-islington":
-        await check_ci_status_and_approval(gh, sha, leave_comment=True)
+        # Leave comment temporarily disabled when automerge not used. See #577.
+        await check_ci_status_and_approval(gh, sha, leave_comment=False)
     else:
         pr_for_commit = await util.get_pr_for_commit(gh, sha)
         if pr_for_commit:
