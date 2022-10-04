@@ -75,7 +75,8 @@ async def test_check_run_completed_ci_passed_with_awaiting_merge_label_pr_is_mer
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
     await check_run.router.dispatch(event, gh)
-    assert len(gh.post_data["body"]) is not None  # leaves a comment
+    # Leave comment temporarily disabled when automerge not used. See #577.
+    # assert len(gh.post_data["body"]) is not None  # leaves a comment
     assert gh.put_data["sha"] == sha  # is merged
     assert gh.put_data["merge_method"] == "squash"
     assert (
@@ -278,7 +279,8 @@ async def test_check_run_completed_failure_with_awaiting_merge_label_pr_is_not_m
 
     gh = FakeGH(getitem=getitem)
     await check_run.router.dispatch(event, gh)
-    assert len(gh.post_data["body"]) is not None  # leaves a comment
+    # Leave comment temporarily disabled when automerge not used. See #577.
+    # assert len(gh.post_data["body"]) is not None  # leaves a comment
     assert not hasattr(gh, "put_data")  # is not merged
 
 
@@ -350,7 +352,8 @@ async def test_check_run_completed_timed_out_with_awaiting_merge_label_pr_is_not
 
     gh = FakeGH(getitem=getitem, getiter=getiter)
     await check_run.router.dispatch(event, gh)
-    assert len(gh.post_data["body"]) is not None  # leaves a comment
+    # Leave comment temporarily disabled when automerge not used. See #577.
+    # assert len(gh.post_data["body"]) is not None  # leaves a comment
     assert not hasattr(gh, "put_data")  # is not merged
 
 
