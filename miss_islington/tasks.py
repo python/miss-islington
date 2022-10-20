@@ -114,7 +114,7 @@ async def backport_task_asyncio(
                 issue_number,
                 f"""Sorry {util.get_participants(created_by, merged_by)}, I had trouble checking out the `{branch}` backport branch.
                                 Please retry by removing and re-adding the "needs backport to {branch}" label.
-                                Alternatively, you can backport using [cherry_picker](https://pypi.org/project/cherry-picker/) on command line.
+                                Alternatively, you can backport using [cherry_picker](https://pypi.org/project/cherry-picker/) on the command line.
                                 ```
                                 cherry_picker {commit_hash} {branch}
                                 ```
