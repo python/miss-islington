@@ -2,7 +2,7 @@
 git+https://github.com/python/cherry-picker.git@main#egg=cherry_picker
 aiohttp==3.8.3
 gidgethub==5.2.1
-cachetools==5.2.0
+cachetools==5.3.0
 redis==4.4.2
 celery==5.2.7
 sentry-sdk==1.12.1
