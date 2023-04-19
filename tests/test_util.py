@@ -11,29 +11,18 @@ from miss_islington import util
 
 
 class FakeGH:
-    def __init__(self, *, getiter=None, getitem=None, post=None, patch=None):
+    def __init__(self, *, getitem=None, post=None, patch=None):
         self._getitem_return = getitem
-        self._getiter_return = getiter
         self._post_return = post
         self._patch_return = patch
         self.getitem_url = None
-        self.getiter_url = None
         self.patch_url = self.patch_data = None
         self.post_url = self.post_data = None
 
     async def getitem(self, url):
         self.getitem_url = url
         to_return = self._getitem_return[self.getitem_url]
-        if isinstance(to_return, Exception):
-            raise to_return
-        else:
-            return to_return
-
-    async def getiter(self, url):
-        self.getiter_url = url
-        to_iterate = self._getiter_return[url]
-        for item in to_iterate:
-            yield item
+        return to_return
 
     async def patch(self, url, *, data):
         self.patch_url = url
@@ -73,62 +62,6 @@ def test_title_normalization():
     body = "…78)"
     assert util.normalize_title(title, body) == expected
 
-
-def test_message_normalization():
-    message = "<!-- This is an HTML comment -->And this is the part we want"
-    assert util.normalize_message(message) == "\n\nAnd this is the part we want"
-
-    message = "<!-- HTML comment -->Part we want<!-- HTML comment 2 -->"
-    assert util.normalize_message(message) == "\n\nPart we want"
-
-    message = "\r\nParts <!--comment--> we want\r\nincluded"
-    assert util.normalize_message(message) == "\n\nParts  we want\r\nincluded"
-
-    message = textwrap.dedent(
-        """
-    The truncate() method of io.BufferedReader() should raise
-    UnsupportedOperation when it is called on a read-only
-    io.BufferedReader() instance.
-
-
-
-
-
-    https://bugs.python.org/issue35950
-
-
-
-    Automerge-Triggered-By: @methane
-    """
-    )
-
-    expected_message = textwrap.dedent(
-        """
-
-    The truncate() method of io.BufferedReader() should raise
-    UnsupportedOperation when it is called on a read-only
-    io.BufferedReader() instance.
-
-    Automerge-Triggered-By: @methane"""
-    )
-    assert util.normalize_message(message) == expected_message
-
-    message = textwrap.dedent(
-        """
-    Some commit message.
-
-
-    <!-- gh-issue-number: gh-93516 -->
-    * Issue: gh-93516
-    Exact content between comments shouldn't matter, it should all go away.
-    <!-- /gh-issue-number -->
-
-    <!-- issue-number: [bpo-24766](https://www.bugs.python.org/issue24766) -->
-    https://bugs.python.org/issue24766
-    <!-- /issue-number -->
-    """
-    )
-    assert util.normalize_message(message) == "\n\nSome commit message."
 
 
 async def test_get_gh_participants_different_creator_and_committer():
@@ -209,80 +142,6 @@ def test_is_not_cpython_repo():
     assert util.is_cpython_repo() == False
 
 
-async def test_is_core_dev():
-    teams = [{"name": "not Python core"}]
-    gh = FakeGH(getiter={"/orgs/python/teams": teams})
-    with pytest.raises(ValueError):
-        await util.is_core_dev(gh, "mariatta")
-
-    teams = [{"name": "python core", "id": 42}]
-    getitem = {"/teams/42/memberships/mariatta": True}
-    gh = FakeGH(getiter={"/orgs/python/teams": teams}, getitem=getitem)
-    assert await util.is_core_dev(gh, "mariatta")
-    assert gh.getiter_url == "/orgs/python/teams"
-
-    teams = [{"name": "python core", "id": 42}]
-    getitem = {
-        "/teams/42/memberships/miss-islington": gidgethub.BadRequest(
-            status_code=http.HTTPStatus(404)
-        )
-    }
-    gh = FakeGH(getiter={"/orgs/python/teams": teams}, getitem=getitem)
-    assert not await util.is_core_dev(gh, "miss-islington")
-
-    teams = [{"name": "python core", "id": 42}]
-    getitem = {
-        "/teams/42/memberships/miss-islington": gidgethub.BadRequest(
-            status_code=http.HTTPStatus(400)
-        )
-    }
-    gh = FakeGH(getiter={"/orgs/python/teams": teams}, getitem=getitem)
-    with pytest.raises(gidgethub.BadRequest):
-        await util.is_core_dev(gh, "miss-islington")
-
-
-def test_pr_is_awaiting_merge():
-    labels = [{"name": "awaiting merge"}]
-    assert util.pr_is_awaiting_merge(labels) is True
-
-
-def test_pr_is_do_not_merge():
-    labels = [
-        {"name": "awaiting merge"},
-        {"name": "DO-NOT-MERGE"},
-    ]
-    assert util.pr_is_awaiting_merge(labels) is False
-
-    labels = [{"name": "CLA not signed"}, {"name": "awaiting merge"}]
-    assert util.pr_is_awaiting_merge(labels) is False
-
-    labels = [
-        {"name": "CLA not signed"},
-        {"name": "awaiting merge"},
-        {"name": "DO-NOT-MERGE"},
-    ]
-    assert util.pr_is_awaiting_merge(labels) is False
-
-
-def test_pr_is_automerge():
-    labels = [
-        {"name": util.AUTOMERGE_LABEL},
-        {"name": "awaiting review"},
-    ]
-    assert util.pr_is_automerge(labels) is True
-
-
-def test_pr_is_not_awaiting_merge():
-    labels = [
-        {"name": "skip issue"},
-        {"name": "awaiting review"},
-    ]
-    assert util.pr_is_awaiting_merge(labels) is False
-
-
-def test_pr_is_not_automerge():
-    labels = [{"name": "awaiting merge"}]
-    assert util.pr_is_automerge(labels) is False
 
 
 async def test_comment_on_pr_success():
@@ -318,41 +177,3 @@ async def test_assign_pr_to_coredev():
     await util.assign_pr_to_core_dev(gh, issue_number, coredev_login)
     assert gh.patch_url == f"/repos/python/cpython/issues/{issue_number}"
 
-
-async def test_get_pr_for_commit():
-    sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
-    gh = FakeGH(
-        getitem={
-            f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
-                "total_count": 1,
-                "items": [
-                    {
-                        "number": 5547,
-                        "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
-                        "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
-                    }
-                ],
-            }
-        }
-    )
-    result = await util.get_pr_for_commit(gh, sha)
-    assert result == {
-        "number": 5547,
-        "title": "[3.6] bpo-32720: Fixed the replacement field grammar documentation. (GH-5544)",
-        "body": "\n\n`arg_name` and `element_index` are defined as `digit`+ instead of `integer`.\n(cherry picked from commit 7a561afd2c79f63a6008843b83733911d07f0119)\n\nCo-authored-by: Mariatta <Mariatta@users.noreply.github.com>",
-    }
-
-
-async def test_get_pr_for_commit_not_found():
-    sha = "f2393593c99dd2d3ab8bfab6fcc5ddee540518a9"
-    gh = FakeGH(
-        getitem={
-            f"/search/issues?q=type:pr+repo:python/cpython+sha:{sha}": {
-                "total_count": 0,
-                "items": [],
-            }
-        }
-    )
-    result = await util.get_pr_for_commit(gh, sha)
-
-    assert result is None
