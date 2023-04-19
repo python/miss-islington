@@ -21,8 +21,7 @@ class FakeGH:
 
     async def getitem(self, url):
         self.getitem_url = url
-        to_return = self._getitem_return[self.getitem_url]
-        return to_return
+        return self._getitem_return[self.getitem_url]
 
     async def patch(self, url, *, data):
         self.patch_url = url
