@@ -21,7 +21,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
           cache: pip
-          cache-dependency-path: "*requirements.txt"
+          cache-dependency-path: |
+            requirements.txt
+            dev-requirements.txt
       - run: python3 -m pip install -U -r dev-requirements.txt
       - run: pytest --cov=. --cov-report=xml
       - uses: codecov/codecov-action@v3
