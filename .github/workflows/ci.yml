@@ -16,8 +16,8 @@ jobs:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v1
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}
@@ -29,7 +29,7 @@ jobs:
           allow-prereleases: true
       - run: python3 -m pip install -U -r dev-requirements.txt
       - run: pytest --cov=. --cov-report=xml
-      - uses: codecov/codecov-action@v2
+      - uses: codecov/codecov-action@v3
         if: always()
         with:
           token: ${{ secrets.CODECOV_TOKEN }}

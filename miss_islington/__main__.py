@@ -12,10 +12,10 @@ import sentry_sdk
 from sentry_sdk.integrations.aiohttp import AioHttpIntegration
 
 
-from . import backport_pr, check_run, delete_branch, status_change
+from . import backport_pr, delete_branch
 
 router = routing.Router(
-    backport_pr.router, delete_branch.router, status_change.router, check_run.router
+    backport_pr.router, delete_branch.router
 )
 
 cache = cachetools.LRUCache(maxsize=500)
