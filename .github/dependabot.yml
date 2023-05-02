@@ -4,14 +4,14 @@ updates:
   directory: "/"
   schedule:
     interval: monthly
+  assignees:
+    - "ezio-melotti"
   open-pull-requests-limit: 10
-  ignore:
-  - dependency-name: pytest-asyncio
-    versions:
-    - 0.15.0
-  - dependency-name: sentry-sdk
-    versions:
-    - 0.20.0
-    - 0.20.1
-    - 0.20.2
-    - 0.20.3
+
+- package-ecosystem: "github-actions"
+  directory: "/"
+  schedule:
+    interval: monthly
+  assignees:
+    - "ezio-melotti"
+  open-pull-requests-limit: 10
