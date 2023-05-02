@@ -14,8 +14,6 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
-        # Workaround for actions/setup-python#508
-        dev: ["-dev"]
 
     steps:
       - uses: actions/checkout@v2
@@ -27,7 +25,8 @@ jobs:
             ${{ runner.os }}-pip-
       - uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}${{ matrix.dev }}
+          python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
       - run: python3 -m pip install -U -r dev-requirements.txt
       - run: pytest --cov=. --cov-report=xml
       - uses: codecov/codecov-action@v2
