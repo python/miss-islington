@@ -99,6 +99,11 @@ async def backport_task_asyncio(
                                    """,
                 )
                 await util.assign_pr_to_core_dev(gh, issue_number, merged_by)
+        
+        # Ensure that we don't have any changes lying around
+        subprocess.check_output(['git', 'reset', '--hard'])
+        subprocess.check_output(['git', 'clean', '-fxd'])
+
         cp = cherry_picker.CherryPicker(
             "origin",
             commit_hash,
