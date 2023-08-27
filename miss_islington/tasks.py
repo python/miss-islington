@@ -31,6 +31,7 @@ CHERRY_PICKER_CONFIG = {
     "check_sha": "7f777ed95a19224294949e1b4ce56bbffcb1fe9f",
     "fix_commit_msg": True,
     "default_branch": "main",
+    "require_version_in_branch_name": True,
 }
 
 
