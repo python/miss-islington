@@ -79,4 +79,3 @@ def normalize_title(title, body):
     else:
         # Being paranoid in case \r\n is used.
         return title[:-1] + body[1:].partition("\r\n")[0]
-

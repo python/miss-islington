@@ -36,7 +36,7 @@ CHERRY_PICKER_CONFIG = {
 
 @app.task()
 def setup_cpython_repo():
-    print("Setting up CPython repository") # pragma: nocover
+    print("Setting up CPython repository")  # pragma: nocover
     if "cpython" not in os.listdir("."):
         subprocess.check_output(
             f"git clone https://{os.environ.get('GH_AUTH')}:x-oauth-basic@github.com/miss-islington/cpython.git".split()
@@ -99,7 +99,7 @@ async def backport_task_asyncio(
                                    """,
                 )
                 await util.assign_pr_to_core_dev(gh, issue_number, merged_by)
-        
+
         # Ensure that we don't have any changes lying around
         subprocess.check_output(['git', 'reset', '--hard'])
         subprocess.check_output(['git', 'clean', '-fxd'])
