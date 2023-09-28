@@ -91,12 +91,13 @@ async def backport_task_asyncio(
                 await util.comment_on_pr(
                     gh,
                     issue_number,
-                    f"""{util.get_participants(created_by, merged_by)}, I can't backport for now.  Please try again later or
-                                   backport using [cherry_picker](https://pypi.org/project/cherry-picker/) on command line.
-                                   ```
-                                   cherry_picker {commit_hash} {branch}
-                                   ```
-                                   """,
+                    f"""\
+                    {util.get_participants(created_by, merged_by)}, I can't backport for now.  Please try again later or
+                    backport using [cherry_picker](https://pypi.org/project/cherry-picker/) on command line.
+                    ```
+                    cherry_picker {commit_hash} {branch}
+                    ```
+                    """,
                 )
                 await util.assign_pr_to_core_dev(gh, issue_number, merged_by)
 
@@ -117,13 +118,14 @@ async def backport_task_asyncio(
             await util.comment_on_pr(
                 gh,
                 issue_number,
-                f"""Sorry {util.get_participants(created_by, merged_by)}, I had trouble checking out the `{branch}` backport branch.
-                                Please retry by removing and re-adding the "needs backport to {branch}" label.
-                                Alternatively, you can backport using [cherry_picker](https://pypi.org/project/cherry-picker/) on the command line.
-                                ```
-                                cherry_picker {commit_hash} {branch}
-                                ```
-                                """,
+                f"""\
+                Sorry {util.get_participants(created_by, merged_by)}, I had trouble checking out the `{branch}` backport branch.
+                Please retry by removing and re-adding the "needs backport to {branch}" label.
+                Alternatively, you can backport using [cherry_picker](https://pypi.org/project/cherry-picker/) on the command line.
+                ```
+                cherry_picker {commit_hash} {branch}
+                ```
+                """,
             )
             await util.assign_pr_to_core_dev(gh, issue_number, merged_by)
             cp.abort_cherry_pick()
@@ -131,12 +133,13 @@ async def backport_task_asyncio(
             await util.comment_on_pr(
                 gh,
                 issue_number,
-                f"""Sorry, {util.get_participants(created_by, merged_by)}, I could not cleanly backport this to `{branch}` due to a conflict. 
-                                Please backport using [cherry_picker](https://pypi.org/project/cherry-picker/) on command line.
-                                ```
-                                cherry_picker {commit_hash} {branch}
-                                ```
-                                """,
+                f"""\
+                Sorry, {util.get_participants(created_by, merged_by)}, I could not cleanly backport this to `{branch}` due to a conflict.
+                Please backport using [cherry_picker](https://pypi.org/project/cherry-picker/) on command line.
+                ```
+                cherry_picker {commit_hash} {branch}
+                ```
+                """,
             )
             await util.assign_pr_to_core_dev(gh, issue_number, merged_by)
             cp.abort_cherry_pick()
