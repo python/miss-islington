@@ -1,8 +1,5 @@
-import re
 import subprocess
-
-import gidgethub
-
+import textwrap
 
 
 async def comment_on_pr(gh, issue_number, message):
@@ -10,6 +7,7 @@ async def comment_on_pr(gh, issue_number, message):
     Leave a comment on a PR/Issue
     """
     issue_comment_url = f"/repos/python/cpython/issues/{issue_number}/comments"
+    message = textwrap.dedent(message)
     data = {"body": message}
     response = await gh.post(issue_comment_url, data=data)
     print(f"Commented at {response['html_url']}, message: {message}")
@@ -79,4 +77,3 @@ def normalize_title(title, body):
     else:
         # Being paranoid in case \r\n is used.
         return title[:-1] + body[1:].partition("\r\n")[0]
-
