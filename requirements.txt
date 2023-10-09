@@ -1,6 +1,6 @@
 # cherry_picker==2.0.0
 git+https://github.com/python/cherry-picker.git@main#egg=cherry_picker
-aiohttp==3.8.5
+aiohttp==3.9.0b0
 gidgethub==5.3.0
 cachetools==5.3.1
 redis==5.0.1
