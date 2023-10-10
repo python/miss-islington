@@ -40,7 +40,7 @@ def setup_cpython_repo():
     print("Setting up CPython repository")  # pragma: nocover
     if "cpython" not in os.listdir("."):
         subprocess.check_output(
-            f"git clone https://{os.environ.get('GH_AUTH')}:x-oauth-basic@github.com/mariatta/cpython.git".split()
+            f"git clone https://{os.environ.get('GH_AUTH')}:x-oauth-basic@github.com/miss-islington/cpython.git".split()
         )
         subprocess.check_output(
             "git config --global user.email 'mariatta.wijaya+miss-islington@gmail.com'".split()
@@ -50,7 +50,7 @@ def setup_cpython_repo():
         )
         os.chdir("./cpython")
         subprocess.check_output(
-            f"git remote add upstream https://{os.environ.get('GH_AUTH')}:x-oauth-basic@github.com/mariatta/cpython.git".split()
+            f"git remote add upstream https://{os.environ.get('GH_AUTH')}:x-oauth-basic@github.com/python/cpython.git".split()
         )
         print("Finished setting up CPython Repo")
     else:
