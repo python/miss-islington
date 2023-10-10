@@ -129,7 +129,7 @@ async def backport_task_asyncio(
             )
             await util.assign_pr_to_core_dev(gh, issue_number, merged_by)
             cp.abort_cherry_pick()
-        except cherry_picker.CherryPickException:
+        except cherry_picker.CherryPickException as cpe:
             await util.comment_on_pr(
                 gh,
                 issue_number,
@@ -142,6 +142,8 @@ async def backport_task_asyncio(
                 """,
             )
             await util.assign_pr_to_core_dev(gh, issue_number, merged_by)
+            cpe_exc = cpe
+            cpe_state = cp.initial_state
             cp.abort_cherry_pick()
 
 
