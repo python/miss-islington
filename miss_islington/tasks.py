@@ -19,6 +19,7 @@ app = celery.Celery("backport_cpython")
 app.conf.update(
     broker_url=os.environ["HEROKU_REDIS_MAROON_URL"],
     result_backend=os.environ["HEROKU_REDIS_MAROON_URL"],
+    broker_connection_retry_on_startup=True,
 )
 
 cache = cachetools.LRUCache(maxsize=500)
