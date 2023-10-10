@@ -143,7 +143,8 @@ async def backport_task_asyncio(
             )
             await util.assign_pr_to_core_dev(gh, issue_number, merged_by)
             cpe_exc = cpe
-            cpe_state = cp.initial_state
+            cpe_state = cp.get_state_and_verify()
+            print(cpe_state)
             cp.abort_cherry_pick()
 
 
