@@ -19,6 +19,7 @@ app = celery.Celery("backport_cpython")
 app.conf.update(
     broker_url=os.environ["HEROKU_REDIS_MAROON_URL"],
     result_backend=os.environ["HEROKU_REDIS_MAROON_URL"],
+    broker_connection_retry_on_startup=True,
 )
 
 cache = cachetools.LRUCache(maxsize=500)
@@ -39,7 +40,7 @@ def setup_cpython_repo():
     print("Setting up CPython repository")  # pragma: nocover
     if "cpython" not in os.listdir("."):
         subprocess.check_output(
-            f"git clone https://{os.environ.get('GH_AUTH')}:x-oauth-basic@github.com/miss-islington/cpython.git".split()
+            f"git clone https://{os.environ.get('GH_AUTH')}:x-oauth-basic@github.com/mariatta/cpython.git".split()
         )
         subprocess.check_output(
             "git config --global user.email 'mariatta.wijaya+miss-islington@gmail.com'".split()
@@ -49,7 +50,7 @@ def setup_cpython_repo():
         )
         os.chdir("./cpython")
         subprocess.check_output(
-            f"git remote add upstream https://{os.environ.get('GH_AUTH')}:x-oauth-basic@github.com/python/cpython.git".split()
+            f"git remote add upstream https://{os.environ.get('GH_AUTH')}:x-oauth-basic@github.com/mariatta/cpython.git".split()
         )
         print("Finished setting up CPython Repo")
     else:
