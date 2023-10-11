@@ -39,7 +39,7 @@ async def backport_pr(event, gh, *args, **kwargs):
             for label in pr_labels
             if label["name"].startswith("needs backport to")
         ]
-
+        installation_id = event.data["installation"]["id"]
         if branches:
             easter_egg = ""
             if random.random() < 0.1:
@@ -62,12 +62,12 @@ async def backport_pr(event, gh, *args, **kwargs):
 
             for branch in sorted_branches:
                 await kickoff_backport_task(
-                    gh, commit_hash, branch, issue_number, created_by, merged_by
+                    gh, commit_hash, branch, issue_number, created_by, merged_by, installation_id=installation_id
                 )
 
 
 async def kickoff_backport_task(
-    gh, commit_hash, branch, issue_number, created_by, merged_by
+    gh, commit_hash, branch, issue_number, created_by, merged_by, installation_id
 ):
     try:
         tasks.backport_task.delay(
@@ -76,6 +76,7 @@ async def kickoff_backport_task(
             issue_number=issue_number,
             created_by=created_by,
             merged_by=merged_by,
+            installation_id=installation_id
         )
     except (redis_ex.ConnectionError, kombu_ex.OperationalError) as ex:
         err_message = f"I'm having trouble backporting to `{branch}`. Reason: '`{ex}`'. Please retry by removing and re-adding the `needs backport to {branch}` label."
