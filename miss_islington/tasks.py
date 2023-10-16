@@ -8,6 +8,7 @@ import celery
 from cherry_picker import cherry_picker
 from celery import bootsteps
 from gidgethub import aiohttp as gh_aiohttp
+from gidgethub import apps
 import sentry_sdk
 from sentry_sdk.integrations.celery import CeleryIntegration
 
@@ -58,7 +59,7 @@ def setup_cpython_repo():
 
 
 @app.task()
-def backport_task(commit_hash, branch, *, issue_number, created_by, merged_by):
+def backport_task(commit_hash, branch, *, issue_number, created_by, merged_by, installation_id):
     loop = asyncio.get_event_loop()
     loop.run_until_complete(
         backport_task_asyncio(
@@ -67,21 +68,27 @@ def backport_task(commit_hash, branch, *, issue_number, created_by, merged_by):
             issue_number=issue_number,
             created_by=created_by,
             merged_by=merged_by,
+            installation_id=installation_id
         )
     )
 
 
 async def backport_task_asyncio(
-    commit_hash, branch, *, issue_number, created_by, merged_by
+    commit_hash, branch, *, issue_number, created_by, merged_by, installation_id
 ):
     """Backport a commit into a branch."""
-
-    oauth_token = os.environ.get("GH_AUTH")
     async with aiohttp.ClientSession() as session:
         gh = gh_aiohttp.GitHubAPI(
-            session, "python/cpython", oauth_token=oauth_token, cache=cache
+            session, "python/cpython", cache=cache
         )
-
+        # This path only works on GitHub App
+        installation_access_token = await apps.get_installation_access_token(
+            gh,
+            installation_id=installation_id,
+            app_id=os.environ.get("GH_APP_ID"),
+            private_key=os.environ.get("GH_PRIVATE_KEY")
+        )
+        gh.oauth_token = installation_access_token["token"]
         if not util.is_cpython_repo():
             # cd to cpython if we're not already in it
             if "cpython" in os.listdir("."):

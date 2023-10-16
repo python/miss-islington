@@ -59,6 +59,7 @@ async def test_labeled_on_merged_pr_no_backport_label():
             "issues_url": "https://api.github.com/repos/python/cpython/issues{/number}"
         },
         "label": {"name": "skip news"},
+        "installation": {"id": "123"}
     }
     event = sansio.Event(data, event="pull_request", delivery_id="1")
 
@@ -81,6 +82,7 @@ async def test_merged_pr_no_backport_label():
         "repository": {
             "issues_url": "https://api.github.com/repos/python/cpython/issues/1"
         },
+        "installation": {"id": "123"}
     }
     event = sansio.Event(data, event="pull_request", delivery_id="1")
 
@@ -113,6 +115,7 @@ async def test_merged_pr_with_backport_label(branch):
         "repository": {
             "issues_url": "https://api.github.com/repos/python/cpython/issues/1"
         },
+        "installation": {"id": "123"}
     }
     event = sansio.Event(data, event="pull_request", delivery_id="1")
 
@@ -147,6 +150,7 @@ async def test_merged_pr_with_backport_label_thank_pr_author():
         "repository": {
             "issues_url": "https://api.github.com/repos/python/cpython/issues/1"
         },
+        "installation": {"id": "123"}
     }
     event = sansio.Event(data, event="pull_request", delivery_id="1")
 
@@ -180,6 +184,7 @@ async def test_easter_egg():
         "repository": {
             "issues_url": "https://api.github.com/repos/python/cpython/issues/1"
         },
+        "installation": {"id": "123"}
     }
     event = sansio.Event(data, event="pull_request", delivery_id="1")
 
@@ -225,6 +230,7 @@ async def test_backport_pr_redis_connection_error():
         "repository": {
             "issues_url": "https://api.github.com/repos/python/cpython/issues/1"
         },
+        "installation": {"id": "123"}
     }
     event = sansio.Event(data, event="pull_request", delivery_id="1")
 
@@ -257,6 +263,7 @@ async def test_backport_pr_kombu_operational_error():
         "repository": {
             "issues_url": "https://api.github.com/repos/python/cpython/issues/1"
         },
+        "installation": {"id": "123"}
     }
     event = sansio.Event(data, event="pull_request", delivery_id="1")
 
