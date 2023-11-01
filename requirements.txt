@@ -5,7 +5,7 @@ gidgethub==5.3.0
 cachetools==5.3.2
 redis==5.0.1
 celery==5.3.4
-sentry-sdk==1.31.0
+sentry-sdk==1.33.1
 click==8.1.7
 
 # workaround for celery/kombu#1600
