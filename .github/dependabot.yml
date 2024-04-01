@@ -1,22 +1,22 @@
 version: 2
 updates:
-- package-ecosystem: pip
-  directory: "/"
-  schedule:
-    interval: monthly
-  assignees:
-    - "ezio-melotti"
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: monthly
+    assignees:
+      - "ezio-melotti"
     groups:
       pip:
         patterns:
           - "*"
 
-- package-ecosystem: "github-actions"
-  directory: "/"
-  schedule:
-    interval: monthly
-  assignees:
-    - "ezio-melotti"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: monthly
+    assignees:
+      - "ezio-melotti"
     groups:
       actions:
         patterns:
