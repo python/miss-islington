@@ -5,5 +5,5 @@ gidgethub==5.3.0
 cachetools==5.3.3
 redis==5.0.2
 celery==5.3.6
-sentry-sdk==1.40.6
+sentry-sdk==1.44.0
 click==8.1.7
