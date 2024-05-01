@@ -1,9 +1,9 @@
 cherry_picker==2.2.0
 #git+https://github.com/python/cherry-picker.git@remove-initial-state#egg=cherry_picker
-aiohttp==3.9.4
+aiohttp==3.9.5
 gidgethub==5.3.0
 cachetools==5.3.3
-redis==5.0.3
-celery==5.3.6
-sentry-sdk==1.44.0
+redis==5.0.4
+celery==5.4.0
+sentry-sdk==2.0.1
 click==8.1.7
