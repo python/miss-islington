@@ -3,7 +3,7 @@ cherry_picker==2.2.0
 aiohttp==3.9.5
 gidgethub==5.3.0
 cachetools==5.3.3
-redis==5.0.4
+redis==5.0.7
 celery==5.4.0
-sentry-sdk==2.3.1
+sentry-sdk==2.7.1
 click==8.1.7
