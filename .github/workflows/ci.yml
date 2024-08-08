@@ -12,6 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # remember to update the envlist in tox.ini too
         python-version: ["3.11", "3.12", "3.13"]
 
     steps:
