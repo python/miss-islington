@@ -175,4 +175,3 @@ async def test_assign_pr_to_coredev():
 
     await util.assign_pr_to_core_dev(gh, issue_number, coredev_login)
     assert gh.patch_url == f"/repos/python/cpython/issues/{issue_number}"
-
