@@ -23,6 +23,7 @@ app.conf.update(
     result_backend=os.environ["HEROKU_REDIS_MAROON_URL"],
     broker_connection_retry_on_startup=True,
     broker_use_ssl={"ssl_cert_reqs": ssl.CERT_NONE},
+    redis_backend_use_ssl={"ssl_cert_reqs": ssl.CERT_NONE},
 )
 
 cache = cachetools.LRUCache(maxsize=500)
