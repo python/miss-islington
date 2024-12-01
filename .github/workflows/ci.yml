@@ -43,7 +43,7 @@ jobs:
       - uses: codecov/codecov-action@v5
         if: always()
         with:
-          file: ./coverage.xml
+          files: ./coverage.xml
           flags: Python_${{ matrix.python-version }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
