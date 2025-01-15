@@ -36,6 +36,7 @@ CHERRY_PICKER_CONFIG = {
     "fix_commit_msg": True,
     "default_branch": "main",
     "require_version_in_branch_name": True,
+    "draft_pr": False,
 }
 
 
