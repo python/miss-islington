@@ -1,11 +1,14 @@
 import asyncio
 
+import gidgethub
 import gidgethub.routing
+import stamina
 
 router = gidgethub.routing.Router()
 
 
 @router.register("pull_request", action="closed")
+@stamina.retry(on=gidgethub.GitHubException, timeout=120)
 async def delete_branch(event, gh, *args, **kwargs):
     """
     Delete the branch once miss-islington's PR is closed.

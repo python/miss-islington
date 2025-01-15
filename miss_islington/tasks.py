@@ -1,5 +1,6 @@
 import asyncio
 import os
+import ssl
 import subprocess
 
 import aiohttp
@@ -21,11 +22,12 @@ app.conf.update(
     broker_url=os.environ["HEROKU_REDIS_MAROON_URL"],
     result_backend=os.environ["HEROKU_REDIS_MAROON_URL"],
     broker_connection_retry_on_startup=True,
+    broker_use_ssl={"ssl_cert_reqs": ssl.CERT_NONE},
+    redis_backend_use_ssl={"ssl_cert_reqs": ssl.CERT_NONE},
 )
 
 cache = cachetools.LRUCache(maxsize=500)
 sentry_sdk.init(os.environ.get("SENTRY_DSN"), integrations=[CeleryIntegration()])
-
 
 CHERRY_PICKER_CONFIG = {
     "team": "python",
@@ -123,7 +125,7 @@ async def backport_task_asyncio(
         )
         try:
             cp.backport()
-        except cherry_picker.BranchCheckoutException:
+        except cherry_picker.BranchCheckoutException as bce:
             await util.comment_on_pr(
                 gh,
                 issue_number,
@@ -137,6 +139,8 @@ async def backport_task_asyncio(
                 """,
             )
             await util.assign_pr_to_core_dev(gh, issue_number, merged_by)
+            bce_state = cp.get_state_and_verify()
+            print(bce_state, bce)
             cp.abort_cherry_pick()
         except cherry_picker.CherryPickException as cpe:
             await util.comment_on_pr(
@@ -151,9 +155,25 @@ async def backport_task_asyncio(
                 """,
             )
             await util.assign_pr_to_core_dev(gh, issue_number, merged_by)
-            cpe_exc = cpe
             cpe_state = cp.get_state_and_verify()
-            print(cpe_state)
+            print(cpe_state, cpe)
+            cp.abort_cherry_pick()
+        except cherry_picker.GitHubException as ghe:
+            await util.comment_on_pr(
+                gh,
+                issue_number,
+                f"""\
+                Sorry {util.get_participants(created_by, merged_by)}, I had trouble completing the backport.
+                Please retry by removing and re-adding the "needs backport to {branch}" label.
+                Please backport backport using [cherry_picker](https://pypi.org/project/cherry-picker/) on the command line.
+                ```
+                cherry_picker {commit_hash} {branch}
+                ```
+                """,
+            )
+            await util.assign_pr_to_core_dev(gh, issue_number, merged_by)
+            ghe_state = cp.get_state_and_verify()
+            print(ghe_state, ghe)
             cp.abort_cherry_pick()
 
 
