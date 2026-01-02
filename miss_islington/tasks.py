@@ -178,6 +178,58 @@ async def backport_task_asyncio(
             cp.abort_cherry_pick()
 
 
+@app.task()
+def delete_branch_task(branch_name, pr_url, merged, *, installation_id):
+    """Delete a branch from the miss-islington/cpython fork."""
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(
+        _delete_branch_task_asyncio(
+            branch_name, pr_url, merged, installation_id=installation_id
+        )
+    )
+
+
+async def _delete_branch_task_asyncio(branch_name, pr_url, merged, *, installation_id):
+    """Delete a branch, with delayed deletion for non-merged PRs."""
+    if not util.is_cpython_repo():
+        if "cpython" in os.listdir("."):
+            os.chdir("./cpython")
+        else:
+            print(f"Cannot delete branch: cpython repo not found. "
+                  f"pwd: {os.getcwd()}, listdir: {os.listdir('.')}")
+            return
+
+    if merged:
+        _git_delete_branch(branch_name)
+    else:
+        await asyncio.sleep(60)
+        async with aiohttp.ClientSession() as session:
+            gh = gh_aiohttp.GitHubAPI(session, "python/cpython", cache=cache)
+            installation_access_token = await apps.get_installation_access_token(
+                gh,
+                installation_id=installation_id,
+                app_id=os.environ.get("GH_APP_ID"),
+                private_key=os.environ.get("GH_PRIVATE_KEY")
+            )
+            gh.oauth_token = installation_access_token["token"]
+            updated_data = await gh.getitem(pr_url)
+            if updated_data["state"] == "closed":
+                _git_delete_branch(branch_name)
+
+
+def _git_delete_branch(branch_name):
+    """Delete a branch from the origin remote using git."""
+    try:
+        subprocess.check_output(
+            ["git", "push", "origin", "--delete", branch_name],
+            stderr=subprocess.STDOUT
+        )
+        print(f"Deleted branch {branch_name}")
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to delete branch {branch_name}: {e.output.decode()}")
+        raise
+
+
 class InitRepoStep(bootsteps.StartStopStep):
     def start(self, c):
         print("Initialize the repository.")
