@@ -1,27 +1,31 @@
-import asyncio
-
-import gidgethub
 import gidgethub.routing
+from kombu import exceptions as kombu_ex
+from redis import exceptions as redis_ex
 import stamina
+
+from . import tasks
 
 router = gidgethub.routing.Router()
 
 
 @router.register("pull_request", action="closed")
-@stamina.retry(on=gidgethub.GitHubException, timeout=120)
 async def delete_branch(event, gh, *args, **kwargs):
     """
     Delete the branch once miss-islington's PR is closed.
     """
     if event.data["pull_request"]["user"]["login"] == "miss-islington":
         branch_name = event.data["pull_request"]["head"]["ref"]
-        url = f"/repos/miss-islington/cpython/git/refs/heads/{branch_name}"
-        if event.data["pull_request"]["merged"]:
-            await gh.delete(url)
-        else:
-            # this is delayed to ensure that the bot doesn't remove the branch
-            # if PR was closed and reopened to rerun checks (or similar)
-            await asyncio.sleep(60)
-            updated_data = await gh.getitem(event.data["pull_request"]["url"])
-            if updated_data["state"] == "closed":
-                await gh.delete(url)
+        merged = event.data["pull_request"]["merged"]
+        pr_url = event.data["pull_request"]["url"]
+        installation_id = event.data["installation"]["id"]
+        _queue_delete_task(branch_name, pr_url, merged, installation_id)
+
+
+@stamina.retry(on=(redis_ex.ConnectionError, kombu_ex.OperationalError), timeout=30)
+def _queue_delete_task(branch_name, pr_url, merged, installation_id):
+    tasks.delete_branch_task.delay(
+        branch_name,
+        pr_url,
+        merged,
+        installation_id=installation_id
+    )
