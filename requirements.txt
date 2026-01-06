@@ -1,4 +1,4 @@
-aiohttp==3.13.2
+aiohttp==3.13.3
 cachetools==6.2.4
 celery==5.6.1
 cherry_picker==2.6.0
