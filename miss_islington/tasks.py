@@ -19,8 +19,8 @@ from . import util
 app = celery.Celery("backport_cpython")
 
 app.conf.update(
-    broker_url=os.environ["HEROKU_REDIS_MAROON_URL"],
-    result_backend=os.environ["HEROKU_REDIS_MAROON_URL"],
+    broker_url=os.environ.get("REDIS_URL", ""),
+    result_backend=os.environ.get("REDIS_URL", ""),
     broker_connection_retry_on_startup=True,
     broker_use_ssl={"ssl_cert_reqs": ssl.CERT_NONE},
     redis_backend_use_ssl={"ssl_cert_reqs": ssl.CERT_NONE},
