@@ -4,7 +4,7 @@ from unittest import mock
 from gidgethub import sansio
 import pytest
 
-os.environ.setdefault("HEROKU_REDIS_MAROON_URL", "someurl")
+os.environ.setdefault("REDIS_URL", "redis://localhost")
 
 from miss_islington import delete_branch, tasks
 
