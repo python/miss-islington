@@ -1,0 +1,42 @@
+# Miss Islington - Cabotage Ingress
+# Apply manually: kubectl apply -f infra/k8s/ingress.yaml
+#
+# Exposes the Cabotage-deployed app via nginx-ingress
+# with Let's Encrypt TLS certificates via cert-manager.
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: python-miss-islington-miss-islington-web
+  namespace: python
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: 10s
+    nginx.ingress.kubernetes.io/proxy-next-upstream: error
+    nginx.ingress.kubernetes.io/proxy-read-timeout: 60s
+    nginx.ingress.kubernetes.io/proxy-request-buffering: "on"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: 60s
+    nginx.ingress.kubernetes.io/service-upstream: "true"
+  labels:
+    app: python-miss-islington-miss-islington
+    process: web
+    resident-service.cabotage.io: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: python-miss-islington-miss-islington-web.ingress.us-east-2.psfhosted.computer
+    http:
+      paths:
+      - backend:
+          service:
+            name: python-miss-islington-miss-islington-web
+            port:
+              number: 443
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - python-miss-islington-miss-islington-web.ingress.us-east-2.psfhosted.computer
+    secretName: ingress-python-miss-islington-miss-islington-web
