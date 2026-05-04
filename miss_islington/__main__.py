@@ -71,11 +71,19 @@ async def repo_installation_added(event, gh, *args, **kwargs):
     print(f"App installed by {event.data['installation']['account']['login']}, installation_id: {event.data['installation']['id']}")
 
 
-sentry_sdk.init(dsn=os.environ.get("SENTRY_DSN"), integrations=[AioHttpIntegration()])
-app = web.Application()
-app.router.add_post("/", main)
-port = os.environ.get("PORT")
-if port is not None:
-    port = int(port)
+async def health_check(request):
+    """Health check endpoint for container orchestration."""
+    return web.Response(status=200, text="OK")
 
-web.run_app(app, port=port)
+
+if __name__ == "__main__":  # pragma: no cover
+    sentry_sdk.init(dsn=os.environ.get("SENTRY_DSN"), integrations=[AioHttpIntegration()])
+    app = web.Application()
+    app.router.add_post("/", main)
+    app.router.add_get("/health", health_check)
+
+    if os.path.isdir("/var/run/cabotage"):
+        web.run_app(app, path="/var/run/cabotage/cabotage.sock")
+    else:
+        port = os.environ.get("PORT")
+        web.run_app(app, port=int(port) if port else None)

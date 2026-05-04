@@ -1,0 +1,40 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: miss-islington-certmanager
+spec:
+  secretName: miss-islington-tls
+  duration: 2160h # 90d
+  renewBefore: 360h # 15d
+  subject:
+    organizations:
+    - miss-islington-org
+  commonName: miss-islington
+  isCA: false
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  usages:
+    - digital signature
+    - key encipherment
+  dnsNames:
+  - miss-islington
+  - miss-islington.redis
+  - miss-islington.redis.svc
+  - miss-islington.redis.svc.cluster.local
+  - miss-islington-0
+  - miss-islington-0.redis
+  - miss-islington-0.redis.svc
+  - miss-islington-0.redis.svc.cluster.local
+  - miss-islington-1
+  - miss-islington-1.redis
+  - miss-islington-1.redis.svc
+  - miss-islington-1.redis.svc.cluster.local
+  - miss-islington-2
+  - miss-islington-2.redis
+  - miss-islington-2.redis.svc
+  - miss-islington-2.redis.svc.cluster.local
+  issuerRef:
+    name: operators-ca-issuer
+    kind: ClusterIssuer
+    group: cert-manager.io
