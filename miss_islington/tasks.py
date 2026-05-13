@@ -44,7 +44,7 @@ CHERRY_PICKER_CONFIG = {
 
 @app.task()
 def setup_cpython_repo():
-    print("Setting up CPython repository")  # pragma: nocover
+    logger.info("setting up CPython repository")  # pragma: nocover
     if "cpython" not in os.listdir("."):
         subprocess.check_output(
             f"git clone https://{os.environ.get('GH_AUTH')}:x-oauth-basic@github.com/miss-islington/cpython.git".split()
@@ -59,9 +59,9 @@ def setup_cpython_repo():
         subprocess.check_output(
             f"git remote add upstream https://{os.environ.get('GH_AUTH')}:x-oauth-basic@github.com/python/cpython.git".split()
         )
-        print("Finished setting up CPython Repo")
+        logger.info("finished setting up CPython repository")
     else:
-        print("cpython directory already exists")
+        logger.info("cpython directory already exists")
 
 
 @app.task()
@@ -100,7 +100,16 @@ async def backport_task_asyncio(
             if "cpython" in os.listdir("."):
                 os.chdir("./cpython")
             else:
-                print(f"pwd: {os.getcwd()}, listdir: {os.listdir('.')}")
+                logger.warning(
+                    "cpython directory not found",
+                    extra={
+                        "pwd": os.getcwd(),
+                        "listdir": os.listdir("."),
+                        "branch": branch,
+                        "commit_hash": commit_hash,
+                        "issue_number": issue_number,
+                    },
+                )
 
                 await util.comment_on_pr(
                     gh,
@@ -150,7 +159,14 @@ async def backport_task_asyncio(
                 """,
             )
             await util.assign_pr_to_core_dev(gh, issue_number, merged_by)
-            logger.exception("InvalidRepoException while backporting to %s", branch)
+            logger.exception(
+                "backport failed: invalid repo state",
+                extra={
+                    "branch": branch,
+                    "commit_hash": commit_hash,
+                    "issue_number": issue_number,
+                },
+            )
         except cherry_picker.BranchCheckoutException as bce:
             await util.comment_on_pr(
                 gh,
@@ -166,7 +182,15 @@ async def backport_task_asyncio(
             )
             await util.assign_pr_to_core_dev(gh, issue_number, merged_by)
             bce_state = cp.get_state_and_verify()
-            print(bce_state, bce)
+            logger.exception(
+                "backport failed: branch checkout error",
+                extra={
+                    "branch": branch,
+                    "commit_hash": commit_hash,
+                    "issue_number": issue_number,
+                    "state": bce_state.name,
+                },
+            )
             cp.abort_cherry_pick()
         except cherry_picker.CherryPickException as cpe:
             await util.comment_on_pr(
@@ -182,7 +206,15 @@ async def backport_task_asyncio(
             )
             await util.assign_pr_to_core_dev(gh, issue_number, merged_by)
             cpe_state = cp.get_state_and_verify()
-            print(cpe_state, cpe)
+            logger.exception(
+                "backport failed: cherry-pick conflict",
+                extra={
+                    "branch": branch,
+                    "commit_hash": commit_hash,
+                    "issue_number": issue_number,
+                    "state": cpe_state.name,
+                },
+            )
             cp.abort_cherry_pick()
         except cherry_picker.GitHubException as ghe:
             await util.comment_on_pr(
@@ -199,7 +231,15 @@ async def backport_task_asyncio(
             )
             await util.assign_pr_to_core_dev(gh, issue_number, merged_by)
             ghe_state = cp.get_state_and_verify()
-            print(ghe_state, ghe)
+            logger.exception(
+                "backport failed: github error",
+                extra={
+                    "branch": branch,
+                    "commit_hash": commit_hash,
+                    "issue_number": issue_number,
+                    "state": ghe_state.name,
+                },
+            )
             cp.abort_cherry_pick()
 
 
@@ -220,8 +260,14 @@ async def _delete_branch_task_asyncio(branch_name, pr_url, merged, *, installati
         if "cpython" in os.listdir("."):
             os.chdir("./cpython")
         else:
-            print(f"Cannot delete branch: cpython repo not found. "
-                  f"pwd: {os.getcwd()}, listdir: {os.listdir('.')}")
+            logger.warning(
+                "cannot delete branch: cpython repo not found",
+                extra={
+                    "branch": branch_name,
+                    "pwd": os.getcwd(),
+                    "listdir": os.listdir("."),
+                },
+            )
             return
 
     if merged:
@@ -249,15 +295,18 @@ def _git_delete_branch(branch_name):
             ["git", "push", "origin", "--delete", branch_name],
             stderr=subprocess.STDOUT
         )
-        print(f"Deleted branch {branch_name}")
+        logger.info("deleted branch", extra={"branch": branch_name})
     except subprocess.CalledProcessError as e:
-        print(f"Failed to delete branch {branch_name}: {e.output.decode()}")
+        logger.exception(
+            "failed to delete branch",
+            extra={"branch": branch_name, "output": e.output.decode()},
+        )
         raise
 
 
 class InitRepoStep(bootsteps.StartStopStep):
     def start(self, c):
-        print("Initialize the repository.")
+        logger.info("initializing the repository")
         setup_cpython_repo()
 
 
