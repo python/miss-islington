@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import os
 import ssl
 import subprocess
@@ -15,6 +16,7 @@ from sentry_sdk.integrations.celery import CeleryIntegration
 
 from . import util
 
+logger = logging.getLogger(__name__)
 
 app = celery.Celery("backport_cpython")
 
@@ -116,16 +118,39 @@ async def backport_task_asyncio(
         # Ensure that we don't have any changes lying around
         subprocess.check_output(['git', 'reset', '--hard'])
         subprocess.check_output(['git', 'clean', '-fxd'])
-
-        cp = cherry_picker.CherryPicker(
-            "origin",
-            commit_hash,
-            [branch],
-            config=CHERRY_PICKER_CONFIG,
-            prefix_commit=False,
+        # Clear any leftover cherry-picker state from a previously interrupted
+        # run; otherwise CherryPicker() init raises InvalidRepoException and
+        # every subsequent backport on this worker silently fails.
+        subprocess.run(
+            ['git', 'config', '--local', '--remove-section', 'cherry-picker'],
+            stderr=subprocess.DEVNULL,
+            check=False,
         )
+
         try:
+            cp = cherry_picker.CherryPicker(
+                "origin",
+                commit_hash,
+                [branch],
+                config=CHERRY_PICKER_CONFIG,
+                prefix_commit=False,
+            )
             cp.backport()
+        except cherry_picker.InvalidRepoException as ire:
+            await util.comment_on_pr(
+                gh,
+                issue_number,
+                f"""\
+                Sorry {util.get_participants(created_by, merged_by)}, I had trouble backporting to `{branch}`.
+                Please retry by removing and re-adding the "needs backport to {branch}" label.
+                Alternatively, you can backport using [cherry_picker](https://pypi.org/project/cherry-picker/) on the command line.
+                ```
+                cherry_picker {commit_hash} {branch}
+                ```
+                """,
+            )
+            await util.assign_pr_to_core_dev(gh, issue_number, merged_by)
+            logger.exception("InvalidRepoException while backporting to %s", branch)
         except cherry_picker.BranchCheckoutException as bce:
             await util.comment_on_pr(
                 gh,
