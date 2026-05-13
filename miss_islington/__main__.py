@@ -1,7 +1,6 @@
 import asyncio
+import logging
 import os
-import sys
-import traceback
 
 import aiohttp
 import cachetools
@@ -16,6 +15,9 @@ from sentry_sdk.integrations.aiohttp import AioHttpIntegration
 
 from . import backport_pr, delete_branch
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 router = routing.Router(
     backport_pr.router, delete_branch.router
 )
@@ -29,7 +31,10 @@ async def main(request):
 
         secret = os.environ.get("GH_SECRET")
         event = sansio.Event.from_http(request.headers, body, secret=secret)
-        print("GH delivery ID", event.delivery_id, file=sys.stderr)
+        logger.info(
+            "received GitHub webhook",
+            extra={"delivery_id": event.delivery_id, "event": event.event},
+        )
         if event.event == "ping":
             return web.Response(status=200)
         async with aiohttp.ClientSession() as session:
@@ -50,25 +55,32 @@ async def main(request):
             await asyncio.sleep(1)
             await router.dispatch(event, gh)
             try:
-                print(
-                    f"""\
-GH requests remaining: {gh.rate_limit.remaining}/{gh.rate_limit.limit}, \
-reset time: {gh.rate_limit.reset_datetime:%b-%d-%Y %H:%M:%S %Z}, \
-GH delivery ID {event.delivery_id} \
-"""
+                logger.info(
+                    "GitHub rate limit",
+                    extra={
+                        "remaining": gh.rate_limit.remaining,
+                        "limit": gh.rate_limit.limit,
+                        "reset": gh.rate_limit.reset_datetime.isoformat(),
+                        "delivery_id": event.delivery_id,
+                    },
                 )
             except AttributeError:
                 pass
         return web.Response(status=200)
-    except Exception as exc:
-        traceback.print_exc(file=sys.stderr)
+    except Exception:
+        logger.exception("webhook handler crashed")
         return web.Response(status=500)
 
 
 @router.register("installation", action="created")
 async def repo_installation_added(event, gh, *args, **kwargs):
-    # installation_id = event.data["installation"]["id"]
-    print(f"App installed by {event.data['installation']['account']['login']}, installation_id: {event.data['installation']['id']}")
+    logger.info(
+        "app installed",
+        extra={
+            "account": event.data["installation"]["account"]["login"],
+            "installation_id": event.data["installation"]["id"],
+        },
+    )
 
 
 sentry_sdk.init(dsn=os.environ.get("SENTRY_DSN"), integrations=[AioHttpIntegration()])
