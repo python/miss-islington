@@ -1,9 +1,9 @@
-aiohttp==3.13.5
-cachetools==7.0.6
+aiohttp==3.14.0
+cachetools==7.1.4
 celery==5.6.3
 cherry_picker==2.6.0
-click==8.3.3
+click==8.4.1
 gidgethub==5.4.0
-redis==7.4.0
-sentry-sdk==2.58.0
+redis==8.0.0
+sentry-sdk==2.61.1
 stamina==26.1.0
