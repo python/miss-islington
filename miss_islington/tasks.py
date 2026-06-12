@@ -198,7 +198,8 @@ async def backport_task_asyncio(
                 issue_number,
                 f"""\
                 Sorry, {util.get_participants(created_by, merged_by)}, I could not cleanly backport this to `{branch}` due to a conflict.
-                Please backport using [cherry_picker](https://pypi.org/project/cherry-picker/) on command line.
+
+                Please backport manually with [cherry_picker](https://pypi.org/project/cherry-picker/), see the [devguide](https://devguide.python.org/getting-started/git-boot-camp/#backporting-merged-changes) for more information.
                 ```
                 cherry_picker {commit_hash} {branch}
                 ```
@@ -222,8 +223,9 @@ async def backport_task_asyncio(
                 issue_number,
                 f"""\
                 Sorry {util.get_participants(created_by, merged_by)}, I had trouble completing the backport.
+
                 Please retry by removing and re-adding the "needs backport to {branch}" label.
-                Please backport backport using [cherry_picker](https://pypi.org/project/cherry-picker/) on the command line.
+                If that does not work, please backport manually with [cherry_picker](https://pypi.org/project/cherry-picker/), see the [devguide](https://devguide.python.org/getting-started/git-boot-camp/#backporting-merged-changes) for more information.
                 ```
                 cherry_picker {commit_hash} {branch}
                 ```
