@@ -1,5 +1,8 @@
+import logging
 import subprocess
 import textwrap
+
+logger = logging.getLogger(__name__)
 
 
 async def comment_on_pr(gh, issue_number, message):
@@ -10,7 +13,10 @@ async def comment_on_pr(gh, issue_number, message):
     message = textwrap.dedent(message)
     data = {"body": message}
     response = await gh.post(issue_comment_url, data=data)
-    print(f"Commented at {response['html_url']}, message: {message}")
+    logger.info(
+        "commented on PR",
+        extra={"issue_number": issue_number, "url": response["html_url"]},
+    )
     return response
 
 
