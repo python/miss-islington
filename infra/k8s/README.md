@@ -10,14 +10,14 @@ The cert is issued by the internal `operators-ca-issuer` ClusterIssuer, ECDSA P-
 `ingress.yaml` goes in the `python` namespace where cabotage deploys the app. It's a standard nginx ingress with backend-protocol
 HTTPS because cabotage serves on 8443/TLS behind a Service on port 443.
 
-`generate-secrets.sh` creates the Redis password Secret and prints the full connection URI you need to set as `REDIS_URL` in cabotage.
+The Redis password lives in the `miss-islington-password` Secret in the `redis` namespace; the Redis operator reads it from there.
 
 ## Setup
 
-Generate the Redis password (once per cluster):
+Create the Redis password Secret (once per cluster):
 
 ```
-./infra/k8s/generate-secrets.sh
+kubectl create secret -n redis generic miss-islington-password --from-literal=password="$(openssl rand -hex 24)"
 ```
 
 Apply the Redis CR and TLS cert:
@@ -41,5 +41,5 @@ Set these in the cabotage UI for the miss-islington application:
 - `GH_PRIVATE_KEY` - GitHub App private key
 - `GH_AUTH` - GitHub auth token (used by the celery worker to clone cpython)
 - `SENTRY_DSN` - Sentry DSN for error tracking
-- `REDIS_URL` - printed by `generate-secrets.sh`, looks
+- `REDIS_URL` - built from the password in the `miss-islington-password` Secret, looks
  like `rediss://:<password>@miss-islington.redis.svc.cluster.local:6379/0?ssl_ca_certs=/var/run/secrets/cabotage.io/ca.crt&ssl_cert_reqs=required`
