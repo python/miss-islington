@@ -5,6 +5,7 @@ Kubernetes manifests for running miss-islington on cabotage instead of Heroku.
 ## What's here
 
 `redis.yaml` and `cert.yaml` provision a standalone Redis instance in the `redis` namespace using the OpsTree Redis Operator (already running cluster-wide).
+The Redis CR uses `v1beta2` with `podSecurityContext.fsGroup: 1000` so the non-root Redis process can write to its persistent volume.
 The cert is issued by the internal `operators-ca-issuer` ClusterIssuer, ECDSA P-256, 90-day rotation.
 
 `ingress.yaml` goes in the `python` namespace where cabotage deploys the app. It's a standard nginx ingress with backend-protocol

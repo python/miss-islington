@@ -1,5 +1,5 @@
 ---
-apiVersion: redis.redis.opstreelabs.in/v1beta1
+apiVersion: redis.redis.opstreelabs.in/v1beta2
 kind: Redis
 metadata:
   name: miss-islington
@@ -8,7 +8,7 @@ spec:
     secret:
       secretName: miss-islington-tls
       optional: false
-  securityContext:
+  podSecurityContext:
     runAsUser: 1000
     fsGroup: 1000
   kubernetesConfig:
