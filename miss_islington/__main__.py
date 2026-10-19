@@ -95,6 +95,9 @@ if __name__ == "__main__":  # pragma: no cover
     app.router.add_get("/health", health_check)
 
     if os.path.isdir("/var/run/cabotage"):
+        # The TLS sidecar connects to this socket; make sure it is not
+        # restricted to the `nobody` user that creates it.
+        os.umask(0o000)
         web.run_app(app, path="/var/run/cabotage/cabotage.sock")
     else:
         port = os.environ.get("PORT")

@@ -20,10 +20,16 @@ logger = logging.getLogger(__name__)
 
 app = celery.Celery("backport_cpython")
 
+# REDIS_URL on cabotage, HEROKU_REDIS_MAROON_URL on Heroku. Fail at import if
+# neither is set rather than letting celery fall back to a local amqp broker.
+REDIS_URL = os.environ.get("REDIS_URL") or os.environ["HEROKU_REDIS_MAROON_URL"]
+
 app.conf.update(
-    broker_url=os.environ.get("REDIS_URL", os.environ.get("HEROKU_REDIS_MAROON_URL", "")),
-    result_backend=os.environ.get("REDIS_URL", os.environ.get("HEROKU_REDIS_MAROON_URL", "")),
+    broker_url=REDIS_URL,
+    result_backend=REDIS_URL,
     broker_connection_retry_on_startup=True,
+    # Used for Heroku's self-signed rediss:// URL. On cabotage the ssl_* query
+    # parameters in REDIS_URL take precedence over these settings.
     broker_use_ssl={"ssl_cert_reqs": ssl.CERT_NONE},
     redis_backend_use_ssl={"ssl_cert_reqs": ssl.CERT_NONE},
 )
