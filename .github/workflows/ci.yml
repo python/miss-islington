@@ -47,3 +47,17 @@ jobs:
           flags: Python_${{ matrix.python-version }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
+
+  docker:
+    name: Docker build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: docker/setup-buildx-action@v4
+
+      - name: Build the image
+        run: docker build .
