@@ -48,12 +48,24 @@ CHERRY_PICKER_CONFIG = {
 }
 
 
+# git runs this helper (via sh) whenever it needs credentials for GitHub and
+# reads the token from the environment at that moment. Keeping the token out
+# of the clone URL and the remote URLs means it never shows up in command
+# lines, in .git/config, or in CalledProcessError tracebacks in the logs.
+GIT_CREDENTIAL_HELPER = (
+    '!f() { echo username=x-access-token; echo "password=${GH_AUTH}"; }; f'
+)
+
+
 @app.task()
 def setup_cpython_repo():
     logger.info("setting up CPython repository")  # pragma: nocover
     if "cpython" not in os.listdir("."):
         subprocess.check_output(
-            f"git clone https://{os.environ.get('GH_AUTH')}:x-oauth-basic@github.com/miss-islington/cpython.git".split()
+            ["git", "config", "--global", "credential.helper", GIT_CREDENTIAL_HELPER]
+        )
+        subprocess.check_output(
+            ["git", "clone", "https://github.com/miss-islington/cpython.git"]
         )
         subprocess.check_output(
             "git config --global user.email 'mariatta.wijaya+miss-islington@gmail.com'".split()
@@ -63,7 +75,7 @@ def setup_cpython_repo():
         )
         os.chdir("./cpython")
         subprocess.check_output(
-            f"git remote add upstream https://{os.environ.get('GH_AUTH')}:x-oauth-basic@github.com/python/cpython.git".split()
+            ["git", "remote", "add", "upstream", "https://github.com/python/cpython.git"]
         )
         logger.info("finished setting up CPython repository")
     else:

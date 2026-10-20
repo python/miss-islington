@@ -58,3 +58,28 @@ async def test_invalid_repo_exception_posts_comment_and_clears_state():
     assign_mock.assert_awaited_once()
     assert assign_mock.await_args.args[1] == 130749
     assert assign_mock.await_args.args[2] == "bitdancer"
+
+
+def test_setup_cpython_repo_keeps_token_out_of_git_commands(monkeypatch):
+    """The token used to be embedded in the clone and remote URLs, so a
+    failed git command printed it in the CalledProcessError traceback. It is
+    now supplied through a credential helper that reads GH_AUTH at runtime.
+    """
+    token = "ghp_secret_token_value"
+    monkeypatch.setenv("GH_AUTH", token)
+    with (
+        mock.patch("miss_islington.tasks.os.listdir", return_value=[]),
+        mock.patch("miss_islington.tasks.os.chdir"),
+        mock.patch("miss_islington.tasks.subprocess.check_output") as check_output,
+    ):
+        tasks.setup_cpython_repo()
+
+    commands = [call.args[0] for call in check_output.call_args_list]
+    assert ["git", "clone", "https://github.com/miss-islington/cpython.git"] in commands
+    assert [
+        "git", "remote", "add", "upstream", "https://github.com/python/cpython.git"
+    ] in commands
+    assert [
+        "git", "config", "--global", "credential.helper", tasks.GIT_CREDENTIAL_HELPER
+    ] in commands
+    assert token not in str(commands)
