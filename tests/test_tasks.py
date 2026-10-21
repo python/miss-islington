@@ -4,7 +4,7 @@ from unittest import mock
 
 from cherry_picker import cherry_picker
 
-os.environ.setdefault("HEROKU_REDIS_MAROON_URL", "someurl")
+os.environ.setdefault("REDIS_URL", "redis://localhost")
 
 from miss_islington import tasks
 
