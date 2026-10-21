@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.15-slim
 
 # Logs go straight to the container log instead of being block-buffered.
 ENV PYTHONUNBUFFERED=1
