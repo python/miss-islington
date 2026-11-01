@@ -80,8 +80,7 @@ def setup_cpython_repo():
 
 @app.task()
 def backport_task(commit_hash, branch, *, issue_number, created_by, merged_by, installation_id):
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(
+    asyncio.run(
         backport_task_asyncio(
             commit_hash,
             branch,
@@ -262,8 +261,7 @@ async def backport_task_asyncio(
 @app.task()
 def delete_branch_task(branch_name, pr_url, merged, *, installation_id):
     """Delete a branch from the miss-islington/cpython fork."""
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(
+    asyncio.run(
         _delete_branch_task_asyncio(
             branch_name, pr_url, merged, installation_id=installation_id
         )
