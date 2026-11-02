@@ -60,6 +60,48 @@ async def test_invalid_repo_exception_posts_comment_and_clears_state():
     assert assign_mock.await_args.args[2] == "bitdancer"
 
 
+async def test_missing_cpython_repo_posts_comment_and_stops():
+    """When the cpython checkout is missing, the task posts a comment and
+    assigns the PR. It must then stop instead of running git commands and
+    cherry_picker in the wrong directory.
+    """
+    with (
+        mock.patch("miss_islington.tasks.aiohttp.ClientSession"),
+        mock.patch(
+            "miss_islington.tasks.apps.get_installation_access_token",
+            new=mock.AsyncMock(return_value={"token": "test-token"}),
+        ),
+        mock.patch("miss_islington.tasks.util.is_cpython_repo", return_value=False),
+        mock.patch("miss_islington.tasks.os.listdir", return_value=[]),
+        mock.patch("miss_islington.tasks.os.chdir") as chdir_mock,
+        mock.patch("miss_islington.tasks.subprocess.check_output") as check_output,
+        mock.patch("miss_islington.tasks.subprocess.run") as run_mock,
+        mock.patch("miss_islington.tasks.cherry_picker.CherryPicker") as cp_mock,
+        mock.patch(
+            "miss_islington.tasks.util.comment_on_pr", new=mock.AsyncMock()
+        ) as comment_mock,
+        mock.patch(
+            "miss_islington.tasks.util.assign_pr_to_core_dev", new=mock.AsyncMock()
+        ) as assign_mock,
+    ):
+        await tasks.backport_task_asyncio(
+            "7a4c6dfb8839eb05fb87baf70364680e45001dd4",
+            "3.15",
+            issue_number=130749,
+            created_by="medmunds",
+            merged_by="bitdancer",
+            installation_id=42958231,
+        )
+
+    comment_mock.assert_awaited_once()
+    assert "I can't backport for now" in comment_mock.await_args.args[2]
+    assign_mock.assert_awaited_once()
+    chdir_mock.assert_not_called()
+    check_output.assert_not_called()
+    run_mock.assert_not_called()
+    cp_mock.assert_not_called()
+
+
 def test_setup_cpython_repo_keeps_token_out_of_git_commands(monkeypatch):
     """The token used to be embedded in the clone and remote URLs, so a
     failed git command printed it in the CalledProcessError traceback. It is
